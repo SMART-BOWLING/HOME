@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Отключение света</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            padding: 8px;
+            background: #f0f0f0;
+            font-size: 13px;
+        }
+        
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            min-width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 4px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Фиксированные ширины для колонок */
+        th:nth-child(1), td:nth-child(1) { width: 15%; }  /* Время */
+        th:nth-child(n+2), td:nth-child(n+2) { width: 12%; } /* Дни недели */
+        
+        th {
+            background: #2c3e50;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 12px;
+            padding: 10px 4px;
+        }
+        
+        /* Фиксируем первый столбец */
+        th:first-child {
+            left: 0;
+            z-index: 20;
+            background: #34495e;
+            min-width: 55px;
+        }
+        
+        td:first-child {
+            background: #f8f9fa;
+            font-weight: bold;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            min-width: 55px;
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 12px;
+            border-right: 2px solid #ddd;
+        }
+        
+        .yes {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .no {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        /* Легенда */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* Адаптивность для маленьких экранов */
+        @media (max-width: 375px) {
+            th, td {
+                padding: 6px 3px;
+            }
+            
+            th {
+                font-size: 11px;
+                padding: 8px 3px;
+            }
+            
+            td:first-child {
+                font-size: 11px;
+                min-width: 50px;
+            }
+            
+            .yes, .no {
+                font-size: 14px;
+            }
+            
+            th:nth-child(1), td:nth-child(1) { width: 16%; }
+            th:nth-child(n+2), td:nth-child(n+2) { width: 11.5%; }
+        }
+        
+        /* Для очень маленьких экранов */
+        @media (max-width: 320px) {
+            body {
+                padding: 5px;
+            }
+            
+            th, td {
+                padding: 5px 2px;
+            }
+            
+            th {
+                font-size: 10px;
+                padding: 7px 2px;
+            }
+            
+            td:first-child {
+                font-size: 10px;
+                min-width: 45px;
+            }
+            
+            .yes, .no {
+                font-size: 13px;
+            }
+            
+            .legend {
+                font-size: 11px;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Пн</th>
+                    <th>Вт</th>
+                    <th>Ср</th>
+                    <th>Чт</th>
+                    <th>Пт</th>
+                    <th>Сб</th>
+                    <th>Вс</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Генерация строк по часам (00:00 - 23:00) -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const tableBody = document.querySelector('table tbody');
+                        const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+                        
+                        // Создаем строки для каждого часа
+                        for (let hour = 0; hour < 24; hour++) {
+                            const row = document.createElement('tr');
+                            
+                            // Ячейка с временем (формат 00:00, 01:00 и т.д.)
+                            const timeCell = document.createElement('td');
+                            const timeString = hour.toString().padStart(2, '0') + ':00';
+                            timeCell.textContent = timeString;
+                            row.appendChild(timeCell);
+                            
+                            // Ячейки для каждого дня недели
+                            for (let day = 0; day < days.length; day++) {
+                                const cell = document.createElement('td');
+                                
+                                // Генерация случайного статуса (для примера)
+                                // Утром и вечером свет обычно есть, ночью могут быть отключения
+                                let hasLight;
+                                if (hour >= 6 && hour <= 22) {
+                                    // Днем высокая вероятность света (85%)
+                                    hasLight = Math.random() > 0.15;
+                                } else {
+                                    // Ночью чаще отключения (50% вероятность)
+                                    hasLight = Math.random() > 0.5;
+                                }
+                                
+                                if (hasLight) {
+                                    cell.className = 'yes';
+                                    cell.textContent = '●';
+                                } else {
+                                    cell.className = 'no';
+                                    cell.textContent = '✕';
+                                }
+                                
+                                row.appendChild(cell);
+                            }
+                            
+                            tableBody.appendChild(row);
+                        }
+                    });
+                </script>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <span class="yes">●</span>
+            <span>Есть свет</span>
+        </div>
+        <div class="legend-item">
+            <span class="no">✕</span>
+            <span>Нет света</span>
+        </div>
+    </div>
+
+    <script>
+        // Функция для обновления данных таблицы
+        function updateTableData() {
+            const rows = document.querySelectorAll('table tbody tr');
+            
+            rows.forEach((row, rowIndex) => {
+                const hour = rowIndex; // 0-23
+                const cells = row.querySelectorAll('td:not(:first-child)');
+                
+                cells.forEach(cell => {
+                    // Логика аналогичная первоначальной генерации
+                    let hasLight;
+                    if (hour >= 6 && hour <= 22) {
+                        hasLight = Math.random() > 0.15;
+                    } else {
+                        hasLight = Math.random() > 0.5;
+                    }
+                    
+                    if (hasLight) {
+                        cell.className = 'yes';
+                        cell.textContent = '●';
+                    } else {
+                        cell.className = 'no';
+                        cell.textContent = '✕';
+                    }
+                });
+            });
+        }
+        
+        // Пример: обновление данных каждые 30 секунд
+        // В реальном приложении здесь был бы запрос к серверу
+        // setInterval(updateTableData, 30000);
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <style>
         * {
@@ -13,20 +14,25 @@
             font-family: sans-serif;
             padding: 8px;
             background: #f5f5f5;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
         }
         
         .table-container {
             width: 100%;
+            max-width: 100vw;
             overflow-x: auto;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            -webkit-overflow-scrolling: touch;
         }
         
         table {
-            width: 100%;
+            width: auto;
             min-width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
         
         th, td {
@@ -34,6 +40,10 @@
             padding: 8px 4px;
             text-align: center;
             font-size: 13px;
+            word-break: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
         }
         
         th {
@@ -50,7 +60,9 @@
             left: 0;
             z-index: 20;
             background: #34495e;
+            width: 60px;
             min-width: 60px;
+            max-width: 60px;
         }
         
         td:first-child {
@@ -59,21 +71,32 @@
             position: sticky;
             left: 0;
             z-index: 5;
+            width: 60px;
             min-width: 60px;
+            max-width: 60px;
             color: #2c3e50;
             border-right: 2px solid #dee2e6;
+        }
+        
+        /* Стили для ячеек с данными */
+        th:not(:first-child),
+        td:not(:first-child) {
+            width: calc((100vw - 76px) / 7);
+            max-width: 60px;
         }
         
         .yes {
             color: #27ae60;
             font-weight: 700;
             font-size: 20px;
+            padding: 4px 2px;
         }
         
         .no {
             color: #e74c3c;
             font-weight: 700;
             font-size: 20px;
+            padding: 4px 2px;
         }
         
         .current-hour td:first-child {
@@ -82,23 +105,36 @@
             border-right: 2px solid #90caf9;
         }
         
+        /* Для очень маленьких экранов */
+        @media (max-width: 360px) {
+            th:first-child,
+            td:first-child {
+                width: 55px;
+                min-width: 55px;
+                max-width: 55px;
+                font-size: 12px;
+            }
+            
+            th:not(:first-child),
+            td:not(:first-child) {
+                width: calc((100vw - 71px) / 7);
+                max-width: 50px;
+            }
+        }
+        
         @media (max-width: 768px) {
             th, td {
-                padding: 6px 3px;
+                padding: 6px 2px;
                 font-size: 12px;
             }
             
             th {
-                padding: 10px 3px;
-            }
-            
-            td:first-child {
-                min-width: 55px;
-                font-size: 12px;
+                padding: 10px 2px;
             }
             
             .yes, .no {
                 font-size: 18px;
+                padding: 3px 1px;
             }
         }
         
@@ -108,24 +144,64 @@
             }
             
             th, td {
-                padding: 5px 2px;
-                font-size: 11px;
-            }
-            
-            th:first-child,
-            td:first-child {
-                min-width: 50px;
+                padding: 5px 1px;
                 font-size: 11px;
             }
             
             .yes, .no {
                 font-size: 16px;
             }
+            
+            th:first-child,
+            td:first-child {
+                width: 55px;
+                min-width: 55px;
+                max-width: 55px;
+                font-size: 11px;
+            }
+        }
+        
+        /* Для очень высоких и узких экранов */
+        @media (max-height: 600px) {
+            th, td {
+                padding: 4px 1px;
+            }
+            
+            .yes, .no {
+                font-size: 14px;
+            }
+        }
+        
+        /* Убираем горизонтальный скролл на десктопах */
+        @media (min-width: 769px) {
+            .table-container {
+                overflow-x: hidden;
+                width: fit-content;
+                min-width: 100%;
+            }
+            
+            table {
+                width: 100%;
+            }
+            
+            th:first-child,
+            td:first-child {
+                width: 60px;
+                min-width: 60px;
+                max-width: 60px;
+            }
+            
+            th:not(:first-child),
+            td:not(:first-child) {
+                width: auto;
+                max-width: none;
+                min-width: 50px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="table-container">
+    <div class="table-container" id="tableContainer">
         <table id="scheduleTable">
             <thead>
                 <tr>
@@ -150,6 +226,43 @@
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
         
+        // Функция для автоматической подстройки ширины столбцов
+        function adjustTableLayout() {
+            const container = document.getElementById('tableContainer');
+            const table = document.getElementById('scheduleTable');
+            const firstColWidth = 60; // Ширина первого столбца
+            
+            if (window.innerWidth < 769) {
+                // На мобильных: фиксированная ширина для первого столбца
+                // и расчет ширины для остальных столбцов
+                const availableWidth = window.innerWidth - firstColWidth - 16; // 16px - padding body
+                const dayColumns = 7;
+                const columnWidth = Math.max(40, Math.floor(availableWidth / dayColumns));
+                
+                // Применяем расчетные ширины
+                document.querySelectorAll('th:not(:first-child), td:not(:first-child)').forEach(cell => {
+                    cell.style.width = columnWidth + 'px';
+                    cell.style.minWidth = columnWidth + 'px';
+                    cell.style.maxWidth = columnWidth + 'px';
+                });
+                
+                // Если таблица все еще шире экрана - включаем горизонтальный скролл
+                if (table.offsetWidth > window.innerWidth) {
+                    container.style.overflowX = 'auto';
+                } else {
+                    container.style.overflowX = 'hidden';
+                }
+            } else {
+                // На десктопе: авто ширина
+                document.querySelectorAll('th:not(:first-child), td:not(:first-child)').forEach(cell => {
+                    cell.style.width = 'auto';
+                    cell.style.minWidth = '';
+                    cell.style.maxWidth = '';
+                });
+                container.style.overflowX = 'hidden';
+            }
+        }
+        
         async function loadSchedule() {
             const tbody = document.getElementById('scheduleBody');
             
@@ -158,6 +271,8 @@
                 
                 if (data.success) {
                     displaySchedule(data.data);
+                    // После загрузки данных подстраиваем таблицу
+                    setTimeout(adjustTableLayout, 100);
                 } else {
                     showError(data.error || 'Неизвестная ошибка');
                 }
@@ -209,7 +324,8 @@
                 weekInfo.forEach((day, index) => {
                     const dayElement = document.getElementById(`day${index + 1}`);
                     if (dayElement && day.date) {
-                        dayElement.innerHTML = `${day.dayName}<br><small style="font-size: 10px; opacity: 0.8;">${day.date.split('.')[0]}.${day.date.split('.')[1]}</small>`;
+                        const dateParts = day.date.split('.');
+                        dayElement.innerHTML = `${day.dayName}<br><small style="font-size: 10px; opacity: 0.8;">${dateParts[0]}.${dateParts[1]}</small>`;
                     }
                 });
             }
@@ -270,6 +386,12 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             loadSchedule();
+            
+            // Подстраиваем таблицу при изменении размера окна
+            window.addEventListener('resize', adjustTableLayout);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(adjustTableLayout, 300);
+            });
             
             setInterval(() => {
                 currentHour = new Date().getHours();

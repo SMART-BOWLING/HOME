@@ -2,8 +2,6 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>График отключений электричества</title>
     <style>
         * {
             margin: 0;
@@ -12,82 +10,17 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: sans-serif;
             padding: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 13px;
-            color: #7f8c8d;
-            margin-bottom: 10px;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        
-        .status-live {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-offline {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .week-info {
-            font-size: 13px;
-            color: #34495e;
-            text-align: center;
-            margin-bottom: 15px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
+            background: #f5f5f5;
         }
         
         .table-container {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            position: relative;
         }
         
         table {
@@ -101,7 +34,6 @@
             padding: 8px 4px;
             text-align: center;
             font-size: 13px;
-            transition: all 0.2s;
         }
         
         th {
@@ -112,10 +44,8 @@
             top: 0;
             z-index: 10;
             padding: 12px 4px;
-            border-bottom: 2px solid #1a252f;
         }
         
-        /* Фиксируем первый столбец */
         th:first-child {
             left: 0;
             z-index: 20;
@@ -134,186 +64,25 @@
             border-right: 2px solid #dee2e6;
         }
         
-        /* Цвета для статусов */
         .yes {
             color: #27ae60;
             font-weight: 700;
-            font-size: 16px;
-            position: relative;
-        }
-        
-        .yes::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 24px;
-            height: 24px;
-            background: rgba(39, 174, 96, 0.1);
-            border-radius: 50%;
-            z-index: -1;
+            font-size: 20px;
         }
         
         .no {
             color: #e74c3c;
             font-weight: 700;
-            font-size: 16px;
-            position: relative;
+            font-size: 20px;
         }
         
-        .no::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 24px;
-            height: 24px;
-            background: rgba(231, 76, 60, 0.1);
-            border-radius: 50%;
-            z-index: -1;
-        }
-        
-        /* Подсветка текущего часа */
         .current-hour td:first-child {
             background: #e3f2fd;
             color: #1565c0;
             border-right: 2px solid #90caf9;
         }
         
-        /* Легенда */
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 15px 0;
-            font-size: 13px;
-            flex-wrap: wrap;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            background: #f8f9fa;
-            border-radius: 20px;
-            transition: transform 0.2s;
-        }
-        
-        .legend-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        /* Контролы */
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .btn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        /* Анимации */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
-        
-        .loading {
-            display: inline-block;
-            animation: pulse 1.5s infinite;
-            color: #3498db;
-        }
-        
-        .error {
-            background: #fff5f5;
-            border: 1px solid #fed7d7;
-            color: #c53030;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .config-panel {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .config-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 10px;
-            transition: border 0.3s;
-        }
-        
-        .config-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .config-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 8px;
-        }
-        
-        /* Адаптивность */
         @media (max-width: 768px) {
-            .card {
-                padding: 12px;
-            }
-            
             th, td {
                 padding: 6px 3px;
                 font-size: 12px;
@@ -329,31 +98,13 @@
             }
             
             .yes, .no {
-                font-size: 15px;
-            }
-            
-            .legend {
-                gap: 10px;
-                font-size: 12px;
-            }
-            
-            .btn {
-                padding: 8px 16px;
-                font-size: 13px;
+                font-size: 18px;
             }
         }
         
         @media (max-width: 480px) {
             body {
                 padding: 6px;
-            }
-            
-            .title {
-                font-size: 16px;
-            }
-            
-            .subtitle {
-                font-size: 12px;
             }
             
             th, td {
@@ -368,316 +119,85 @@
             }
             
             .yes, .no {
-                font-size: 14px;
-            }
-            
-            .legend {
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 280px;
-                justify-content: center;
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="header">
-                <h1 class="title">⚡ График отключений электричества</h1>
-                <div class="subtitle">Актуальная информация о наличии света</div>
-                <div id="status" class="status-indicator status-live">● Данные обновляются в реальном времени</div>
-            </div>
-            
-            <div id="weekInfo" class="week-info">
-                Загрузка данных...
-            </div>
-            
-            <div class="table-container">
-                <table id="scheduleTable">
-                    <thead>
-                        <tr>
-                            <th>Время</th>
-                            <th id="day1">Пн</th>
-                            <th id="day2">Вт</th>
-                            <th id="day3">Ср</th>
-                            <th id="day4">Чт</th>
-                            <th id="day5">Пт</th>
-                            <th id="day6">Сб</th>
-                            <th id="day7">Вс</th>
-                        </tr>
-                    </thead>
-                    <tbody id="scheduleBody">
-                        <!-- Данные будут загружены динамически -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div id="errorContainer" style="display: none;"></div>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <span class="yes">●</span>
-                    <span>Свет есть</span>
-                </div>
-                <div class="legend-item">
-                    <span class="no">✕</span>
-                    <span>Света нет</span>
-                </div>
-            </div>
-            
-            <div class="controls">
-                <button id="refreshBtn" class="btn" onclick="loadSchedule()">
-                    <span id="refreshIcon">🔄</span>
-                    <span id="refreshText">Обновить</span>
-                </button>
-                <button id="configBtn" class="btn" onclick="toggleConfig()">
-                    <span id="configIcon">⚙️</span>
-                    <span>Настройки</span>
-                </button>
-            </div>
-            
-            <div id="configPanel" class="config-panel" style="display: none;">
-                <div class="config-label">URL вашего Google Apps Script (Web App):</div>
-                <input type="text" 
-                       id="scriptUrl" 
-                       class="config-input" 
-                       placeholder="https://script.google.com/macros/s/..."
-                       value="https://script.google.com/macros/s/AKfycbzPxCwkJ7WwwLbqVy3ZR1UY2lM7XhSqgOqUqR3Q/exec">
-                <div style="font-size: 12px; color: #718096; margin-bottom: 15px;">
-                    Получите этот URL после развертывания Google Apps Script как веб-приложение
-                </div>
-                <button onclick="saveConfig()" class="btn" style="background: #48bb78;">
-                    <span>💾 Сохранить URL</span>
-                </button>
-            </div>
-            
-            <div id="dataInfo" style="font-size: 11px; color: #718096; text-align: center; margin-top: 10px;">
-                Данные загружаются из Google Sheets • Обновлено: <span id="lastUpdated">--:--</span>
-            </div>
-        </div>
+    <div class="table-container">
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th id="day1">Пн</th>
+                    <th id="day2">Вт</th>
+                    <th id="day3">Ср</th>
+                    <th id="day4">Чт</th>
+                    <th id="day5">Пт</th>
+                    <th id="day6">Сб</th>
+                    <th id="day7">Вс</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+                <!-- Данные будут загружены динамически -->
+            </tbody>
+        </table>
     </div>
 
     <script>
-        // Конфигурация
-        const CONFIG_KEY = 'powerScheduleConfig';
-        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxb4vXkyRTGbtW7fIZFHQxoQkTEDn97wTgnjF5-zeHNBcLbLk_fg0uPhYMJQmvks4Lx/exec';
-        
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpseVn4BSNq5ArfbJuw0mUBVvuaomolbceRjQ1gu-kKXxKSJNjScDhBaCkHVipzqX0/exec';
         let currentHour = new Date().getHours();
-        let isRefreshing = false;
         let scriptUrl = DEFAULT_SCRIPT_URL;
         
-        // Загрузка конфигурации из localStorage
-        function loadConfig() {
-            const savedConfig = localStorage.getItem(CONFIG_KEY);
-            if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                scriptUrl = config.scriptUrl || DEFAULT_SCRIPT_URL;
-                document.getElementById('scriptUrl').value = scriptUrl;
-            }
-        }
-        
-        // Сохранение конфигурации
-        function saveConfig() {
-            const url = document.getElementById('scriptUrl').value.trim();
-            if (url && url.startsWith('https://')) {
-                scriptUrl = url;
-                localStorage.setItem(CONFIG_KEY, JSON.stringify({ scriptUrl: url }));
-                alert('URL сохранен!');
-                toggleConfig();
-                loadSchedule(); // Перезагрузить данные с новым URL
-            } else {
-                alert('Пожалуйста, введите корректный HTTPS URL');
-            }
-        }
-        
-        // Показать/скрыть панель настроек
-        function toggleConfig() {
-            const panel = document.getElementById('configPanel');
-            const btn = document.getElementById('configBtn');
-            const icon = document.getElementById('configIcon');
-            
-            if (panel.style.display === 'none') {
-                panel.style.display = 'block';
-                btn.innerHTML = '<span>✖️</span><span>Закрыть</span>';
-                btn.style.background = '#e53e3e';
-            } else {
-                panel.style.display = 'none';
-                btn.innerHTML = '<span>⚙️</span><span>Настройки</span>';
-                btn.style.background = '';
-            }
-        }
-        
         async function loadSchedule() {
-            if (isRefreshing) return;
-            
-            const btn = document.getElementById('refreshBtn');
-            const icon = document.getElementById('refreshIcon');
-            const text = document.getElementById('refreshText');
-            const status = document.getElementById('status');
-            
-            // Показать состояние загрузки
-            isRefreshing = true;
-            btn.disabled = true;
-            icon.textContent = '⏳';
-            text.textContent = 'Загрузка...';
-            status.className = 'status-indicator status-offline';
-            status.textContent = '● Загрузка данных...';
-            
-            // Очистить предыдущие ошибки
-            document.getElementById('errorContainer').style.display = 'none';
-            
-            // Показать индикатор загрузки в таблице
             const tbody = document.getElementById('scheduleBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 16px; color: #4a5568;">
-                            <div style="margin-bottom: 10px;">🔄</div>
-                            <div class="loading">Загрузка данных...</div>
-                        </div>
-                    </td>
-                </tr>
-            `;
             
             try {
-                // Используем fetch вместо google.script.run
-                const response = await fetch(scriptUrl, {
-                    method: 'GET',
-                    mode: 'no-cors' // Для обхода CORS
-                });
+                const data = await loadViaJSONP();
                 
-                // Для no-cors mode мы не можем прочитать ответ, поэтому делаем через прокси
-                await loadViaProxy();
-                
+                if (data.success) {
+                    displaySchedule(data.data);
+                } else {
+                    showError(data.error || 'Неизвестная ошибка');
+                }
             } catch (error) {
-                handleError('Ошибка сети: ' + error.message);
+                showError('Ошибка загрузки: ' + error.message);
             }
         }
         
-        // Альтернативный метод через JSONP/CORS прокси
-        async function loadViaProxy() {
-            try {
-                // Создаем уникальное имя функции для JSONP
-                const callbackName = 'jsonp_callback_' + Date.now();
-                
-                // Используем CORS прокси
-                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-                const targetUrl = scriptUrl + '?callback=' + callbackName;
-                
-                const response = await fetch(proxyUrl + targetUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                handleSuccess(data);
-                
-            } catch (error) {
-                // Если прокси не работает, пробуем напрямую через JSONP
-                try {
-                    await loadViaJSONP();
-                } catch (jsonpError) {
-                    handleError('Не удалось загрузить данные. Проверьте URL скрипта.');
-                }
-            }
-        }
-        
-        // JSONP метод (работает без CORS)
         function loadViaJSONP() {
             return new Promise((resolve, reject) => {
                 const callbackName = 'jsonp_callback_' + Date.now();
-                
-                // Создаем script элемент
                 const script = document.createElement('script');
                 script.src = scriptUrl + '?callback=' + callbackName;
                 
-                // Создаем глобальную функцию обратного вызова
                 window[callbackName] = function(data) {
                     delete window[callbackName];
                     document.body.removeChild(script);
-                    handleSuccess(data);
                     resolve(data);
                 };
                 
-                // Обработка ошибок
                 script.onerror = function() {
                     delete window[callbackName];
-                    document.body.removeChild(script);
-                    handleError('Ошибка загрузки скрипта');
-                    reject(new Error('Script load error'));
+                    if (script.parentNode) {
+                        document.body.removeChild(script);
+                    }
+                    reject(new Error('Ошибка загрузки данных'));
                 };
                 
-                // Добавляем script на страницу
                 document.body.appendChild(script);
                 
-                // Таймаут
                 setTimeout(() => {
                     if (window[callbackName]) {
                         delete window[callbackName];
-                        document.body.removeChild(script);
-                        handleError('Таймаут загрузки');
-                        reject(new Error('Timeout'));
+                        if (script.parentNode) {
+                            document.body.removeChild(script);
+                        }
+                        reject(new Error('Таймаут загрузки'));
                     }
                 }, 10000);
             });
-        }
-        
-        function handleSuccess(response) {
-            const btn = document.getElementById('refreshBtn');
-            const icon = document.getElementById('refreshIcon');
-            const text = document.getElementById('refreshText');
-            const status = document.getElementById('status');
-            
-            isRefreshing = false;
-            btn.disabled = false;
-            icon.textContent = '🔄';
-            text.textContent = 'Обновить';
-            status.className = 'status-indicator status-live';
-            status.textContent = '● Данные обновлены';
-            
-            if (response.success) {
-                displaySchedule(response.data);
-                document.getElementById('lastUpdated').textContent = 
-                    new Date().toLocaleTimeString('ru-RU', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-            } else {
-                showError('Ошибка при загрузке данных: ' + (response.error || 'Неизвестная ошибка'));
-            }
-        }
-        
-        function handleError(message) {
-            const btn = document.getElementById('refreshBtn');
-            const icon = document.getElementById('refreshIcon');
-            const text = document.getElementById('refreshText');
-            const status = document.getElementById('status');
-            
-            isRefreshing = false;
-            btn.disabled = false;
-            icon.textContent = '🔄';
-            text.textContent = 'Повторить';
-            status.className = 'status-indicator status-offline';
-            status.textContent = '● Ошибка соединения';
-            
-            showError(message);
-            console.error('Ошибка:', message);
         }
         
         function displaySchedule(data) {
@@ -685,18 +205,6 @@
             const weekInfo = data.weekInfo;
             const tbody = document.getElementById('scheduleBody');
             
-            // Обновить информацию о неделе
-            const weekInfoElement = document.getElementById('weekInfo');
-            if (weekInfo && weekInfo.length >= 2) {
-                const firstDate = weekInfo[0].date;
-                const lastDate = weekInfo[6].date;
-                weekInfoElement.innerHTML = `
-                    <strong>Текущая неделя:</strong> ${firstDate} - ${lastDate}<br>
-                    <small style="color: #718096;">Данные из Google Sheets</small>
-                `;
-            }
-            
-            // Обновить заголовки дней с датами
             if (weekInfo) {
                 weekInfo.forEach((day, index) => {
                     const dayElement = document.getElementById(`day${index + 1}`);
@@ -706,36 +214,30 @@
                 });
             }
             
-            // Очистить и заполнить таблицу
             tbody.innerHTML = '';
             
             if (schedule && schedule.length === 24) {
                 for (let hour = 0; hour < 24; hour++) {
                     const row = document.createElement('tr');
                     
-                    // Подсветить текущий час
                     if (hour === currentHour) {
                         row.className = 'current-hour';
                     }
                     
-                    // Ячейка с временем
                     const timeCell = document.createElement('td');
                     timeCell.textContent = hour.toString().padStart(2, '0') + ':00';
                     row.appendChild(timeCell);
                     
-                    // Ячейки для каждого дня
                     for (let day = 0; day < 7; day++) {
                         const cell = document.createElement('td');
                         const hasLight = schedule[hour] && schedule[hour][day] === true;
                         
                         if (hasLight) {
                             cell.className = 'yes';
-                            cell.textContent = '●';
-                            cell.title = `Свет есть (${hour}:00, ${weekInfo?.[day]?.dayName || day})`;
+                            cell.textContent = '+';
                         } else {
                             cell.className = 'no';
-                            cell.textContent = '✕';
-                            cell.title = `Отключение света (${hour}:00, ${weekInfo?.[day]?.dayName || day})`;
+                            cell.textContent = '-';
                         }
                         
                         row.appendChild(cell);
@@ -744,7 +246,6 @@
                     tbody.appendChild(row);
                 }
             } else {
-                // Данные не в правильном формате
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 40px 20px; color: #718096;">
@@ -756,41 +257,22 @@
         }
         
         function showError(message) {
-            const errorContainer = document.getElementById('errorContainer');
-            errorContainer.innerHTML = `
-                <div class="error">
-                    <div style="margin-bottom: 8px;">⚠️ <strong>Ошибка</strong></div>
-                    <div>${message}</div>
-                    <div style="margin-top: 10px; font-size: 12px;">
-                        Проверьте:<br>
-                        1. Правильность URL в настройках<br>
-                        2. Что Google Apps Script развернут как веб-приложение<br>
-                        3. Доступ к интернету
-                    </div>
-                </div>
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px 20px; color: #e74c3c;">
+                        Ошибка: ${message}<br>
+                        <small>Попробуйте обновить страницу</small>
+                    </td>
+                </tr>
             `;
-            errorContainer.style.display = 'block';
         }
         
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            // Загрузить конфигурацию
-            loadConfig();
-            
-            // Загрузить данные сразу
             loadSchedule();
             
-            // Автообновление каждые 5 минут
-            setInterval(() => {
-                if (!isRefreshing) {
-                    loadSchedule();
-                }
-            }, 300000);
-            
-            // Обновлять текущий час
             setInterval(() => {
                 currentHour = new Date().getHours();
-                // Обновить подсветку строки
                 const rows = document.querySelectorAll('#scheduleBody tr');
                 rows.forEach((row, index) => {
                     if (index === currentHour) {

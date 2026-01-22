@@ -63,6 +63,12 @@
             width: 60px;
             min-width: 60px;
             max-width: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        th:first-child:hover {
+            background: #3d566e;
         }
         
         td:first-child {
@@ -105,6 +111,82 @@
             border-right: 2px solid #90caf9;
         }
         
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 350px;
+        }
+        
+        .modal-title {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        .date-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-ok {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .modal-ok:hover {
+            background: #219653;
+        }
+        
+        .modal-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .modal-cancel:hover {
+            background: #7f8c8d;
+        }
+        
         /* Для очень маленьких экранов */
         @media (max-width: 360px) {
             th:first-child,
@@ -119,6 +201,11 @@
             td:not(:first-child) {
                 width: calc((100vw - 71px) / 7);
                 max-width: 50px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+                max-width: 300px;
             }
         }
         
@@ -205,7 +292,7 @@
         <table id="scheduleTable">
             <thead>
                 <tr>
-                    <th>Время</th>
+                    <th id="timeHeader">Время</th>
                     <th id="day1">Пн</th>
                     <th id="day2">Вт</th>
                     <th id="day3">Ср</th>
@@ -220,11 +307,92 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Модальное окно для выбора даты -->
+    <div class="modal" id="dateModal">
+        <div class="modal-content">
+            <div class="modal-title">Выберите дату</div>
+            <input type="date" id="datePicker" class="date-input">
+            <div class="modal-buttons">
+                <button class="modal-button modal-ok" onclick="selectDate()">ОК</button>
+                <button class="modal-button modal-cancel" onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpseVn4BSNq5ArfbJuw0mUBVvuaomolbceRjQ1gu-kKXxKSJNjScDhBaCkHVipzqX0/exec';
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCXFJxabXvPxQ5CACAtX8OgWDSMGp9Jt6acyxRPglaxYv8nUxBgQtftbY5_o70BYDk/exec';
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
+        let currentDate = new Date(); // Текущая выбранная дата
+        
+        // Функция для форматирования даты в YYYY-MM-DD
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Функция для форматирования даты для отображения
+        function formatDateForDisplay(date) {
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            return date.toLocaleDateString('ru-RU', options);
+        }
+        
+        // Функция для показа модального окна
+        function showDateModal() {
+            const modal = document.getElementById('dateModal');
+            const datePicker = document.getElementById('datePicker');
+            
+            // Устанавливаем текущую дату в календарь
+            datePicker.value = formatDateForInput(currentDate);
+            
+            // Показываем модальное окно
+            modal.classList.add('active');
+            
+            // Фокус на поле ввода даты
+            setTimeout(() => {
+                datePicker.focus();
+            }, 100);
+        }
+        
+        // Функция для закрытия модального окна
+        function closeModal() {
+            const modal = document.getElementById('dateModal');
+            modal.classList.remove('active');
+        }
+        
+        // Функция для выбора даты
+        function selectDate() {
+            const datePicker = document.getElementById('datePicker');
+            if (datePicker.value) {
+                // Обновляем текущую дату
+                currentDate = new Date(datePicker.value);
+                
+                // Обновляем заголовок "Время" с датой
+                updateTimeHeader();
+                
+                // Перезагружаем данные
+                loadSchedule();
+            }
+            closeModal();
+        }
+        
+        // Функция для обновления заголовка "Время" с датой
+        function updateTimeHeader() {
+            const timeHeader = document.getElementById('timeHeader');
+            const dateStr = formatDateForDisplay(currentDate);
+            // Можно сделать просто "Время" или добавить дату
+            // timeHeader.innerHTML = `Время<br><small style="font-size: 9px;">${dateStr}</small>`;
+            timeHeader.textContent = 'Время';
+            timeHeader.title = `Неделя с ${dateStr}`;
+        }
         
         // Функция для автоматической подстройки ширины столбцов
         function adjustTableLayout() {
@@ -265,9 +433,14 @@
         
         async function loadSchedule() {
             const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">Загрузка...</td></tr>';
             
             try {
-                const data = await loadViaJSONP();
+                // Форматируем дату для запроса
+                const formattedDate = formatDateForInput(currentDate);
+                
+                // Загружаем данные для выбранной даты
+                const data = await loadViaJSONP(formattedDate);
                 
                 if (data.success) {
                     displaySchedule(data.data);
@@ -281,11 +454,16 @@
             }
         }
         
-        function loadViaJSONP() {
+        function loadViaJSONP(date) {
             return new Promise((resolve, reject) => {
                 const callbackName = 'jsonp_callback_' + Date.now();
+                // Добавляем параметр mode=read и date
+                const url = date 
+                    ? scriptUrl + '?mode=read&date=' + date + '&callback=' + callbackName
+                    : scriptUrl + '?mode=read&callback=' + callbackName;
+                    
                 const script = document.createElement('script');
-                script.src = scriptUrl + '?callback=' + callbackName;
+                script.src = url;
                 
                 window[callbackName] = function(data) {
                     delete window[callbackName];
@@ -336,14 +514,18 @@
                 for (let hour = 0; hour < 24; hour++) {
                     const row = document.createElement('tr');
                     
-                    if (hour === currentHour) {
+                    // Проверяем, является ли этот час текущим в выбранную дату
+                    const today = new Date();
+                    if (today.toDateString() === currentDate.toDateString() && hour === currentHour) {
                         row.className = 'current-hour';
                     }
                     
+                    // Создаем ячейку времени (обычная ячейка, не кнопка)
                     const timeCell = document.createElement('td');
                     timeCell.textContent = hour.toString().padStart(2, '0') + ':00';
                     row.appendChild(timeCell);
                     
+                    // Заполняем данные для каждого дня
                     for (let day = 0; day < 7; day++) {
                         const cell = document.createElement('td');
                         const hasLight = schedule[hour] && schedule[hour][day] === true;
@@ -384,7 +566,35 @@
             `;
         }
         
+        // Обработка нажатия клавиши ESC для закрытия модального окна
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // Закрытие модального окна при клике вне его
+        document.getElementById('dateModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // Обработка Enter в поле ввода даты
+        document.getElementById('datePicker').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                selectDate();
+            }
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Обновляем заголовок
+            updateTimeHeader();
+            
+            // Добавляем обработчик клика на заголовок "Время"
+            document.getElementById('timeHeader').addEventListener('click', showDateModal);
+            
+            // Загружаем данные для текущей даты
             loadSchedule();
             
             // Подстраиваем таблицу при изменении размера окна
@@ -393,11 +603,15 @@
                 setTimeout(adjustTableLayout, 300);
             });
             
+            // Обновляем текущий час каждую минуту
             setInterval(() => {
                 currentHour = new Date().getHours();
+                const today = new Date();
                 const rows = document.querySelectorAll('#scheduleBody tr');
+                
                 rows.forEach((row, index) => {
-                    if (index === currentHour) {
+                    // Подсвечиваем только если это текущая дата и текущий час
+                    if (today.toDateString() === currentDate.toDateString() && index === currentHour) {
                         row.className = 'current-hour';
                     } else {
                         row.className = '';

@@ -158,7 +158,7 @@
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             width: 90%;
-            max-width: 350px;
+            max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
             position: relative;
@@ -169,35 +169,62 @@
             color: #2c3e50;
             font-size: 18px;
             text-align: center;
+            line-height: 1.4;
         }
         
         /* Модальное окно для детальных данных */
         .details-modal {
-            max-width: 400px;
+            max-width: 450px;
         }
         
         .details-list {
             margin-bottom: 20px;
+            max-height: 50vh;
+            overflow-y: auto;
         }
         
         .detail-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            align-items: center;
+            padding: 8px 0;
             border-bottom: 1px solid #eee;
         }
         
-        .detail-item:last-child {
+        .detail-item.header {
+            background: #f8f9fa;
+            font-weight: bold;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+        .detail-item.summary {
+            background: #e8f4fd;
+            font-weight: bold;
+            border-top: 2px solid #3498db;
+            margin-top: 10px;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        
+        .detail-item:last-child:not(.summary) {
             border-bottom: none;
         }
         
         .detail-time {
             font-weight: 600;
             color: #2c3e50;
+            min-width: 70px;
+            flex: 0.7;
         }
         
         .detail-value {
             font-weight: 700;
+            min-width: 60px;
+            flex: 1;
+            text-align: left;
         }
         
         .detail-value.positive {
@@ -210,14 +237,21 @@
         
         .detail-value.temperature {
             color: #e74c3c;
+            margin-right: 20px;
         }
         
         .detail-value.voltage {
             color: #3498db;
+            margin-right: 20px;
         }
         
         .detail-value.wifi {
             color: #9b59b6;
+        }
+        
+        .detail-value.light {
+            color: #27ae60;
+            margin-right: 20px;
         }
         
         .no-data {
@@ -322,6 +356,31 @@
             background: #7f8c8d;
         }
         
+        /* Информация о часе */
+        .hour-info {
+            background: #f0f7ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .hour-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .hour-info-label {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .hour-info-value {
+            color: #3498db;
+            font-weight: 700;
+        }
+        
         /* Для очень маленьких экранов */
         @media (max-width: 360px) {
             th:first-child,
@@ -344,7 +403,7 @@
             
             .modal-content {
                 padding: 15px;
-                max-width: 300px;
+                max-width: 320px;
                 width: 95%;
             }
             
@@ -355,6 +414,18 @@
             
             .data-type-buttons {
                 grid-template-columns: 1fr;
+            }
+            
+            .detail-item {
+                font-size: 12px;
+            }
+            
+            .detail-time {
+                min-width: 60px;
+            }
+            
+            .detail-value {
+                min-width: 50px;
             }
         }
         
@@ -410,6 +481,10 @@
             .date-input {
                 max-width: 100%;
                 box-sizing: border-box;
+            }
+            
+            .modal-title {
+                font-size: 16px;
             }
         }
         
@@ -510,9 +585,15 @@
     <div class="modal" id="detailsModal">
         <div class="modal-content details-modal">
             <div class="modal-title" id="detailsTitle">Детальные данные</div>
+            
+            <div class="hour-info" id="hourInfo">
+                <!-- Информация о часе будет загружена динамически -->
+            </div>
+            
             <div class="details-list" id="detailsList">
                 <!-- Данные будут загружены динамически -->
             </div>
+            
             <div class="modal-buttons">
                 <button class="modal-button modal-cancel" onclick="closeDetailsModal()">Закрыть</button>
             </div>
@@ -520,13 +601,13 @@
     </div>
 
     <script>
-        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCXFJxabXvPxQ5CACAtX8OgWDSMGp9Jt6acyxRPglaxYv8nUxBgQtftbY5_o70BYDk/exec';
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx13f993d-X9xTUnWF5G84iv4v7vQwl1o2q7Or_RrFXscNC6FfeaL-QFNvBIn936YQC/exec';
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
         let currentDate = new Date();
         let currentDataType = 'light';
         
-        // Тестовые данные для демонстрации (в реальном приложении будут загружаться с сервера)
+        // Тестовые данные для демонстрации
         const testData = {
             temperature: {
                 schedule: Array(24).fill().map(() => 
@@ -535,7 +616,6 @@
                     )
                 ),
                 unit: "°C",
-                // Детальные данные по минутам для каждого часа
                 details: generateDetailedData('temperature')
             },
             voltage: {
@@ -557,7 +637,6 @@
                 details: generateDetailedData('wifi')
             },
             light: {
-                // Для света храним детальные данные по минутам
                 details: generateDetailedData('light')
             }
         };
@@ -566,9 +645,10 @@
         function generateDetailedData(type) {
             const details = [];
             for (let hour = 0; hour < 24; hour++) {
+                details[hour] = [];
                 for (let day = 0; day < 7; day++) {
                     const hourData = [];
-                    for (let minute = 0; minute < 60; minute += 5) { // Данные каждые 5 минут
+                    for (let minute = 0; minute < 60; minute += 5) {
                         let value;
                         switch(type) {
                             case 'temperature':
@@ -590,7 +670,6 @@
                             type: type
                         });
                     }
-                    if (!details[hour]) details[hour] = [];
                     details[hour][day] = hourData;
                 }
             }
@@ -664,20 +743,26 @@
             closeModal();
         }
         
-        // Функция для отображения детальных данных
-        function showDetails(hour, day) {
+        async function showDetails(hour, day) {
             const modal = document.getElementById('detailsModal');
             const title = document.getElementById('detailsTitle');
+            const hourInfo = document.getElementById('hourInfo');
             const list = document.getElementById('detailsList');
             
-            // Получаем информацию о дне недели и дате
             const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
             const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            const weekInfo = getWeekInfo(currentDate);
             
-            // Форматируем заголовок
-            const dayName = daysOfWeek[day];
-            const dateStr = weekInfo[day].date;
+            // Получаем реальную дату из дня недели
+            const targetDate = new Date(currentDate);
+            const dayOfWeek = targetDate.getDay();
+            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const monday = new Date(targetDate);
+            monday.setDate(targetDate.getDate() - diffToMonday);
+            
+            const specificDate = new Date(monday);
+            specificDate.setDate(monday.getDate() + day);
+            
+            const dateStr = formatDate(specificDate, 'dd.MM.yyyy');
             const hourStr = hour.toString().padStart(2, '0') + ':00';
             
             const dataTypeLabels = {
@@ -687,62 +772,225 @@
                 'wifi': 'Детальные данные о WiFi сигнале'
             };
             
-            title.textContent = `${dataTypeLabels[currentDataType]}\n${dayName}, ${dateStr}, ${hourStr}`;
+            title.textContent = `${dataTypeLabels[currentDataType]}`;
             
-            // Загружаем детальные данные
-            loadDetailedData(hour, day, list);
+            // Показываем информацию о часе
+            hourInfo.innerHTML = `
+                <div class="hour-info-item">
+                    <span class="hour-info-label">Дата:</span>
+                    <span class="hour-info-value">${dateStr}</span>
+                </div>
+                <div class="hour-info-item">
+                    <span class="hour-info-label">День:</span>
+                    <span class="hour-info-value">${daysOfWeek[day]}</span>
+                </div>
+                <div class="hour-info-item">
+                    <span class="hour-info-label">Час:</span>
+                    <span class="hour-info-value">${hourStr}</span>
+                </div>
+            `;
+            
+            list.innerHTML = '<div class="no-data">Загрузка...</div>';
             
             modal.classList.add('active');
+            
+            try {
+                if (currentDataType === 'light') {
+                    await loadRealDetailedData(hour, day, specificDate, list);
+                } else {
+                    loadTestDetailedData(hour, day, list);
+                }
+            } catch (error) {
+                list.innerHTML = `
+                    <div class="no-data">
+                        Ошибка загрузки: ${error.message}<br>
+                        <small>Проверьте подключение к интернету</small>
+                    </div>
+                `;
+            }
         }
         
-        // Функция для загрузки детальных данных
-        function loadDetailedData(hour, day, listElement) {
-            listElement.innerHTML = '<div class="no-data">Загрузка...</div>';
+        function formatDate(date, format) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
             
-            // Имитация загрузки данных
-            setTimeout(() => {
-                let details;
+            if (format === 'dd.MM.yyyy') {
+                return `${day}.${month}.${year}`;
+            }
+            return `${year}-${month}-${day}`;
+        }
+        
+        async function loadRealDetailedData(hour, day, date, listElement) {
+            const formattedDate = formatDate(date, 'yyyy-MM-dd');
+            
+            try {
+                const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
                 
-                if (currentDataType === 'light') {
-                    // Для света используем тестовые данные
-                    details = testData.light.details[hour][day];
+                if (data.success && data.data.details.length > 0) {
+                    displayDetailedData(data.data.details, listElement);
                 } else {
-                    // Для других типов данных
-                    details = testData[currentDataType].details[hour][day];
+                    listElement.innerHTML = `
+                        <div class="no-data">
+                            Нет записей за этот час
+                            ${data.data.totalCount === 0 ? '' : '<br><small>Попробуйте другой час</small>'}
+                        </div>
+                    `;
                 }
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        function loadDetailedDataViaJSONP(date, hour, day) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'details_callback_' + Date.now();
+                const url = scriptUrl + '?mode=details&date=' + encodeURIComponent(date) + 
+                           '&hour=' + hour + '&day=' + day + 
+                           '&callback=' + callbackName;
                 
-                if (details && details.length > 0) {
-                    listElement.innerHTML = '';
-                    
-                    details.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'detail-item';
-                        
-                        const timeSpan = document.createElement('span');
-                        timeSpan.className = 'detail-time';
-                        timeSpan.textContent = item.time;
-                        
-                        const valueSpan = document.createElement('span');
-                        valueSpan.className = `detail-value ${currentDataType}`;
-                        
-                        // Форматируем значение в зависимости от типа данных
-                        if (currentDataType === 'light') {
-                            valueSpan.textContent = item.value === '+' ? 'Свет есть' : 'Света нет';
-                            valueSpan.classList.add(item.value === '+' ? 'positive' : 'negative');
-                        } else {
-                            const unit = currentDataType === 'temperature' ? '°C' : 
-                                        currentDataType === 'voltage' ? 'V' : '%';
-                            valueSpan.textContent = `${item.value}${unit}`;
+                const script = document.createElement('script');
+                script.src = url;
+                
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    resolve(data);
+                };
+                
+                script.onerror = function() {
+                    delete window[callbackName];
+                    if (script.parentNode) {
+                        document.body.removeChild(script);
+                    }
+                    reject(new Error('Ошибка загрузки детальных данных'));
+                };
+                
+                document.body.appendChild(script);
+                
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        if (script.parentNode) {
+                            document.body.removeChild(script);
                         }
-                        
-                        div.appendChild(timeSpan);
-                        div.appendChild(valueSpan);
-                        listElement.appendChild(div);
+                        reject(new Error('Таймаут загрузки'));
+                    }
+                }, 10000);
+            });
+        }
+        
+        function displayDetailedData(details, listElement) {
+            listElement.innerHTML = '';
+            
+            // Создаем заголовок таблицы
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'detail-item header';
+            
+            const timeHeader = document.createElement('span');
+            timeHeader.className = 'detail-time';
+            timeHeader.textContent = 'Время';
+            
+            const lightHeader = document.createElement('span');
+            lightHeader.className = 'detail-value';
+            lightHeader.textContent = 'Свет';
+            
+            const tempHeader = document.createElement('span');
+            tempHeader.className = 'detail-value temperature';
+            tempHeader.textContent = 'Темп.';
+            
+            const voltageHeader = document.createElement('span');
+            voltageHeader.className = 'detail-value voltage';
+            voltageHeader.textContent = 'Напр.';
+            
+            const wifiHeader = document.createElement('span');
+            wifiHeader.className = 'detail-value wifi';
+            wifiHeader.textContent = 'WiFi';
+            
+            headerDiv.appendChild(timeHeader);
+            headerDiv.appendChild(lightHeader);
+            headerDiv.appendChild(tempHeader);
+            headerDiv.appendChild(voltageHeader);
+            headerDiv.appendChild(wifiHeader);
+            listElement.appendChild(headerDiv);
+            
+            // Добавляем каждую запись
+            details.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'detail-item';
+                
+                // Время
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'detail-time';
+                timeSpan.textContent = item.time;
+                
+                // Статус света (всегда есть для записей)
+                const lightSpan = document.createElement('span');
+                lightSpan.className = 'detail-value light positive';
+                lightSpan.textContent = 'ВКЛ';
+                
+                // Температура (если есть)
+                const tempSpan = document.createElement('span');
+                tempSpan.className = 'detail-value temperature';
+                tempSpan.textContent = item.temperature !== undefined ? item.temperature.toFixed(1) + '°C' : '-';
+                
+                // Напряжение (если есть)
+                const voltageSpan = document.createElement('span');
+                voltageSpan.className = 'detail-value voltage';
+                voltageSpan.textContent = item.voltage !== undefined ? item.voltage.toFixed(1) + 'V' : '-';
+                
+                // WiFi (если есть)
+                const wifiSpan = document.createElement('span');
+                wifiSpan.className = 'detail-value wifi';
+                wifiSpan.textContent = item.wifi !== undefined ? item.wifi + '%' : '-';
+                
+                div.appendChild(timeSpan);
+                div.appendChild(lightSpan);
+                div.appendChild(tempSpan);
+                div.appendChild(voltageSpan);
+                div.appendChild(wifiSpan);
+                
+                listElement.appendChild(div);
+            });
+            
+            // Добавляем итоговую информацию
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'detail-item summary';
+            
+            const summaryTime = document.createElement('span');
+            summaryTime.className = 'detail-time';
+            summaryTime.textContent = 'Итого:';
+            
+            const summaryCount = document.createElement('span');
+            summaryCount.className = 'detail-value';
+            summaryCount.textContent = details.length + ' записей';
+            summaryCount.style.color = '#2c3e50';
+            
+            summaryDiv.appendChild(summaryTime);
+            summaryDiv.appendChild(summaryCount);
+            listElement.appendChild(summaryDiv);
+        }
+        
+        function loadTestDetailedData(hour, day, listElement) {
+            setTimeout(() => {
+                let details = [];
+                const minutes = [0, 15, 30, 45];
+                
+                minutes.forEach(minute => {
+                    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                    details.push({
+                        time: time,
+                        hour: hour,
+                        minute: minute,
+                        hasLight: true,
+                        temperature: (20 + Math.random() * 10).toFixed(1),
+                        voltage: (215 + Math.random() * 10).toFixed(1),
+                        wifi: Math.floor(Math.random() * 100)
                     });
-                } else {
-                    listElement.innerHTML = '<div class="no-data">Нет данных за этот час</div>';
-                }
-            }, 500); // Имитация задержки загрузки
+                });
+                
+                displayDetailedData(details, listElement);
+            }, 500);
         }
         
         function closeDetailsModal() {
@@ -841,21 +1089,21 @@
             }
         }
         
-        // Настройка обработчиков клика по ячейкам
         function setupCellClickHandlers() {
             const cells = document.querySelectorAll('td:not(:first-child)');
             cells.forEach(cell => {
+                cell.removeEventListener('click', handleCellClick);
                 cell.addEventListener('click', handleCellClick);
                 cell.style.cursor = 'pointer';
             });
         }
         
-        // Обработчик клика по ячейке
         function handleCellClick(event) {
             const cell = event.target;
             const row = cell.parentElement;
-            const hour = Array.from(row.parentElement.children).indexOf(row);
-            const day = Array.from(row.children).indexOf(cell) - 1; // -1 потому что первый столбец - время
+            const tbody = row.parentElement;
+            const hour = Array.from(tbody.children).indexOf(row);
+            const day = Array.from(row.children).indexOf(cell) - 1;
             
             showDetails(hour, day);
         }
@@ -935,11 +1183,11 @@
                         if (hasLight) {
                             cell.className = 'yes';
                             cell.textContent = '+';
-                            cell.title = 'Кликните для просмотра детальных данных';
+                            cell.title = 'Кликните для просмотра всех записей за этот час';
                         } else {
                             cell.className = 'no';
                             cell.textContent = '-';
-                            cell.title = 'Кликните для просмотра детальных данных';
+                            cell.title = 'Кликните для просмотра всех записей за этот час';
                         }
                         
                         row.appendChild(cell);

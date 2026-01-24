@@ -169,17 +169,17 @@
             flex-direction: column;
         }
         
-        /* Модальное окно детальных данных - КРАСНЫЙ (#dc143c) */
+        /* Модальное окно детальных данных - КРАСНЫЙ (#dc143c) - УВЕЛИЧЕНА ВЫСОТА */
         #detailsModal .modal-content {
             background: #FFFFFF; /* Красный цвет */
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             width: 95%;
-            max-width: 450px;
-            max-height: 90vh;
+            max-width: 500px; /* Увеличена ширина */
+            max-height: 95vh; /* Увеличена максимальная высота */
             height: auto;
-            min-height: 300px;
+            min-height: 400px; /* Увеличен минимальный размер */
             overflow-y: auto;
             position: relative;
             display: flex;
@@ -197,7 +197,7 @@
         
         /* Модальное окно для детальных данных */
         .details-modal {
-            max-width: 480px;
+            max-width: 500px; /* Увеличена ширина */
             padding: 15px;
             display: flex;
             flex-direction: column;
@@ -206,10 +206,10 @@
         
         .details-list {
             margin-bottom: 15px;
-            max-height: 60vh;
+            max-height: 75vh; /* УВЕЛИЧЕНА ВЫСОТА для большей таблицы */
             overflow-y: auto;
             flex-grow: 1;
-            min-height: 200px;
+            min-height: 300px; /* Увеличен минимальный размер */
             background: rgba(255, 255, 255, 0.9); /* Светлый фон для контраста */
             border-radius: 6px;
             padding: 10px;
@@ -479,7 +479,7 @@
             }
             
             .details-list {
-                max-height: 65vh;
+                max-height: 70vh; /* Адаптировано для маленьких экранов */
             }
         }
         
@@ -500,6 +500,16 @@
             
             .average-value {
                 font-size: 12px;
+            }
+            
+            /* Для модальных окон на планшетах */
+            #detailsModal .modal-content {
+                max-width: 90%;
+                max-height: 90vh;
+            }
+            
+            .details-list {
+                max-height: 70vh;
             }
         }
         
@@ -552,7 +562,8 @@
             }
             
             .details-list {
-                max-height: 60vh;
+                max-height: 65vh;
+                min-height: 250px; /* Минимальная высота для мобильных */
             }
         }
         
@@ -567,13 +578,21 @@
                 padding: 25px;
             }
             
+            /* Особые стили для модального окна с деталями на десктопах */
+            #detailsModal .modal-content {
+                max-width: 600px; /* Больше ширина на десктопах */
+                max-height: 85vh; /* Высота меньше максимальной для удобства */
+                min-height: 500px;
+            }
+            
             .details-modal {
                 max-width: 600px;
                 min-height: 500px;
             }
             
             .details-list {
-                max-height: 65vh;
+                max-height: 70vh; /* Больше места для данных */
+                min-height: 400px;
             }
             
             .table-container {
@@ -607,18 +626,33 @@
                 max-height: 85vh;
             }
             
+            #detailsModal .modal-content {
+                max-height: 90vh; /* Еще больше для высоких экранов */
+            }
+            
             .details-list {
-                max-height: 55vh;
+                max-height: 75vh; /* Максимальное использование пространства */
             }
         }
         
         @media (min-height: 800px) {
-            .modal-content {
+            #detailsModal .modal-content {
+                max-height: 85vh;
+            }
+            
+            .details-list {
+                max-height: 70vh;
+            }
+        }
+        
+        @media (min-height: 1000px) {
+            #detailsModal .modal-content {
                 max-height: 80vh;
             }
             
             .details-list {
-                max-height: 50vh;
+                max-height: 65vh;
+                min-height: 500px; /* Очень большая минимальная высота для очень высоких экранов */
             }
         }
         
@@ -638,7 +672,7 @@
             }
             
             .details-list {
-                max-height: 70vh;
+                max-height: 75vh;
             }
         }
     </style>
@@ -868,6 +902,9 @@
                 if (modalContent) {
                     modalContent.focus();
                 }
+                
+                // Настройка максимальной высоты для списка
+                adjustDetailsListHeight();
             }, 50);
             
             try {
@@ -894,6 +931,24 @@
                     </div>
                 `;
             }
+        }
+        
+        function adjustDetailsListHeight() {
+            const detailsList = document.getElementById('detailsList');
+            if (!detailsList) return;
+            
+            // Вычисляем оптимальную высоту для списка
+            const viewportHeight = window.innerHeight;
+            const modalPadding = 30; // примерные отступы модального окна
+            const buttonsHeight = 60; // высота кнопок
+            const otherElementsHeight = 40; // другие элементы
+            
+            const availableHeight = viewportHeight - modalPadding - buttonsHeight - otherElementsHeight;
+            
+            // Устанавливаем высоту списка, но не менее 300px
+            const listHeight = Math.max(300, availableHeight * 0.8);
+            detailsList.style.maxHeight = listHeight + 'px';
+            detailsList.style.minHeight = listHeight + 'px';
         }
         
         function formatDate(date, format) {
@@ -1059,7 +1114,7 @@
         function loadTestDetailedData(hour, day, listElement) {
             setTimeout(() => {
                 let details = [];
-                const minutes = [0, 15, 30, 45];
+                const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]; // больше записей для демонстрации
                 
                 minutes.forEach(minute => {
                     const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
@@ -1406,9 +1461,16 @@
             
             loadSchedule();
             
-            window.addEventListener('resize', adjustTableLayout);
+            window.addEventListener('resize', function() {
+                adjustTableLayout();
+                adjustDetailsListHeight();
+            });
+            
             window.addEventListener('orientationchange', function() {
-                setTimeout(adjustTableLayout, 300);
+                setTimeout(function() {
+                    adjustTableLayout();
+                    adjustDetailsListHeight();
+                }, 300);
             });
             
             setInterval(() => {

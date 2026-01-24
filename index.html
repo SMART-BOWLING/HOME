@@ -415,31 +415,9 @@
             background: #1a2f40;
         }
         
-        /* Информация о часе */
+        /* УБРАН БЛОК С ИНФОРМАЦИЕЙ О ЧАСЕ - место освобождено для таблицы */
         .hour-info {
-            background: rgba(255, 255, 255, 0.9); /* Светлый фон для контраста с красным */
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            border-left: 4px solid #dc143c;
-            flex-shrink: 0;
-        }
-        
-        .hour-info-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 13px;
-        }
-        
-        .hour-info-label {
-            color: #1a2f40;
-            font-weight: 600;
-        }
-        
-        .hour-info-value {
-            color: #1a2f40;
-            font-weight: 700;
+            display: none; /* Скрываем блок с информацией */
         }
         
         /* Для очень маленьких экранов */
@@ -717,12 +695,7 @@
     <!-- Модальное окно для отображения детальных данных (КРАСНЫЙ) -->
     <div class="modal" id="detailsModal">
         <div class="modal-content details-modal">
-            <div class="modal-title" id="detailsTitle">Детальные данные</div>
-            
-            <div class="hour-info" id="hourInfo">
-                <!-- Информация о часе будет загружена динамически -->
-            </div>
-            
+            <!-- УБРАН ЗАГОЛОВОК "Детальные данные" -->
             <div class="details-list" id="detailsList">
                 <!-- Данные будут загружены динамически -->
             </div>
@@ -878,50 +851,7 @@
         
         async function showDetails(hour, day) {
             const modal = document.getElementById('detailsModal');
-            const title = document.getElementById('detailsTitle');
-            const hourInfo = document.getElementById('hourInfo');
             const list = document.getElementById('detailsList');
-            
-            const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-            const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            
-            // Получаем реальную дату из дня недели
-            const targetDate = new Date(currentDate);
-            const dayOfWeek = targetDate.getDay();
-            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-            const monday = new Date(targetDate);
-            monday.setDate(targetDate.getDate() - diffToMonday);
-            
-            const specificDate = new Date(monday);
-            specificDate.setDate(monday.getDate() + day);
-            
-            const dateStr = formatDate(specificDate, 'dd.MM.yyyy');
-            const hourStr = hour.toString().padStart(2, '0') + ':00';
-            
-            const dataTypeLabels = {
-                'light': 'Детальные данные о свете',
-                'temperature': 'Детальные данные о температуре',
-                'voltage': 'Детальные данные о напряжении',
-                'wifi': 'Детальные данные о WiFi сигнале'
-            };
-            
-            title.textContent = `${dataTypeLabels[currentDataType]}`;
-            
-            // Показываем информацию о часе
-            hourInfo.innerHTML = `
-                <div class="hour-info-item">
-                    <span class="hour-info-label">Дата:</span>
-                    <span class="hour-info-value">${dateStr}</span>
-                </div>
-                <div class="hour-info-item">
-                    <span class="hour-info-label">День:</span>
-                    <span class="hour-info-value">${daysOfWeek[day]}</span>
-                </div>
-                <div class="hour-info-item">
-                    <span class="hour-info-label">Час:</span>
-                    <span class="hour-info-value">${hourStr}</span>
-                </div>
-            `;
             
             list.innerHTML = '<div class="no-data">Загрузка...</div>';
             
@@ -942,6 +872,16 @@
             
             try {
                 if (currentDataType === 'light') {
+                    // Получаем реальную дату из дня недели
+                    const targetDate = new Date(currentDate);
+                    const dayOfWeek = targetDate.getDay();
+                    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                    const monday = new Date(targetDate);
+                    monday.setDate(targetDate.getDate() - diffToMonday);
+                    
+                    const specificDate = new Date(monday);
+                    specificDate.setDate(monday.getDate() + day);
+                    
                     await loadRealDetailedData(hour, day, specificDate, list);
                 } else {
                     loadTestDetailedData(hour, day, list);

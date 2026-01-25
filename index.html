@@ -108,10 +108,12 @@
         
         /* Стиль для ячеек с иконкой отсутствия света */
         td a img {
-            width: 24px;
-            height: 24px;
+            width: 15px;
+            height: 15px;
             vertical-align: middle;
             transition: transform 0.2s;
+            /* Серый цвет через фильтр */
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%);
         }
         
         td a img:hover {
@@ -1339,12 +1341,8 @@
                             cell.textContent = '+';
                             cell.title = 'Кликните для просмотра всех записей за этот час';
                         } else {
-                            // ЗАМЕНА ЗНАЧКА "-" НА ИКОНКУ
-                            cell.innerHTML = '<a href="https://postimages.org/" target="_blank"><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="free-icon-no-flash-1687721" style="width: 15px; height: 15px; vertical-align: middle;"></a>';
-                            cell.style.color = '#e74c3c';
-                            cell.style.fontWeight = '700';
-                            cell.style.fontSize = '20px';
-                            cell.style.padding = '4px 2px';
+                            // ЗАМЕНА ЗНАЧКА "-" НА ИКОНКУ - 15px, серый цвет
+                            cell.innerHTML = '<a href="https://postimages.org/" target="_blank"><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="free-icon-no-flash-1687721"></a>';
                             cell.title = 'Нет света - кликните для просмотра записей за этот час';
                             
                             // Убираем стандартные стили для ячеек без света

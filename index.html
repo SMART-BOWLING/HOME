@@ -567,24 +567,29 @@
         }
         
         /* Для очень маленьких экранов */
-        @media (max-width: 360px) {
+        @media (max-width: 480px) {
             .info-container {
-                flex-direction: column;
-                gap: 10px;
-                align-items: stretch;
+                flex-direction: row; /* Изменил с column на row */
+                gap: 5px;
+                align-items: center;
                 padding: 8px;
+                flex-wrap: wrap; /* Позволяет переносить элементы */
             }
             
             .date-input-container {
-                justify-content: space-between;
+                flex: 1;
+                min-width: 150px;
+                justify-content: flex-start;
             }
             
             .last-record-info {
-                align-items: stretch;
+                flex: 1;
+                align-items: flex-end;
+                min-width: 160px;
             }
             
             .last-record-data {
-                justify-content: space-between;
+                gap: 8px;
             }
             
             .date-input-field {
@@ -594,7 +599,14 @@
             }
             
             .date-label {
-                font-size: 13px;
+                display: none; /* Скрываем пустую метку на мобильных */
+            }
+            
+            .time-display,
+            .voltage-display {
+                font-size: 12px;
+                min-width: 60px;
+                padding: 4px 6px;
             }
             
             th:first-child,
@@ -602,13 +614,7 @@
                 width: 55px;
                 min-width: 55px;
                 max-width: 55px;
-                font-size: 12px;
-            }
-            
-            th:not(:first-child),
-            td:not(:first-child) {
-                width: calc((100vw - 71px) / 7);
-                max-width: 50px;
+                font-size: 10px;
             }
             
             .modal {
@@ -658,80 +664,63 @@
             }
         }
         
-        @media (max-width: 480px) {
+        /* Для экстремально узких экранов */
+        @media (max-width: 360px) {
             .info-container {
-                flex-direction: column;
-                gap: 10px;
+                flex-direction: column; /* На очень узких экранах вертикально */
+                gap: 8px;
                 align-items: stretch;
             }
             
             .date-input-container {
                 justify-content: space-between;
+                width: 100%;
             }
             
             .last-record-info {
-                align-items: center;
+                width: 100%;
+                align-items: stretch;
             }
             
             .last-record-data {
+                justify-content: space-between;
                 width: 100%;
-                justify-content: space-around;
             }
             
-            body {
-                padding: 6px;
+            .date-input-field {
+                min-width: 110px;
+                padding: 5px 6px;
+                font-size: 12px;
             }
             
-            th, td {
-                padding: 3px 1px;
-                font-size: 10px;
-            }
-            
-            .yes, .no {
-                font-size: 16px;
+            .date-label {
+                display: none;
             }
             
             th:first-child,
             td:first-child {
-                width: 55px;
+                width: 50px;
+                min-width: 50px;
+                max-width: 50px;
+                font-size: 9px;
+            }
+            
+            th:not(:first-child),
+            td:not(:first-child) {
+                width: calc((100vw - 66px) / 7);
+                max-width: 45px;
+            }
+            
+            .time-display,
+            .voltage-display {
+                font-size: 11px;
                 min-width: 55px;
-                max-width: 55px;
-                font-size: 10px;
-            }
-            
-            .modal {
-                padding: 8px;
-                overflow-x: hidden;
-            }
-            
-            .modal-content {
-                max-width: calc(100vw - 16px);
-                width: 100%;
-                box-sizing: border-box;
-            }
-            
-            .details-modal {
-                max-width: calc(100vw - 16px);
-                padding: 15px;
-            }
-            
-            .modal-title {
-                font-size: 16px;
-                margin-bottom: 12px;
-            }
-            
-            .date-input {
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-            
-            .details-list {
-                max-height: 60vh;
-                min-height: 200px;
+                padding: 3px 5px;
             }
         }
         
-        @media (max-width: 768px) {
+        /* Для средних мобильных */
+        @media (min-width: 481px) and (max-width: 768px) {
             .info-container {
                 padding: 8px 12px;
             }

@@ -799,6 +799,44 @@
             };
         }
         
+        // Функция для получения напряжения ближайшего к порогам
+        function getClosestToThreshold(details) {
+            if (!details || details.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+            
+            const voltageRecords = details.filter(d => d.voltage !== undefined);
+            if (voltageRecords.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+            
+            let closestVoltage = voltageRecords[0].voltage;
+            let minDistance = Math.min(
+                Math.abs(voltageRecords[0].voltage - LOW_THRESHOLD),
+                Math.abs(voltageRecords[0].voltage - HIGH_THRESHOLD)
+            );
+            
+            // Ищем запись с напряжением, которое ближе всего к порогам
+            for (let i = 1; i < voltageRecords.length; i++) {
+                const voltage = voltageRecords[i].voltage;
+                const distanceToLow = Math.abs(voltage - LOW_THRESHOLD);
+                const distanceToHigh = Math.abs(voltage - HIGH_THRESHOLD);
+                const currentMinDistance = Math.min(distanceToLow, distanceToHigh);
+                
+                if (currentMinDistance < minDistance) {
+                    minDistance = currentMinDistance;
+                    closestVoltage = voltage;
+                }
+            }
+            
+            // Определяем, к какому порогу ближе
+            const distanceToLow = Math.abs(closestVoltage - LOW_THRESHOLD);
+            const distanceToHigh = Math.abs(closestVoltage - HIGH_THRESHOLD);
+            const whichThreshold = distanceToLow < distanceToHigh ? 'low' : 'high';
+            
+            return {
+                voltage: closestVoltage,
+                distance: minDistance,
+                whichThreshold: whichThreshold
+            };
+        }
+        
         function formatDateForInput(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -995,7 +1033,8 @@
         function displayDetailedData(details, listElement, dateStr, hour) {
             listElement.innerHTML = '';
             
-            // Получаем мин/макс напряжения
+            // Получаем напряжение ближе к порогам
+            const closestData = getClosestToThreshold(details);
             const { min: minVoltage, max: maxVoltage } = getMinMaxVoltage(details);
             const totalRecords = details.length;
             
@@ -1072,7 +1111,17 @@
                 maxVoltageText.innerHTML = `<strong>Самый высокий порог:</strong> нет данных`;
             }
             
+            // Добавляем информацию о ближайшем к порогу напряжении
+            const closestVoltageText = document.createElement('div');
+            closestVoltageText.style.marginBottom = '5px';
+            if (closestData.voltage !== null) {
+                closestVoltageText.innerHTML = `<strong>Ближе к порогу:</strong> ${closestData.voltage.toFixed(1)} V`;
+            } else {
+                closestVoltageText.innerHTML = `<strong>Ближе к порогу:</strong> нет данных`;
+            }
+            
             summaryDiv.appendChild(totalRecordsText);
+            summaryDiv.appendChild(closestVoltageText);
             summaryDiv.appendChild(minVoltageText);
             summaryDiv.appendChild(maxVoltageText);
             
@@ -1222,6 +1271,115 @@
             }
         }
         
+        function displayLightSchedule(data) {
+            const schedule = data.schedule;
+            const weekInfo = data.weekInfo;
+            const tbody = document.getElementById('scheduleBody');
+            
+            if (weekInfo) {
+                weekInfo.forEach((day, index) => {
+                    const dayElement = document.getElementById(`day${index + 1}`);
+                    if (dayElement && day.date) {
+                        const dateParts = day.date.split('.');
+                        dayElement.innerHTML = `${day.dayName}<br><small style="font-size: 10px; opacity: 0.8;">${dateParts[0]}.${dateParts[1]}</small>`;
+                    }
+                });
+            }
+            
+            tbody.innerHTML = '';
+            
+            if (schedule && schedule.length === 24) {
+                for (let hour = 0; hour < 24; hour++) {
+                    const row = document.createElement('tr');
+                    
+                    const today = new Date();
+                    if (today.toDateString() === currentDate.toDateString() && hour === currentHour) {
+                        row.className = 'current-hour';
+                    }
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = hour.toString().padStart(2, '0') + ':00';
+                    row.appendChild(timeCell);
+                    
+                    for (let day = 0; day < 7; day++) {
+                        const cell = document.createElement('td');
+                        const hasLight = schedule[hour] && schedule[hour][day] === true;
+                        
+                        if (hasLight) {
+                            // Получаем детальные данные из кэша
+                            const targetDate = new Date(currentDate);
+                            const dayOfWeek = targetDate.getDay();
+                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                            const monday = new Date(targetDate);
+                            monday.setDate(targetDate.getDate() - diffToMonday);
+                            
+                            const specificDate = new Date(monday);
+                            specificDate.setDate(monday.getDate() + day);
+                            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
+                            const cacheKey = `${formattedDate}-${hour}-${day}`;
+                            const details = detailsCache[cacheKey];
+                            
+                            if (details && details.length > 0) {
+                                // Получаем напряжение ближайшее к порогам
+                                const closestData = getClosestToThreshold(details);
+                                
+                                if (closestData.voltage !== null) {
+                                    cell.className = 'voltage-value';
+                                    
+                                    // Определяем цвет в зависимости от напряжения
+                                    if (closestData.voltage < LOW_THRESHOLD) {
+                                        cell.classList.add('voltage-low');
+                                    } else if (closestData.voltage > HIGH_THRESHOLD) {
+                                        cell.classList.add('voltage-high');
+                                    } else {
+                                        cell.classList.add('voltage-normal');
+                                    }
+                                    
+                                    // Добавляем пробел после числа
+                                    cell.textContent = Math.round(closestData.voltage) + ' V';
+                                    
+                                    // Создаем всплывающую подсказку
+                                    const dateParts = formattedDate.split('-');
+                                    const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                                    const whichThreshold = closestData.whichThreshold === 'low' ? 
+                                        `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
+                                        `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
+                                    
+                                    cell.title = `Напряжение ближе к порогу: ${closestData.voltage.toFixed(1)}V\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
+                                } else {
+                                    // Если нет данных о напряжении, показываем "+"
+                                    cell.className = 'yes';
+                                    cell.textContent = '+';
+                                    cell.title = 'Кликните для просмотра всех записей за этот час';
+                                }
+                            } else {
+                                // Если нет детальных данных, показываем "+"
+                                cell.className = 'yes';
+                                cell.textContent = '+';
+                                cell.title = 'Кликните для просмотра всех записей за этот час';
+                            }
+                        } else {
+                            cell.innerHTML = '<a><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="Нет света"></a>';
+                            cell.title = 'Нет света - кликните для просмотра записей за этот час';
+                            cell.classList.remove('no');
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+                    
+                    tbody.appendChild(row);
+                }
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px 20px; color: #718096;">
+                            Нет данных для отображения
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
         function setupCellClickHandlers() {
             const cells = document.querySelectorAll('td:not(:first-child)');
             cells.forEach(cell => {
@@ -1277,112 +1435,6 @@
                     }
                 }, 10000);
             });
-        }
-        
-        function displayLightSchedule(data) {
-            const schedule = data.schedule;
-            const weekInfo = data.weekInfo;
-            const tbody = document.getElementById('scheduleBody');
-            
-            if (weekInfo) {
-                weekInfo.forEach((day, index) => {
-                    const dayElement = document.getElementById(`day${index + 1}`);
-                    if (dayElement && day.date) {
-                        const dateParts = day.date.split('.');
-                        dayElement.innerHTML = `${day.dayName}<br><small style="font-size: 10px; opacity: 0.8;">${dateParts[0]}.${dateParts[1]}</small>`;
-                    }
-                });
-            }
-            
-            tbody.innerHTML = '';
-            
-            if (schedule && schedule.length === 24) {
-                for (let hour = 0; hour < 24; hour++) {
-                    const row = document.createElement('tr');
-                    
-                    const today = new Date();
-                    if (today.toDateString() === currentDate.toDateString() && hour === currentHour) {
-                        row.className = 'current-hour';
-                    }
-                    
-                    const timeCell = document.createElement('td');
-                    timeCell.textContent = hour.toString().padStart(2, '0') + ':00';
-                    row.appendChild(timeCell);
-                    
-                    for (let day = 0; day < 7; day++) {
-                        const cell = document.createElement('td');
-                        const hasLight = schedule[hour] && schedule[hour][day] === true;
-                        
-                        if (hasLight) {
-                            // Получаем детальные данные из кэша
-                            const targetDate = new Date(currentDate);
-                            const dayOfWeek = targetDate.getDay();
-                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                            const monday = new Date(targetDate);
-                            monday.setDate(targetDate.getDate() - diffToMonday);
-                            
-                            const specificDate = new Date(monday);
-                            specificDate.setDate(monday.getDate() + day);
-                            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
-                            const cacheKey = `${formattedDate}-${hour}-${day}`;
-                            const details = detailsCache[cacheKey];
-                            
-                            if (details && details.length > 0) {
-                                // Получаем среднее напряжение
-                                const voltages = details.filter(d => d.voltage !== undefined).map(d => d.voltage);
-                                if (voltages.length > 0) {
-                                    const avgVoltage = voltages.reduce((sum, v) => sum + v, 0) / voltages.length;
-                                    
-                                    cell.className = 'voltage-value';
-                                    
-                                    // Определяем цвет в зависимости от напряжения
-                                    if (avgVoltage < LOW_THRESHOLD) {
-                                        cell.classList.add('voltage-low');
-                                    } else if (avgVoltage > HIGH_THRESHOLD) {
-                                        cell.classList.add('voltage-high');
-                                    } else {
-                                        cell.classList.add('voltage-normal');
-                                    }
-                                    
-                                    // Добавляем пробел после числа
-                                    cell.textContent = Math.round(avgVoltage) + ' V';
-                                    
-                                    // Создаем всплывающую подсказку
-                                    const dateParts = formattedDate.split('-');
-                                    const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-                                    cell.title = `Среднее напряжение: ${avgVoltage.toFixed(1)}V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
-                                } else {
-                                    // Если нет данных о напряжении, показываем "+"
-                                    cell.className = 'yes';
-                                    cell.textContent = '+';
-                                    cell.title = 'Кликните для просмотра всех записей за этот час';
-                                }
-                            } else {
-                                // Если нет детальных данных, показываем "+"
-                                cell.className = 'yes';
-                                cell.textContent = '+';
-                                cell.title = 'Кликните для просмотра всех записей за этот час';
-                            }
-                        } else {
-                            cell.innerHTML = '<a><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="Нет света"></a>';
-                            cell.title = 'Нет света - кликните для просмотра записей за этот час';
-                            cell.classList.remove('no');
-                        }
-                        
-                        row.appendChild(cell);
-                    }
-                    
-                    tbody.appendChild(row);
-                }
-            } else {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px 20px; color: #718096;">
-                            Нет данных для отображения
-                        </td>
-                    </tr>
-                `;
-            }
         }
         
         function showError(message) {

@@ -92,6 +92,43 @@
             max-width: 60px;
         }
         
+        /* Стили для напряжения */
+        .voltage-value {
+            font-weight: 700;
+            font-size: 12px !important;
+            padding: 4px 2px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .voltage-very-low {
+            color: #ff6b6b !important;
+            font-weight: 900 !important;
+            background-color: #fff5f5 !important;
+        }
+        
+        .voltage-very-high {
+            color: #ff922b !important;
+            font-weight: 900 !important;
+            background-color: #fff9f0 !important;
+        }
+        
+        .voltage-low {
+            color: #e74c3c !important;
+            font-weight: 800 !important;
+        }
+        
+        .voltage-high {
+            color: #e67e22 !important;
+            font-weight: 800 !important;
+        }
+        
+        .voltage-normal {
+            color: #3498db !important;
+        }
+        
         .yes {
             color: #27ae60;
             font-weight: 700;
@@ -112,7 +149,6 @@
             height: 15px;
             vertical-align: middle;
             transition: transform 0.2s;
-            /* Серый цвет через фильтр */
             filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%);
         }
         
@@ -126,27 +162,12 @@
             border-right: 2px solid #90caf9;
         }
         
-        /* Стили для данных температуры, напряжения и wifi */
-        .temperature {
-            color: #e74c3c;
-            font-weight: 700;
-        }
-        
-        .voltage {
-            color: #3498db;
-            font-weight: 700;
-        }
-        
-        .wifi {
-            color: #9b59b6;
-            font-weight: 700;
-        }
-        
+        /* Стили для среднего значения */
         .average-value {
             font-size: 14px;
         }
         
-        /* Модальные окна - ОБНОВЛЕННЫЕ ЦВЕТА */
+        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
@@ -166,34 +187,34 @@
             display: flex;
         }
         
-        /* Модальное окно выбора даты - СИНИЙ (#1a2f40) */
+        /* Модальное окно выбора даты */
         #dateModal .modal-content {
-            background: #FFFFFF; /* Синий цвет */
+            background: #FFFFFF;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             width: 95%;
-            max-width: 450px;
+            max-width: 400px;
             max-height: 90vh;
             height: auto;
-            min-height: 300px;
+            min-height: 250px;
             overflow-y: auto;
             position: relative;
             display: flex;
             flex-direction: column;
         }
         
-        /* Модальное окно детальных данных - КРАСНЫЙ (#dc143c) - УВЕЛИЧЕНА ВЫСОТА */
+        /* Модальное окно детальных данных */
         #detailsModal .modal-content {
-            background: #FFFFFF; /* Красный цвет */
+            background: #FFFFFF;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             width: 95%;
-            max-width: 500px; /* Увеличена ширина */
-            max-height: 95vh; /* Увеличена максимальная высота */
+            max-width: 450px;
+            max-height: 95vh;
             height: auto;
-            min-height: 400px; /* Увеличен минимальный размер */
+            min-height: 350px;
             overflow-y: auto;
             position: relative;
             display: flex;
@@ -202,16 +223,15 @@
         
         .modal-title {
             margin-bottom: 15px;
-            color: white; /* Белый текст на синем/красном фоне */
+            color: #2c3e50;
             font-size: 18px;
             text-align: center;
             line-height: 1.4;
             flex-shrink: 0;
         }
         
-        /* Модальное окно для детальных данных */
         .details-modal {
-            max-width: 500px; /* Увеличена ширина */
+            max-width: 450px;
             padding: 15px;
             display: flex;
             flex-direction: column;
@@ -220,11 +240,11 @@
         
         .details-list {
             margin-bottom: 15px;
-            max-height: 75vh; /* УВЕЛИЧЕНА ВЫСОТА для большей таблицы */
+            max-height: 70vh;
             overflow-y: auto;
             flex-grow: 1;
-            min-height: 300px; /* Увеличен минимальный размер */
-            background: rgba(255, 255, 255, 0.9); /* Светлый фон для контраста */
+            min-height: 250px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 6px;
             padding: 10px;
         }
@@ -234,7 +254,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid #FFF;
+            border-bottom: 1px solid #e1e8ed;
             font-size: 13px;
             background: white;
             margin-bottom: 5px;
@@ -271,51 +291,30 @@
         .detail-time {
             font-weight: 600;
             color: #2c3e50;
-            min-width: 60px;
+            min-width: 80px;
             flex: 0.7;
         }
         
         .detail-value {
             font-weight: 700;
-            min-width: 50px;
+            min-width: 80px;
             flex: 1;
             text-align: left;
         }
         
-        .detail-value.positive {
-            color: #d7dce3;
-        }
-        
-        .detail-value.negative {
-            color: #d7dce3;
-        }
-        
-        .detail-value.temperature {
-            color: #1a2f40;
-            margin-right: 15px;
-        }
-        
         .detail-value.voltage {
-            color: #1a2f40;
-            margin-right: 15px;
+            color: #3498db;
         }
-        
-        .detail-value.wifi {
-            color: #1a2f40;
-        }
-        
-        /* УБРАН СТОЛБЕЦ СВЕТ - УДАЛЕНЫ СТИЛИ ДЛЯ detail-value.light */
         
         .no-data {
             text-align: center;
             padding: 20px;
-            color: #1a2f40;
+            color: #666;
             font-style: italic;
             background: white;
             border-radius: 6px;
         }
         
-        /* Модальное окно для выбора даты - стили для элементов внутри */
         #dateModal .date-input {
             width: 100%;
             padding: 10px;
@@ -346,17 +345,15 @@
             display: none;
         }
         
-        /* Кнопки выбора типа данных */
+        /* Кнопки выбора типа данных (только свет) */
         .data-type-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            display: block;
             margin-bottom: 15px;
         }
         
         #dateModal .data-type-btn {
             padding: 10px;
-            background: #1a2f40;
+            background: #2c3e50;
             color: white;
             border-radius: 6px;
             font-size: 14px;
@@ -364,14 +361,15 @@
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
+            width: 100%;
         }
         
         #dateModal .data-type-btn:hover {
-            background: #1a2f40;
+            background: #34495e;
         }
         
         #dateModal .data-type-btn.active {
-            background: #dc143c;
+            background: #3498db;
             color: white;
         }
         
@@ -383,8 +381,7 @@
             flex-shrink: 0;
         }
         
-        /* Кнопки в синем модальном окне */
-        #dateModal .modal-button {
+        .modal-button {
             flex: 1;
             padding: 10px;
             border: none;
@@ -395,43 +392,30 @@
         }
         
         #dateModal .modal-ok {
-            background: #dc143c;
+            background: #3498db;
             color: white;
         }
         
         #dateModal .modal-ok:hover {
-            background: #dc143c;
+            background: #2980b9;
         }
         
         #dateModal .modal-cancel {
-            background: #d7dce3; /* СЕРЫЙ цвет для кнопки отмены */
+            background: #95a5a6;
             color: white;
         }
         
         #dateModal .modal-cancel:hover {
-            background: #d7dce3;
+            background: #7f8c8d;
         }
         
-        /* Кнопки в красном модальном окне */
         #detailsModal .modal-button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #2c3e50; /* Темный цвет для контраста с красным фоном */
+            background: #2c3e50;
             color: white;
         }
         
         #detailsModal .modal-button:hover {
-            background: #1a2f40;
-        }
-        
-        /* УБРАН БЛОК С ИНФОРМАЦИЕЙ О ЧАСЕ - место освобождено для таблицы */
-        .hour-info {
-            display: none; /* Скрываем блок с информацией */
+            background: #34495e;
         }
         
         /* Для очень маленьких экранов */
@@ -476,24 +460,24 @@
                 padding: 8px;
             }
             
-            .data-type-buttons {
-                grid-template-columns: 1fr;
-            }
-            
             .detail-item {
                 font-size: 11px;
             }
             
             .detail-time {
-                min-width: 50px;
+                min-width: 70px;
             }
             
             .detail-value {
-                min-width: 40px;
+                min-width: 70px;
             }
             
             .details-list {
-                max-height: 70vh; /* Адаптировано для маленьких экранов */
+                max-height: 65vh;
+            }
+            
+            .voltage-value {
+                font-size: 10px !important;
             }
         }
         
@@ -512,18 +496,17 @@
                 padding: 3px 1px;
             }
             
-            .average-value {
-                font-size: 12px;
+            .voltage-value {
+                font-size: 11px !important;
             }
             
-            /* Для модальных окон на планшетах */
             #detailsModal .modal-content {
                 max-width: 90%;
                 max-height: 90vh;
             }
             
             .details-list {
-                max-height: 70vh;
+                max-height: 65vh;
             }
         }
         
@@ -576,8 +559,8 @@
             }
             
             .details-list {
-                max-height: 65vh;
-                min-height: 250px; /* Минимальная высота для мобильных */
+                max-height: 60vh;
+                min-height: 200px;
             }
         }
         
@@ -588,25 +571,24 @@
             }
             
             .modal-content {
-                max-width: 550px;
+                max-width: 500px;
                 padding: 25px;
             }
             
-            /* Особые стили для модального окна с деталями на десктопах */
             #detailsModal .modal-content {
-                max-width: 600px; /* Больше ширина на десктопах */
-                max-height: 85vh; /* Высота меньше максимальной для удобства */
-                min-height: 500px;
+                max-width: 550px;
+                max-height: 85vh;
+                min-height: 400px;
             }
             
             .details-modal {
-                max-width: 600px;
-                min-height: 500px;
+                max-width: 550px;
+                min-height: 400px;
             }
             
             .details-list {
-                max-height: 70vh; /* Больше места для данных */
-                min-height: 400px;
+                max-height: 65vh;
+                min-height: 300px;
             }
             
             .table-container {
@@ -641,11 +623,11 @@
             }
             
             #detailsModal .modal-content {
-                max-height: 90vh; /* Еще больше для высоких экранов */
+                max-height: 90vh;
             }
             
             .details-list {
-                max-height: 75vh; /* Максимальное использование пространства */
+                max-height: 70vh;
             }
         }
         
@@ -655,7 +637,7 @@
             }
             
             .details-list {
-                max-height: 70vh;
+                max-height: 65vh;
             }
         }
         
@@ -665,12 +647,11 @@
             }
             
             .details-list {
-                max-height: 65vh;
-                min-height: 500px; /* Очень большая минимальная высота для очень высоких экранов */
+                max-height: 60vh;
+                min-height: 400px;
             }
         }
         
-        /* Для очень высоких и узких экранов */
         @media (max-height: 600px) {
             th, td {
                 padding: 4px 1px;
@@ -686,7 +667,7 @@
             }
             
             .details-list {
-                max-height: 75vh;
+                max-height: 70vh;
             }
         }
     </style>
@@ -712,24 +693,15 @@
         </table>
     </div>
     
-    <!-- Модальное окно для выбора даты и типа данных (СИНИЙ) -->
+    <!-- Модальное окно для выбора даты -->
     <div class="modal" id="dateModal">
         <div class="modal-content">
-            <div class="modal-title">Выберите дату и тип данных</div>
+            <div class="modal-title">Выберите дату для просмотра расписания</div>
             <input type="date" id="datePicker" class="date-input">
             
             <div class="data-type-buttons">
                 <button class="data-type-btn active" data-type="light" onclick="selectDataType('light')">
-                    СВЕТ
-                </button>
-                <button class="data-type-btn" data-type="temperature" onclick="selectDataType('temperature')">
-                    ТЕМПЕРАТУРА
-                </button>
-                <button class="data-type-btn" data-type="voltage" onclick="selectDataType('voltage')">
-                    НАПРЯЖЕНИЕ
-                </button>
-                <button class="data-type-btn" data-type="wifi" onclick="selectDataType('wifi')">
-                    WIFI
+                    РАСПИСАНИЕ СВЕТА
                 </button>
             </div>
             
@@ -740,10 +712,9 @@
         </div>
     </div>
     
-    <!-- Модальное окно для отображения детальных данных (КРАСНЫЙ) -->
+    <!-- Модальное окно для отображения детальных данных -->
     <div class="modal" id="detailsModal">
         <div class="modal-content details-modal">
-            <!-- УБРАН ЗАГОЛОВОК "Детальные данные" -->
             <div class="details-list" id="detailsList">
                 <!-- Данные будут загружены динамически -->
             </div>
@@ -755,79 +726,65 @@
     </div>
 
     <script>
-        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx13f993d-X9xTUnWF5G84iv4v7vQwl1o2q7Or_RrFXscNC6FfeaL-QFNvBIn936YQC/exec';
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywAwxNCmr6h2GyuoB8RJ1muyyjGk9k_35zJtw5CApMICM78bZK7jr0V7MC8MGW9ruH/exec';
+        // Параметры напряжения
+        const LOW_THRESHOLD = 210;  // Нижний порог
+        const HIGH_THRESHOLD = 250; // Верхний порог
+        const VERY_CLOSE_THRESHOLD = 5; // Насколько близко считается "очень близко"
+        
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
         let currentDate = new Date();
         let currentDataType = 'light';
+        let detailsCache = {}; // Кэш для детальных данных
         
-        // Тестовые данные для демонстрации
-        const testData = {
-            temperature: {
-                schedule: Array(24).fill().map(() => 
-                    Array(7).fill().map(() => 
-                        Math.round(20 + Math.random() * 10)
-                    )
-                ),
-                unit: "°C",
-                details: generateDetailedData('temperature')
-            },
-            voltage: {
-                schedule: Array(24).fill().map(() => 
-                    Array(7).fill().map(() => 
-                        Math.round(215 + Math.random() * 10)
-                    )
-                ),
-                unit: "V",
-                details: generateDetailedData('voltage')
-            },
-            wifi: {
-                schedule: Array(24).fill().map(() => 
-                    Array(7).fill().map(() => 
-                        Math.floor(Math.random() * 100)
-                    )
-                ),
-                unit: "%",
-                details: generateDetailedData('wifi')
-            },
-            light: {
-                details: generateDetailedData('light')
-            }
-        };
-        
-        // Генерация тестовых детальных данных по минутам
-        function generateDetailedData(type) {
-            const details = [];
-            for (let hour = 0; hour < 24; hour++) {
-                details[hour] = [];
-                for (let day = 0; day < 7; day++) {
-                    const hourData = [];
-                    for (let minute = 0; minute < 60; minute += 5) {
-                        let value;
-                        switch(type) {
-                            case 'temperature':
-                                value = (20 + Math.random() * 10).toFixed(1);
-                                break;
-                            case 'voltage':
-                                value = (215 + Math.random() * 10).toFixed(1);
-                                break;
-                            case 'wifi':
-                                value = Math.floor(Math.random() * 100);
-                                break;
-                            case 'light':
-                                value = Math.random() > 0.5 ? '+' : '-';
-                                break;
-                        }
-                        hourData.push({
-                            time: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
-                            value: value,
-                            type: type
-                        });
+        // Функция для получения напряжения, ближайшего к порогам
+        function getClosestToThresholdVoltage(details) {
+            if (!details || details.length === 0) return null;
+            
+            let closestVoltage = null;
+            let minDistance = Infinity;
+            
+            // Находим измерение с минимальным расстоянием до любого из порогов
+            details.forEach(item => {
+                if (item.voltage !== undefined) {
+                    // Расстояние до нижнего порога
+                    const distanceToLow = Math.abs(item.voltage - LOW_THRESHOLD);
+                    // Расстояние до верхнего порога
+                    const distanceToHigh = Math.abs(item.voltage - HIGH_THRESHOLD);
+                    // Минимальное расстояние до любого порога
+                    const minCurrentDistance = Math.min(distanceToLow, distanceToHigh);
+                    
+                    if (minCurrentDistance < minDistance) {
+                        minDistance = minCurrentDistance;
+                        closestVoltage = item.voltage;
                     }
-                    details[hour][day] = hourData;
                 }
+            });
+            
+            return closestVoltage;
+        }
+        
+        // Функция для определения класса CSS на основе напряжения
+        function getVoltageClass(voltage) {
+            if (voltage === null || voltage === undefined) return 'voltage-normal';
+            
+            // Расстояния до порогов
+            const distToLow = Math.abs(voltage - LOW_THRESHOLD);
+            const distToHigh = Math.abs(voltage - HIGH_THRESHOLD);
+            
+            // Определяем класс в зависимости от близости к порогам
+            if (distToLow < VERY_CLOSE_THRESHOLD) {
+                return 'voltage-very-low'; // Очень близко к нижнему порогу
+            } else if (distToHigh < VERY_CLOSE_THRESHOLD) {
+                return 'voltage-very-high'; // Очень близко к верхнему порогу
+            } else if (voltage < LOW_THRESHOLD) {
+                return 'voltage-low'; // Ниже нижнего порога
+            } else if (voltage > HIGH_THRESHOLD) {
+                return 'voltage-high'; // Выше верхнего порога
+            } else {
+                return 'voltage-normal'; // В пределах нормального диапазона
             }
-            return details;
         }
         
         function formatDateForInput(date) {
@@ -852,14 +809,6 @@
             const datePicker = document.getElementById('datePicker');
             
             datePicker.value = formatDateForInput(currentDate);
-            
-            document.querySelectorAll('.data-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.type === currentDataType) {
-                    btn.classList.add('active');
-                }
-            });
-            
             modal.classList.add('active');
             
             setTimeout(() => {
@@ -891,6 +840,7 @@
             const datePicker = document.getElementById('datePicker');
             if (datePicker.value) {
                 currentDate = new Date(datePicker.value);
+                detailsCache = {}; // Очищаем кэш при смене даты
                 updateTimeHeader();
                 loadSchedule();
             }
@@ -902,41 +852,27 @@
             const list = document.getElementById('detailsList');
             
             list.innerHTML = '<div class="no-data">Загрузка...</div>';
-            
             modal.classList.add('active');
             
-            // Прокручиваем к началу списка при открытии
             setTimeout(() => {
                 if (list) {
                     list.scrollTop = 0;
                 }
-                
-                // Фокусируемся на модальном окне для удобства прокрутки
-                const modalContent = modal.querySelector('.modal-content');
-                if (modalContent) {
-                    modalContent.focus();
-                }
-                
-                // Настройка максимальной высоты для списка
                 adjustDetailsListHeight();
             }, 50);
             
             try {
-                if (currentDataType === 'light') {
-                    // Получаем реальную дату из дня недели
-                    const targetDate = new Date(currentDate);
-                    const dayOfWeek = targetDate.getDay();
-                    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                    const monday = new Date(targetDate);
-                    monday.setDate(targetDate.getDate() - diffToMonday);
-                    
-                    const specificDate = new Date(monday);
-                    specificDate.setDate(monday.getDate() + day);
-                    
-                    await loadRealDetailedData(hour, day, specificDate, list);
-                } else {
-                    loadTestDetailedData(hour, day, list);
-                }
+                // Получаем реальную дату из дня недели
+                const targetDate = new Date(currentDate);
+                const dayOfWeek = targetDate.getDay();
+                const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const monday = new Date(targetDate);
+                monday.setDate(targetDate.getDate() - diffToMonday);
+                
+                const specificDate = new Date(monday);
+                specificDate.setDate(monday.getDate() + day);
+                
+                await loadRealDetailedData(hour, day, specificDate, list);
             } catch (error) {
                 list.innerHTML = `
                     <div class="no-data">
@@ -951,16 +887,13 @@
             const detailsList = document.getElementById('detailsList');
             if (!detailsList) return;
             
-            // Вычисляем оптимальную высоту для списка
             const viewportHeight = window.innerHeight;
-            const modalPadding = 30; // примерные отступы модального окна
-            const buttonsHeight = 60; // высота кнопок
-            const otherElementsHeight = 40; // другие элементы
+            const modalPadding = 30;
+            const buttonsHeight = 60;
+            const otherElementsHeight = 40;
             
             const availableHeight = viewportHeight - modalPadding - buttonsHeight - otherElementsHeight;
-            
-            // Устанавливаем высоту списка, но не менее 300px
-            const listHeight = Math.max(300, availableHeight * 0.8);
+            const listHeight = Math.max(250, availableHeight * 0.8);
             detailsList.style.maxHeight = listHeight + 'px';
             detailsList.style.minHeight = listHeight + 'px';
         }
@@ -978,17 +911,26 @@
         
         async function loadRealDetailedData(hour, day, date, listElement) {
             const formattedDate = formatDate(date, 'yyyy-MM-dd');
+            const cacheKey = `${formattedDate}-${hour}-${day}`;
+            
+            // Проверяем кэш
+            if (detailsCache[cacheKey]) {
+                displayDetailedData(detailsCache[cacheKey], listElement, formattedDate);
+                return;
+            }
             
             try {
                 const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
                 
                 if (data.success && data.data.details.length > 0) {
-                    displayDetailedData(data.data.details, listElement);
+                    // Сохраняем в кэш
+                    detailsCache[cacheKey] = data.data.details;
+                    displayDetailedData(data.data.details, listElement, formattedDate);
                 } else {
                     listElement.innerHTML = `
                         <div class="no-data">
-                            Нет записей за этот час
-                            ${data.data.totalCount === 0 ? '' : '<br><small>Попробуйте другой час</small>'}
+                            Нет записей за этот час<br>
+                            ${formatDate(date, 'dd.MM.yyyy')}, ${hour}:00 - ${hour}:59
                         </div>
                     `;
                 }
@@ -1035,10 +977,14 @@
             });
         }
         
-        function displayDetailedData(details, listElement) {
+        function displayDetailedData(details, listElement, dateStr) {
             listElement.innerHTML = '';
             
-            // Создаем заголовок таблицы - УБРАН СТОЛБЕЦ "Свет"
+            // Получаем ближайшее к порогу напряжение
+            const closestVoltage = getClosestToThresholdVoltage(details);
+            const voltageClass = getVoltageClass(closestVoltage);
+            
+            // Создаем заголовок таблицы
             const headerDiv = document.createElement('div');
             headerDiv.className = 'detail-item header';
             
@@ -1046,132 +992,165 @@
             timeHeader.className = 'detail-time';
             timeHeader.textContent = 'Время';
             
-            // УБРАН СТОЛБЕЦ СВЕТА
-            // const lightHeader = document.createElement('span');
-            // lightHeader.className = 'detail-value';
-            // lightHeader.textContent = 'Свет';
-            
-            const tempHeader = document.createElement('span');
-            tempHeader.className = 'detail-value temperature';
-            tempHeader.textContent = 'Темп.';
-            
             const voltageHeader = document.createElement('span');
             voltageHeader.className = 'detail-value voltage';
-            voltageHeader.textContent = 'Напр.';
-            
-            const wifiHeader = document.createElement('span');
-            wifiHeader.className = 'detail-value wifi';
-            wifiHeader.textContent = 'WiFi';
+            voltageHeader.textContent = 'Напряжение (V)';
             
             headerDiv.appendChild(timeHeader);
-            // headerDiv.appendChild(lightHeader); // УБРАНО
-            headerDiv.appendChild(tempHeader);
             headerDiv.appendChild(voltageHeader);
-            headerDiv.appendChild(wifiHeader);
             listElement.appendChild(headerDiv);
             
+            // Добавляем информационную строку о ближайшем напряжении
+            if (closestVoltage !== null) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'detail-item';
+                infoDiv.style.backgroundColor = '#e3f2fd';
+                infoDiv.style.fontWeight = 'bold';
+                infoDiv.style.borderLeft = '4px solid #3498db';
+                
+                const infoTime = document.createElement('span');
+                infoTime.className = 'detail-time';
+                infoTime.textContent = 'Ближайшее к порогу:';
+                
+                const infoValue = document.createElement('span');
+                infoValue.className = 'detail-value voltage ' + voltageClass.replace('voltage-', '');
+                infoValue.textContent = closestVoltage.toFixed(1) + ' V';
+                infoValue.style.fontSize = '14px';
+                
+                infoDiv.appendChild(infoTime);
+                infoDiv.appendChild(infoValue);
+                listElement.appendChild(infoDiv);
+            }
+            
             // Добавляем каждую запись
+            let hasVoltageData = false;
+            let totalVoltage = 0;
+            let voltageCount = 0;
+            let minVoltage = Infinity;
+            let maxVoltage = -Infinity;
+            
             details.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'detail-item';
-                div.style.fontSize = '12px';
+                
+                // Подсветка записи с ближайшим напряжением
+                if (closestVoltage !== null && item.voltage === closestVoltage) {
+                    div.style.backgroundColor = '#fff3cd';
+                    div.style.borderLeft = '3px solid #ffc107';
+                    div.style.fontWeight = 'bold';
+                }
                 
                 // Время
                 const timeSpan = document.createElement('span');
                 timeSpan.className = 'detail-time';
                 timeSpan.textContent = item.time;
                 
-                // СТОЛБЕЦ СВЕТ УБРАН - больше не отображается
-                
-                // Температура (если есть)
-                const tempSpan = document.createElement('span');
-                tempSpan.className = 'detail-value temperature';
-                tempSpan.textContent = item.temperature !== undefined ? item.temperature.toFixed(1) + '°C' : '-';
-                
-                // Напряжение (если есть)
+                // Напряжение
                 const voltageSpan = document.createElement('span');
                 voltageSpan.className = 'detail-value voltage';
-                voltageSpan.textContent = item.voltage !== undefined ? item.voltage.toFixed(1) + 'V' : '-';
                 
-                // WiFi (если есть)
-                const wifiSpan = document.createElement('span');
-                wifiSpan.className = 'detail-value wifi';
-                wifiSpan.textContent = item.wifi !== undefined ? item.wifi + '%' : '-';
+                if (item.voltage !== undefined) {
+                    const itemVoltageClass = getVoltageClass(item.voltage).replace('voltage-', '');
+                    voltageSpan.classList.add(itemVoltageClass);
+                    voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
+                    hasVoltageData = true;
+                    totalVoltage += item.voltage;
+                    voltageCount++;
+                    
+                    // Обновляем мин/макс значения
+                    minVoltage = Math.min(minVoltage, item.voltage);
+                    maxVoltage = Math.max(maxVoltage, item.voltage);
+                } else {
+                    voltageSpan.textContent = '-';
+                    voltageSpan.style.color = '#95a5a6';
+                }
                 
                 div.appendChild(timeSpan);
-                // div.appendChild(lightSpan); // УБРАНО
-                div.appendChild(tempSpan);
                 div.appendChild(voltageSpan);
-                div.appendChild(wifiSpan);
                 
                 listElement.appendChild(div);
             });
             
+            // Добавляем пороговую информацию
+            const thresholdDiv = document.createElement('div');
+            thresholdDiv.className = 'detail-item';
+            thresholdDiv.style.backgroundColor = '#f8f9fa';
+            thresholdDiv.style.fontSize = '11px';
+            thresholdDiv.style.padding = '8px';
+            thresholdDiv.style.marginTop = '10px';
+            
+            const thresholdText = document.createElement('span');
+            thresholdText.className = 'detail-time';
+            thresholdText.textContent = 'Пороги:';
+            thresholdText.style.fontWeight = 'normal';
+            
+            const thresholdValues = document.createElement('span');
+            thresholdValues.className = 'detail-value';
+            thresholdValues.innerHTML = `
+                <span style="color: #e74c3c">Низкий: ${LOW_THRESHOLD}V</span><br>
+                <span style="color: #e67e22">Высокий: ${HIGH_THRESHOLD}V</span>
+            `;
+            thresholdValues.style.textAlign = 'left';
+            thresholdValues.style.lineHeight = '1.4';
+            
+            thresholdDiv.appendChild(thresholdText);
+            thresholdDiv.appendChild(thresholdValues);
+            listElement.appendChild(thresholdDiv);
+            
             // Добавляем итоговую информацию
-            const summaryDiv = document.createElement('div');
-            summaryDiv.className = 'detail-item summary';
-            
-            const summaryTime = document.createElement('span');
-            summaryTime.className = 'detail-time';
-            summaryTime.textContent = 'Итого:';
-            
-            const summaryCount = document.createElement('span');
-            summaryCount.className = 'detail-value';
-            summaryCount.textContent = details.length + ' записей';
-            summaryCount.style.color = '#2c3e50';
-            
-            summaryDiv.appendChild(summaryTime);
-            summaryDiv.appendChild(summaryCount);
-            listElement.appendChild(summaryDiv);
-        }
-        
-        function loadTestDetailedData(hour, day, listElement) {
-            setTimeout(() => {
-                let details = [];
-                const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]; // больше записей для демонстрации
+            if (hasVoltageData) {
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'detail-item summary';
                 
-                minutes.forEach(minute => {
-                    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                    details.push({
-                        time: time,
-                        hour: hour,
-                        minute: minute,
-                        temperature: (20 + Math.random() * 10).toFixed(1),
-                        voltage: (215 + Math.random() * 10).toFixed(1),
-                        wifi: Math.floor(Math.random() * 100)
-                    });
-                });
+                const dateParts = dateStr.split('-');
+                const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
                 
-                displayDetailedData(details, listElement);
-            }, 500);
+                const summaryTime = document.createElement('span');
+                summaryTime.className = 'detail-time';
+                summaryTime.textContent = `Итого (${displayDate}):`;
+                
+                const summaryStats = document.createElement('span');
+                summaryStats.className = 'detail-value';
+                
+                const avgVoltage = (totalVoltage / voltageCount).toFixed(1);
+                const avgVoltageClass = getVoltageClass(parseFloat(avgVoltage)).replace('voltage-', '');
+                
+                summaryStats.innerHTML = `
+                    <div>${details.length} записей</div>
+                    <div>Среднее: <span class="${avgVoltageClass}">${avgVoltage} V</span></div>
+                    <div>Диапазон: ${minVoltage.toFixed(1)} - ${maxVoltage.toFixed(1)} V</div>
+                `;
+                
+                summaryStats.style.color = '#2c3e50';
+                summaryStats.style.textAlign = 'left';
+                summaryStats.style.lineHeight = '1.4';
+                
+                summaryDiv.appendChild(summaryTime);
+                summaryDiv.appendChild(summaryStats);
+                listElement.appendChild(summaryDiv);
+            } else {
+                const noDataDiv = document.createElement('div');
+                noDataDiv.className = 'no-data';
+                noDataDiv.textContent = 'Нет данных о напряжении';
+                listElement.appendChild(noDataDiv);
+            }
         }
         
         function closeDetailsModal() {
             const modal = document.getElementById('detailsModal');
             modal.classList.remove('active');
-            
-            // Возвращаем фокус на таблицу
             document.getElementById('tableContainer').focus();
         }
         
         function updateTimeHeader() {
             const timeHeader = document.getElementById('timeHeader');
             const dateStr = formatDateForDisplay(currentDate);
-            
-            const dataTypeLabels = {
-                'light': 'Свет',
-                'temperature': 'Температура',
-                'voltage': 'Напряжение',
-                'wifi': 'WiFi сигнал'
-            };
-            
             timeHeader.textContent = 'Время';
-            timeHeader.title = `${dataTypeLabels[currentDataType]} - неделя с ${dateStr}`;
+            timeHeader.title = `Расписание света - неделя с ${dateStr}`;
         }
         
         function adjustTableLayout() {
             const container = document.getElementById('tableContainer');
-            const table = document.getElementById('scheduleTable');
             const firstColWidth = 60;
             
             if (window.innerWidth < 769) {
@@ -1185,7 +1164,7 @@
                     cell.style.maxWidth = columnWidth + 'px';
                 });
                 
-                if (table.offsetWidth > window.innerWidth) {
+                if (document.getElementById('scheduleTable').offsetWidth > window.innerWidth) {
                     container.style.overflowX = 'auto';
                 } else {
                     container.style.overflowX = 'hidden';
@@ -1220,28 +1199,62 @@
         
         async function loadSchedule() {
             const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">Загрузка...</td></tr>';
             
-            if (currentDataType === 'light') {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">Загрузка...</td></tr>';
+            try {
+                const formattedDate = formatDateForInput(currentDate);
+                const data = await loadViaJSONP(formattedDate);
                 
-                try {
-                    const formattedDate = formatDateForInput(currentDate);
-                    const data = await loadViaJSONP(formattedDate);
-                    
-                    if (data.success) {
-                        displayLightSchedule(data.data);
-                        setupCellClickHandlers();
-                        setTimeout(adjustTableLayout, 100);
-                    } else {
-                        showError(data.error || 'Неизвестная ошибка');
-                    }
-                } catch (error) {
-                    showError('Ошибка загрузки: ' + error.message);
+                if (data.success) {
+                    // Загружаем детальные данные для всех ячеек с напряжением
+                    await loadAllVoltagesForWeek(data.data);
+                    displayLightSchedule(data.data);
+                    setupCellClickHandlers();
+                    setTimeout(adjustTableLayout, 100);
+                } else {
+                    showError(data.error || 'Неизвестная ошибка');
                 }
-            } else {
-                displaySensorData();
-                setupCellClickHandlers();
-                setTimeout(adjustTableLayout, 100);
+            } catch (error) {
+                showError('Ошибка загрузки: ' + error.message);
+            }
+        }
+        
+        async function loadAllVoltagesForWeek(data) {
+            const schedule = data.schedule;
+            if (!schedule || schedule.length !== 24) return;
+            
+            try {
+                // Загружаем по одному часу для оптимизации
+                for (let hour = 0; hour < 24; hour++) {
+                    for (let day = 0; day < 7; day++) {
+                        if (schedule[hour] && schedule[hour][day] === true) {
+                            const targetDate = new Date(currentDate);
+                            const dayOfWeek = targetDate.getDay();
+                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                            const monday = new Date(targetDate);
+                            monday.setDate(targetDate.getDate() - diffToMonday);
+                            
+                            const specificDate = new Date(monday);
+                            specificDate.setDate(monday.getDate() + day);
+                            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
+                            const cacheKey = `${formattedDate}-${hour}-${day}`;
+                            
+                            // Если нет в кэше, загружаем
+                            if (!detailsCache[cacheKey]) {
+                                try {
+                                    const detailsData = await loadDetailedDataViaJSONP(formattedDate, hour, day);
+                                    if (detailsData.success) {
+                                        detailsCache[cacheKey] = detailsData.data.details;
+                                    }
+                                } catch (error) {
+                                    console.warn(`Не удалось загрузить данные для ${hour}:00, день ${day}`);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке напряжений:', error);
             }
         }
         
@@ -1337,15 +1350,45 @@
                         const hasLight = schedule[hour] && schedule[hour][day] === true;
                         
                         if (hasLight) {
-                            cell.className = 'yes';
-                            cell.textContent = '+';
-                            cell.title = 'Кликните для просмотра всех записей за этот час';
-                        } else {
-                            // ЗАМЕНА ЗНАЧКА "-" НА ИКОНКУ - 15px, серый цвет
-                            cell.innerHTML = '<a href="https://postimages.org/" target="_blank"><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="free-icon-no-flash-1687721"></a>';
-                            cell.title = 'Нет света - кликните для просмотра записей за этот час';
+                            // Получаем детальные данные из кэша
+                            const targetDate = new Date(currentDate);
+                            const dayOfWeek = targetDate.getDay();
+                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                            const monday = new Date(targetDate);
+                            monday.setDate(targetDate.getDate() - diffToMonday);
                             
-                            // Убираем стандартные стили для ячеек без света
+                            const specificDate = new Date(monday);
+                            specificDate.setDate(monday.getDate() + day);
+                            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
+                            const cacheKey = `${formattedDate}-${hour}-${day}`;
+                            const details = detailsCache[cacheKey];
+                            
+                            if (details && details.length > 0) {
+                                const closestVoltage = getClosestToThresholdVoltage(details);
+                                
+                                if (closestVoltage !== null) {
+                                    cell.className = 'voltage-value ' + getVoltageClass(closestVoltage);
+                                    cell.textContent = closestVoltage.toFixed(0) + 'V';
+                                    
+                                    // Создаем всплывающую подсказку
+                                    const dateParts = formattedDate.split('-');
+                                    const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                                    cell.title = `Напряжение: ${closestVoltage.toFixed(1)}V\nДата: ${displayDate}\nВремя: ${hour}:00\nБлижайшее к порогу за этот час\nКликните для просмотра всех записей`;
+                                } else {
+                                    // Если нет данных о напряжении, показываем "+"
+                                    cell.className = 'yes';
+                                    cell.textContent = '+';
+                                    cell.title = 'Кликните для просмотра всех записей за этот час';
+                                }
+                            } else {
+                                // Если нет детальных данных, показываем "+"
+                                cell.className = 'yes';
+                                cell.textContent = '+';
+                                cell.title = 'Кликните для просмотра всех записей за этот час';
+                            }
+                        } else {
+                            cell.innerHTML = '<a><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="Нет света"></a>';
+                            cell.title = 'Нет света - кликните для просмотра записей за этот час';
                             cell.classList.remove('no');
                         }
                         
@@ -1363,74 +1406,6 @@
                     </tr>
                 `;
             }
-        }
-        
-        function displaySensorData() {
-            const weekInfo = getWeekInfo(currentDate);
-            const tbody = document.getElementById('scheduleBody');
-            
-            weekInfo.forEach((day, index) => {
-                const dayElement = document.getElementById(`day${index + 1}`);
-                if (dayElement) {
-                    const dateParts = day.date.split('.');
-                    dayElement.innerHTML = `${day.dayName}<br><small style="font-size: 10px; opacity: 0.8;">${dateParts[0]}.${dateParts[1]}</small>`;
-                }
-            });
-            
-            tbody.innerHTML = '';
-            
-            const data = testData[currentDataType];
-            const schedule = data.schedule;
-            const unit = data.unit;
-            const dataClass = currentDataType;
-            
-            for (let hour = 0; hour < 24; hour++) {
-                const row = document.createElement('tr');
-                
-                const today = new Date();
-                if (today.toDateString() === currentDate.toDateString() && hour === currentHour) {
-                    row.className = 'current-hour';
-                }
-                
-                const timeCell = document.createElement('td');
-                timeCell.textContent = hour.toString().padStart(2, '0') + ':00';
-                row.appendChild(timeCell);
-                
-                for (let day = 0; day < 7; day++) {
-                    const cell = document.createElement('td');
-                    const value = schedule[hour][day];
-                    
-                    cell.className = `${dataClass} average-value`;
-                    cell.textContent = `${value}${unit}`;
-                    cell.title = 'Кликните для просмотра детальных данных';
-                    
-                    row.appendChild(cell);
-                }
-                
-                tbody.appendChild(row);
-            }
-        }
-        
-        function getWeekInfo(date) {
-            const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            const weekInfo = [];
-            
-            const monday = new Date(date);
-            const dayOfWeek = date.getDay();
-            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-            monday.setDate(date.getDate() - diffToMonday);
-            
-            for (let i = 0; i < 7; i++) {
-                const currentDay = new Date(monday);
-                currentDay.setDate(monday.getDate() + i);
-                
-                weekInfo.push({
-                    dayName: daysOfWeek[i],
-                    date: `${currentDay.getDate().toString().padStart(2, '0')}.${(currentDay.getMonth() + 1).toString().padStart(2, '0')}`
-                });
-            }
-            
-            return weekInfo;
         }
         
         function showError(message) {

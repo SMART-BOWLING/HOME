@@ -18,6 +18,112 @@
             touch-action: manipulation;
         }
         
+        /* Новый блок с информацией */
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .date-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+        
+        .date-input-field {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 140px;
+        }
+        
+        .date-input-field:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .last-record-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+        
+        .last-record-title {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .last-record-data {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .time-display {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2c3e50;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .voltage-display {
+            font-size: 14px;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .voltage-normal {
+            color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .voltage-low {
+            color: #e74c3c;
+            background: #fff5f5;
+        }
+        
+        .voltage-high {
+            color: #e67e22;
+            background: #fff9f0;
+        }
+        
+        .voltage-very-low {
+            color: #ff6b6b;
+            background: #ffeaea;
+            font-weight: 900;
+        }
+        
+        .voltage-very-high {
+            color: #ff922b;
+            background: #fff5e6;
+            font-weight: 900;
+        }
+        
         .table-container {
             width: 100%;
             max-width: 100vw;
@@ -462,6 +568,35 @@
         
         /* Для очень маленьких экранов */
         @media (max-width: 360px) {
+            .info-container {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                padding: 8px;
+            }
+            
+            .date-input-container {
+                justify-content: space-between;
+            }
+            
+            .last-record-info {
+                align-items: stretch;
+            }
+            
+            .last-record-data {
+                justify-content: space-between;
+            }
+            
+            .date-input-field {
+                min-width: 120px;
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+            
+            .date-label {
+                font-size: 13px;
+            }
+            
             th:first-child,
             td:first-child {
                 width: 55px;
@@ -523,36 +658,26 @@
             }
         }
         
-        @media (max-width: 768px) {
-            th, td {
-                padding: 4px 2px;
-                font-size: 12px;
-            }
-            
-            th {
-                padding: 10px 2px;
-            }
-            
-            .yes, .no {
-                font-size: 18px;
-                padding: 3px 1px;
-            }
-            
-            .voltage-value {
-                font-size: 11px !important;
-            }
-            
-            #detailsModal .modal-content {
-                max-width: 90%;
-                max-height: 90vh;
-            }
-            
-            .details-list {
-                max-height: 65vh;
-            }
-        }
-        
         @media (max-width: 480px) {
+            .info-container {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .date-input-container {
+                justify-content: space-between;
+            }
+            
+            .last-record-info {
+                align-items: center;
+            }
+            
+            .last-record-data {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
             body {
                 padding: 6px;
             }
@@ -606,8 +731,58 @@
             }
         }
         
+        @media (max-width: 768px) {
+            .info-container {
+                padding: 8px 12px;
+            }
+            
+            .date-input-field {
+                padding: 7px 10px;
+                font-size: 13px;
+                min-width: 130px;
+            }
+            
+            .time-display,
+            .voltage-display {
+                font-size: 13px;
+                min-width: 70px;
+                padding: 4px 8px;
+            }
+            
+            th, td {
+                padding: 4px 2px;
+                font-size: 12px;
+            }
+            
+            th {
+                padding: 10px 2px;
+            }
+            
+            .yes, .no {
+                font-size: 18px;
+                padding: 3px 1px;
+            }
+            
+            .voltage-value {
+                font-size: 11px !important;
+            }
+            
+            #detailsModal .modal-content {
+                max-width: 90%;
+                max-height: 90vh;
+            }
+            
+            .details-list {
+                max-height: 65vh;
+            }
+        }
+        
         /* Для десктопов */
         @media (min-width: 769px) {
+            .info-container {
+                padding: 12px 20px;
+            }
+            
             .modal {
                 padding: 20px;
             }
@@ -715,6 +890,22 @@
     </style>
 </head>
 <body>
+    <!-- Новый блок с информацией -->
+    <div class="info-container">
+        <div class="date-input-container">
+            <div class="date-label"></div> <!-- Убрали текст "Дата:" -->
+            <input type="date" id="dateInput" class="date-input-field">
+        </div>
+        
+        <div class="last-record-info">
+            <div class="last-record-title"></div> <!-- Убрали текст "ПОСЛЕДНЯЯ ЗАПИСЬ" -->
+            <div class="last-record-data">
+                <div class="time-display" id="lastRecordTime">--:--</div>
+                <div class="voltage-display voltage-normal" id="lastRecordVoltage">-- V</div>
+            </div>
+        </div>
+    </div>
+    
     <div class="table-container" id="tableContainer">
         <table id="scheduleTable">
             <thead>
@@ -735,7 +926,7 @@
         </table>
     </div>
     
-    <!-- Модальное окно для выбора даты -->
+    <!-- Модальное окно для выбора типа данных -->
     <div class="modal" id="dateModal">
         <div class="modal-content">
             <div class="modal-title">Выберите дату для просмотра расписания</div>
@@ -778,63 +969,97 @@
         let currentDate = new Date();
         let currentDataType = 'light';
         let detailsCache = {}; // Кэш для детальных данных
+        let lastRecordData = null; // Данные последней записи
         
-        // Функция для получения самого низкого и высокого напряжения
-        function getMinMaxVoltage(details) {
-            if (!details || details.length === 0) return { min: null, max: null };
+        // Функция для получения последней записи из детальных данных
+        function findLastRecordFromDetails() {
+            let lastRecord = null;
+            let lastTimestamp = null;
             
-            let minVoltage = Infinity;
-            let maxVoltage = -Infinity;
-            
-            details.forEach(item => {
-                if (item.voltage !== undefined) {
-                    if (item.voltage < minVoltage) minVoltage = item.voltage;
-                    if (item.voltage > maxVoltage) maxVoltage = item.voltage;
+            // Ищем во всех кэшированных детальных данных
+            Object.keys(detailsCache).forEach(cacheKey => {
+                const details = detailsCache[cacheKey];
+                if (details && details.length > 0) {
+                    // Находим последнюю запись по времени
+                    details.forEach(item => {
+                        if (item.time) {
+                            // Преобразуем время в timestamp для сравнения
+                            const timeParts = item.time.split(':');
+                            if (timeParts.length === 2) {
+                                const hour = parseInt(timeParts[0]);
+                                const minute = parseInt(timeParts[1]);
+                                const date = new Date();
+                                date.setHours(hour, minute, 0, 0);
+                                const timestamp = date.getTime();
+                                
+                                if (!lastTimestamp || timestamp > lastTimestamp) {
+                                    lastTimestamp = timestamp;
+                                    lastRecord = item;
+                                }
+                            }
+                        }
+                    });
                 }
             });
             
-            return {
-                min: minVoltage === Infinity ? null : minVoltage,
-                max: maxVoltage === -Infinity ? null : maxVoltage
-            };
+            return lastRecord;
         }
         
-        // Функция для получения напряжения ближайшего к порогам
-        function getClosestToThreshold(details) {
-            if (!details || details.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+        // Функция для обновления отображения последней записи
+        function updateLastRecordDisplay() {
+            const timeElement = document.getElementById('lastRecordTime');
+            const voltageElement = document.getElementById('lastRecordVoltage');
             
-            const voltageRecords = details.filter(d => d.voltage !== undefined);
-            if (voltageRecords.length === 0) return { voltage: null, distance: null, whichThreshold: null };
-            
-            let closestVoltage = voltageRecords[0].voltage;
-            let minDistance = Math.min(
-                Math.abs(voltageRecords[0].voltage - LOW_THRESHOLD),
-                Math.abs(voltageRecords[0].voltage - HIGH_THRESHOLD)
-            );
-            
-            // Ищем запись с напряжением, которое ближе всего к порогам
-            for (let i = 1; i < voltageRecords.length; i++) {
-                const voltage = voltageRecords[i].voltage;
-                const distanceToLow = Math.abs(voltage - LOW_THRESHOLD);
-                const distanceToHigh = Math.abs(voltage - HIGH_THRESHOLD);
-                const currentMinDistance = Math.min(distanceToLow, distanceToHigh);
-                
-                if (currentMinDistance < minDistance) {
-                    minDistance = currentMinDistance;
-                    closestVoltage = voltage;
+            if (timeElement && voltageElement) {
+                if (lastRecordData) {
+                    timeElement.textContent = lastRecordData.time;
+                    
+                    if (lastRecordData.voltage !== undefined) {
+                        voltageElement.textContent = lastRecordData.voltage.toFixed(1) + ' V';
+                        
+                        // Определяем класс в зависимости от напряжения
+                        voltageElement.className = 'voltage-display ';
+                        
+                        if (lastRecordData.voltage < 200) {
+                            voltageElement.classList.add('voltage-very-low');
+                        } else if (lastRecordData.voltage < LOW_THRESHOLD) {
+                            voltageElement.classList.add('voltage-low');
+                        } else if (lastRecordData.voltage > HIGH_THRESHOLD) {
+                            voltageElement.classList.add('voltage-high');
+                        } else if (lastRecordData.voltage > 260) {
+                            voltageElement.classList.add('voltage-very-high');
+                        } else {
+                            voltageElement.classList.add('voltage-normal');
+                        }
+                    } else {
+                        voltageElement.textContent = '-- V';
+                        voltageElement.className = 'voltage-display voltage-normal';
+                    }
+                } else {
+                    timeElement.textContent = '--:--';
+                    voltageElement.textContent = '-- V';
+                    voltageElement.className = 'voltage-display voltage-normal';
                 }
             }
-            
-            // Определяем, к какому порогу ближе
-            const distanceToLow = Math.abs(closestVoltage - LOW_THRESHOLD);
-            const distanceToHigh = Math.abs(closestVoltage - HIGH_THRESHOLD);
-            const whichThreshold = distanceToLow < distanceToHigh ? 'low' : 'high';
-            
-            return {
-                voltage: closestVoltage,
-                distance: minDistance,
-                whichThreshold: whichThreshold
-            };
+        }
+        
+        // Функция для поиска последней записи при загрузке данных
+        function updateLastRecordAfterLoad() {
+            lastRecordData = findLastRecordFromDetails();
+            updateLastRecordDisplay();
+        }
+        
+        // Обработчик изменения даты
+        function handleDateChange() {
+            const dateInput = document.getElementById('dateInput');
+            if (dateInput.value) {
+                currentDate = new Date(dateInput.value);
+                detailsCache = {}; // Очищаем кэш при смене даты
+                lastRecordData = null; // Сбрасываем последнюю запись
+                updateTimeHeader();
+                updateLastRecordDisplay();
+                loadSchedule();
+            }
         }
         
         function formatDateForInput(date) {
@@ -889,10 +1114,9 @@
         function selectDate() {
             const datePicker = document.getElementById('datePicker');
             if (datePicker.value) {
-                currentDate = new Date(datePicker.value);
-                detailsCache = {}; // Очищаем кэш при смене даты
-                updateTimeHeader();
-                loadSchedule();
+                const dateInput = document.getElementById('dateInput');
+                dateInput.value = datePicker.value;
+                handleDateChange();
             }
             closeModal();
         }
@@ -975,6 +1199,10 @@
                 if (data.success && data.data.details.length > 0) {
                     // Сохраняем в кэш
                     detailsCache[cacheKey] = data.data.details;
+                    
+                    // Обновляем последнюю запись
+                    updateLastRecordAfterLoad();
+                    
                     displayDetailedData(data.data.details, listElement, formattedDate, hour);
                 } else {
                     const dateParts = formattedDate.split('-');
@@ -1127,26 +1355,7 @@
             
             listElement.appendChild(summaryDiv);
             
-            // Добавляем информацию о порогах
-            const thresholdDiv = document.createElement('div');
-            thresholdDiv.className = 'threshold-info';
-            
-            const thresholdTitle = document.createElement('div');
-            thresholdTitle.style.fontWeight = 'bold';
-            thresholdTitle.style.marginBottom = '5px';
-            thresholdTitle.textContent = 'Пороги напряжения:';
-            
-            const lowThreshold = document.createElement('div');
-            lowThreshold.innerHTML = `<span class="threshold-label">Нижний порог:</span> <span class="threshold-low">${LOW_THRESHOLD} V</span>`;
-            
-            const highThreshold = document.createElement('div');
-            highThreshold.innerHTML = `<span class="threshold-label">Верхний порог:</span> <span class="threshold-high">${HIGH_THRESHOLD} V</span>`;
-            
-            thresholdDiv.appendChild(thresholdTitle);
-            thresholdDiv.appendChild(lowThreshold);
-            thresholdDiv.appendChild(highThreshold);
-            
-            listElement.appendChild(thresholdDiv);
+            // Убрали блок threshold-info с текстом о порогах напряжения
         }
         
         function closeDetailsModal() {
@@ -1192,22 +1401,21 @@
             }
         }
         
-        function setupDatePicker() {
-            const datePicker = document.getElementById('datePicker');
+        function setupDateInput() {
+            const dateInput = document.getElementById('dateInput');
             
+            // Устанавливаем текущую дату
+            dateInput.value = formatDateForInput(currentDate);
+            
+            // Обработчик изменения даты
+            dateInput.addEventListener('change', handleDateChange);
+            
+            // Улучшение UX для мобильных устройств
             if ('ontouchstart' in window) {
-                datePicker.addEventListener('touchstart', function(e) {
+                dateInput.addEventListener('touchstart', function(e) {
                     e.stopPropagation();
                 }, { passive: true });
             }
-            
-            datePicker.addEventListener('blur', function() {
-                setTimeout(() => {
-                    if (document.activeElement === datePicker) {
-                        datePicker.blur();
-                    }
-                }, 100);
-            });
         }
         
         async function loadSchedule() {
@@ -1223,6 +1431,10 @@
                     await loadAllVoltagesForWeek(data.data);
                     displayLightSchedule(data.data);
                     setupCellClickHandlers();
+                    
+                    // Обновляем последнюю запись
+                    updateLastRecordAfterLoad();
+                    
                     setTimeout(adjustTableLayout, 100);
                 } else {
                     showError(data.error || 'Неизвестная ошибка');
@@ -1230,6 +1442,64 @@
             } catch (error) {
                 showError('Ошибка загрузки: ' + error.message);
             }
+        }
+        
+        // Функция для получения самого низкого и высокого напряжения
+        function getMinMaxVoltage(details) {
+            if (!details || details.length === 0) return { min: null, max: null };
+            
+            let minVoltage = Infinity;
+            let maxVoltage = -Infinity;
+            
+            details.forEach(item => {
+                if (item.voltage !== undefined) {
+                    if (item.voltage < minVoltage) minVoltage = item.voltage;
+                    if (item.voltage > maxVoltage) maxVoltage = item.voltage;
+                }
+            });
+            
+            return {
+                min: minVoltage === Infinity ? null : minVoltage,
+                max: maxVoltage === -Infinity ? null : maxVoltage
+            };
+        }
+        
+        // Функция для получения напряжения ближайшего к порогам
+        function getClosestToThreshold(details) {
+            if (!details || details.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+            
+            const voltageRecords = details.filter(d => d.voltage !== undefined);
+            if (voltageRecords.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+            
+            let closestVoltage = voltageRecords[0].voltage;
+            let minDistance = Math.min(
+                Math.abs(voltageRecords[0].voltage - LOW_THRESHOLD),
+                Math.abs(voltageRecords[0].voltage - HIGH_THRESHOLD)
+            );
+            
+            // Ищем запись с напряжением, которое ближе всего к порогам
+            for (let i = 1; i < voltageRecords.length; i++) {
+                const voltage = voltageRecords[i].voltage;
+                const distanceToLow = Math.abs(voltage - LOW_THRESHOLD);
+                const distanceToHigh = Math.abs(voltage - HIGH_THRESHOLD);
+                const currentMinDistance = Math.min(distanceToLow, distanceToHigh);
+                
+                if (currentMinDistance < minDistance) {
+                    minDistance = currentMinDistance;
+                    closestVoltage = voltage;
+                }
+            }
+            
+            // Определяем, к какому порогу ближе
+            const distanceToLow = Math.abs(closestVoltage - LOW_THRESHOLD);
+            const distanceToHigh = Math.abs(closestVoltage - HIGH_THRESHOLD);
+            const whichThreshold = distanceToLow < distanceToHigh ? 'low' : 'high';
+            
+            return {
+                voltage: closestVoltage,
+                distance: minDistance,
+                whichThreshold: whichThreshold
+            };
         }
         
         async function loadAllVoltagesForWeek(data) {
@@ -1475,10 +1745,13 @@
         });
         
         document.addEventListener('DOMContentLoaded', function() {
-            setupDatePicker();
+            setupDateInput();
             updateTimeHeader();
             
             document.getElementById('timeHeader').addEventListener('click', showDateModal);
+            
+            // Инициализация отображения последней записи
+            updateLastRecordDisplay();
             
             loadSchedule();
             

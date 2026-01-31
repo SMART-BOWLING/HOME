@@ -275,13 +275,14 @@
         }
         
         .detail-item.summary {
-            background: #d7dce3;
+            background: #f8f9fa;
             font-weight: bold;
-            border-top: 2px solid #FFFFFF;
-            margin-top: 10px;
-            border-radius: 5px;
+            border-top: 2px solid #dee2e6;
+            margin-top: 5px;
+            border-radius: 4px;
             padding: 12px;
             font-size: 13px;
+            color: #2c3e50;
         }
         
         .detail-item:last-child:not(.summary) {
@@ -293,6 +294,7 @@
             color: #2c3e50;
             min-width: 80px;
             flex: 0.7;
+            text-align: left;
         }
         
         .detail-value {
@@ -416,6 +418,46 @@
         
         #detailsModal .modal-button:hover {
             background: #34495e;
+        }
+        
+        /* Специальные стили для модального окна с деталями */
+        .voltage-detail {
+            font-weight: 700;
+        }
+        
+        .voltage-left {
+            text-align: left;
+            flex: 1;
+            padding-right: 10px;
+        }
+        
+        .time-right {
+            text-align: right;
+            flex: 0.7;
+            padding-left: 10px;
+        }
+        
+        .threshold-info {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .threshold-label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-right: 5px;
+        }
+        
+        .threshold-low {
+            color: #e74c3c;
+        }
+        
+        .threshold-high {
+            color: #e67e22;
         }
         
         /* Для очень маленьких экранов */
@@ -730,7 +772,6 @@
         // Параметры напряжения
         const LOW_THRESHOLD = 210;  // Нижний порог
         const HIGH_THRESHOLD = 250; // Верхний порог
-        const VERY_CLOSE_THRESHOLD = 5; // Насколько близко считается "очень близко"
         
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
@@ -738,53 +779,24 @@
         let currentDataType = 'light';
         let detailsCache = {}; // Кэш для детальных данных
         
-        // Функция для получения напряжения, ближайшего к порогам
-        function getClosestToThresholdVoltage(details) {
-            if (!details || details.length === 0) return null;
+        // Функция для получения самого низкого и высокого напряжения
+        function getMinMaxVoltage(details) {
+            if (!details || details.length === 0) return { min: null, max: null };
             
-            let closestVoltage = null;
-            let minDistance = Infinity;
+            let minVoltage = Infinity;
+            let maxVoltage = -Infinity;
             
-            // Находим измерение с минимальным расстоянием до любого из порогов
             details.forEach(item => {
                 if (item.voltage !== undefined) {
-                    // Расстояние до нижнего порога
-                    const distanceToLow = Math.abs(item.voltage - LOW_THRESHOLD);
-                    // Расстояние до верхнего порога
-                    const distanceToHigh = Math.abs(item.voltage - HIGH_THRESHOLD);
-                    // Минимальное расстояние до любого порога
-                    const minCurrentDistance = Math.min(distanceToLow, distanceToHigh);
-                    
-                    if (minCurrentDistance < minDistance) {
-                        minDistance = minCurrentDistance;
-                        closestVoltage = item.voltage;
-                    }
+                    if (item.voltage < minVoltage) minVoltage = item.voltage;
+                    if (item.voltage > maxVoltage) maxVoltage = item.voltage;
                 }
             });
             
-            return closestVoltage;
-        }
-        
-        // Функция для определения класса CSS на основе напряжения
-        function getVoltageClass(voltage) {
-            if (voltage === null || voltage === undefined) return 'voltage-normal';
-            
-            // Расстояния до порогов
-            const distToLow = Math.abs(voltage - LOW_THRESHOLD);
-            const distToHigh = Math.abs(voltage - HIGH_THRESHOLD);
-            
-            // Определяем класс в зависимости от близости к порогам
-            if (distToLow < VERY_CLOSE_THRESHOLD) {
-                return 'voltage-very-low'; // Очень близко к нижнему порогу
-            } else if (distToHigh < VERY_CLOSE_THRESHOLD) {
-                return 'voltage-very-high'; // Очень близко к верхнему порогу
-            } else if (voltage < LOW_THRESHOLD) {
-                return 'voltage-low'; // Ниже нижнего порога
-            } else if (voltage > HIGH_THRESHOLD) {
-                return 'voltage-high'; // Выше верхнего порога
-            } else {
-                return 'voltage-normal'; // В пределах нормального диапазона
-            }
+            return {
+                min: minVoltage === Infinity ? null : minVoltage,
+                max: maxVoltage === -Infinity ? null : maxVoltage
+            };
         }
         
         function formatDateForInput(date) {
@@ -915,7 +927,7 @@
             
             // Проверяем кэш
             if (detailsCache[cacheKey]) {
-                displayDetailedData(detailsCache[cacheKey], listElement, formattedDate);
+                displayDetailedData(detailsCache[cacheKey], listElement, formattedDate, hour);
                 return;
             }
             
@@ -925,12 +937,15 @@
                 if (data.success && data.data.details.length > 0) {
                     // Сохраняем в кэш
                     detailsCache[cacheKey] = data.data.details;
-                    displayDetailedData(data.data.details, listElement, formattedDate);
+                    displayDetailedData(data.data.details, listElement, formattedDate, hour);
                 } else {
+                    const dateParts = formattedDate.split('-');
+                    const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                    
                     listElement.innerHTML = `
                         <div class="no-data">
                             Нет записей за этот час<br>
-                            ${formatDate(date, 'dd.MM.yyyy')}, ${hour}:00 - ${hour}:59
+                            ${displayDate}, ${hour}:00 - ${hour}:59
                         </div>
                     `;
                 }
@@ -977,163 +992,112 @@
             });
         }
         
-        function displayDetailedData(details, listElement, dateStr) {
+        function displayDetailedData(details, listElement, dateStr, hour) {
             listElement.innerHTML = '';
             
-            // Получаем ближайшее к порогу напряжение
-            const closestVoltage = getClosestToThresholdVoltage(details);
-            const voltageClass = getVoltageClass(closestVoltage);
+            // Получаем мин/макс напряжения
+            const { min: minVoltage, max: maxVoltage } = getMinMaxVoltage(details);
+            const totalRecords = details.length;
             
-            // Создаем заголовок таблицы
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'detail-item header';
-            
-            const timeHeader = document.createElement('span');
-            timeHeader.className = 'detail-time';
-            timeHeader.textContent = 'Время';
-            
-            const voltageHeader = document.createElement('span');
-            voltageHeader.className = 'detail-value voltage';
-            voltageHeader.textContent = 'Напряжение (V)';
-            
-            headerDiv.appendChild(timeHeader);
-            headerDiv.appendChild(voltageHeader);
-            listElement.appendChild(headerDiv);
-            
-            // Добавляем информационную строку о ближайшем напряжении
-            if (closestVoltage !== null) {
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'detail-item';
-                infoDiv.style.backgroundColor = '#e3f2fd';
-                infoDiv.style.fontWeight = 'bold';
-                infoDiv.style.borderLeft = '4px solid #3498db';
-                
-                const infoTime = document.createElement('span');
-                infoTime.className = 'detail-time';
-                infoTime.textContent = 'Ближайшее к порогу:';
-                
-                const infoValue = document.createElement('span');
-                infoValue.className = 'detail-value voltage ' + voltageClass.replace('voltage-', '');
-                infoValue.textContent = closestVoltage.toFixed(1) + ' V';
-                infoValue.style.fontSize = '14px';
-                
-                infoDiv.appendChild(infoTime);
-                infoDiv.appendChild(infoValue);
-                listElement.appendChild(infoDiv);
-            }
+            // Форматируем дату для отображения
+            const dateParts = dateStr.split('-');
+            const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
             
             // Добавляем каждую запись
-            let hasVoltageData = false;
-            let totalVoltage = 0;
-            let voltageCount = 0;
-            let minVoltage = Infinity;
-            let maxVoltage = -Infinity;
-            
             details.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'detail-item';
                 
-                // Подсветка записи с ближайшим напряжением
-                if (closestVoltage !== null && item.voltage === closestVoltage) {
-                    div.style.backgroundColor = '#fff3cd';
-                    div.style.borderLeft = '3px solid #ffc107';
-                    div.style.fontWeight = 'bold';
-                }
-                
-                // Время
-                const timeSpan = document.createElement('span');
-                timeSpan.className = 'detail-time';
-                timeSpan.textContent = item.time;
-                
-                // Напряжение
+                // Напряжение слева
                 const voltageSpan = document.createElement('span');
-                voltageSpan.className = 'detail-value voltage';
+                voltageSpan.className = 'voltage-left voltage-detail';
                 
                 if (item.voltage !== undefined) {
-                    const itemVoltageClass = getVoltageClass(item.voltage).replace('voltage-', '');
-                    voltageSpan.classList.add(itemVoltageClass);
+                    // Добавляем пробел после числа
                     voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
-                    hasVoltageData = true;
-                    totalVoltage += item.voltage;
-                    voltageCount++;
                     
-                    // Обновляем мин/макс значения
-                    minVoltage = Math.min(minVoltage, item.voltage);
-                    maxVoltage = Math.max(maxVoltage, item.voltage);
+                    // Добавляем цвет в зависимости от напряжения
+                    if (item.voltage < LOW_THRESHOLD) {
+                        voltageSpan.style.color = '#e74c3c';
+                    } else if (item.voltage > HIGH_THRESHOLD) {
+                        voltageSpan.style.color = '#e67e22';
+                    } else {
+                        voltageSpan.style.color = '#3498db';
+                    }
                 } else {
                     voltageSpan.textContent = '-';
                     voltageSpan.style.color = '#95a5a6';
                 }
                 
-                div.appendChild(timeSpan);
+                // Время справа
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'time-right';
+                timeSpan.textContent = item.time;
+                
                 div.appendChild(voltageSpan);
+                div.appendChild(timeSpan);
                 
                 listElement.appendChild(div);
             });
             
-            // Добавляем пороговую информацию
-            const thresholdDiv = document.createElement('div');
-            thresholdDiv.className = 'detail-item';
-            thresholdDiv.style.backgroundColor = '#f8f9fa';
-            thresholdDiv.style.fontSize = '11px';
-            thresholdDiv.style.padding = '8px';
-            thresholdDiv.style.marginTop = '10px';
-            
-            const thresholdText = document.createElement('span');
-            thresholdText.className = 'detail-time';
-            thresholdText.textContent = 'Пороги:';
-            thresholdText.style.fontWeight = 'normal';
-            
-            const thresholdValues = document.createElement('span');
-            thresholdValues.className = 'detail-value';
-            thresholdValues.innerHTML = `
-                <span style="color: #e74c3c">Низкий: ${LOW_THRESHOLD}V</span><br>
-                <span style="color: #e67e22">Высокий: ${HIGH_THRESHOLD}V</span>
-            `;
-            thresholdValues.style.textAlign = 'left';
-            thresholdValues.style.lineHeight = '1.4';
-            
-            thresholdDiv.appendChild(thresholdText);
-            thresholdDiv.appendChild(thresholdValues);
-            listElement.appendChild(thresholdDiv);
+            // Добавляем разделитель перед итоговой информацией
+            const separator = document.createElement('div');
+            separator.style.height = '1px';
+            separator.style.background = '#dee2e6';
+            separator.style.margin = '10px 0';
+            listElement.appendChild(separator);
             
             // Добавляем итоговую информацию
-            if (hasVoltageData) {
-                const summaryDiv = document.createElement('div');
-                summaryDiv.className = 'detail-item summary';
-                
-                const dateParts = dateStr.split('-');
-                const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-                
-                const summaryTime = document.createElement('span');
-                summaryTime.className = 'detail-time';
-                summaryTime.textContent = `Итого (${displayDate}):`;
-                
-                const summaryStats = document.createElement('span');
-                summaryStats.className = 'detail-value';
-                
-                const avgVoltage = (totalVoltage / voltageCount).toFixed(1);
-                const avgVoltageClass = getVoltageClass(parseFloat(avgVoltage)).replace('voltage-', '');
-                
-                summaryStats.innerHTML = `
-                    <div>${details.length} записей</div>
-                    <div>Среднее: <span class="${avgVoltageClass}">${avgVoltage} V</span></div>
-                    <div>Диапазон: ${minVoltage.toFixed(1)} - ${maxVoltage.toFixed(1)} V</div>
-                `;
-                
-                summaryStats.style.color = '#2c3e50';
-                summaryStats.style.textAlign = 'left';
-                summaryStats.style.lineHeight = '1.4';
-                
-                summaryDiv.appendChild(summaryTime);
-                summaryDiv.appendChild(summaryStats);
-                listElement.appendChild(summaryDiv);
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'detail-item summary';
+            summaryDiv.style.flexDirection = 'column';
+            summaryDiv.style.alignItems = 'flex-start';
+            
+            const totalRecordsText = document.createElement('div');
+            totalRecordsText.style.marginBottom = '5px';
+            totalRecordsText.innerHTML = `<strong>Итого записей за час:</strong> ${totalRecords}`;
+            
+            const minVoltageText = document.createElement('div');
+            minVoltageText.style.marginBottom = '5px';
+            if (minVoltage !== null) {
+                minVoltageText.innerHTML = `<strong>Самый низкий порог:</strong> ${minVoltage.toFixed(1)} V`;
             } else {
-                const noDataDiv = document.createElement('div');
-                noDataDiv.className = 'no-data';
-                noDataDiv.textContent = 'Нет данных о напряжении';
-                listElement.appendChild(noDataDiv);
+                minVoltageText.innerHTML = `<strong>Самый низкий порог:</strong> нет данных`;
             }
+            
+            const maxVoltageText = document.createElement('div');
+            if (maxVoltage !== null) {
+                maxVoltageText.innerHTML = `<strong>Самый высокий порог:</strong> ${maxVoltage.toFixed(1)} V`;
+            } else {
+                maxVoltageText.innerHTML = `<strong>Самый высокий порог:</strong> нет данных`;
+            }
+            
+            summaryDiv.appendChild(totalRecordsText);
+            summaryDiv.appendChild(minVoltageText);
+            summaryDiv.appendChild(maxVoltageText);
+            
+            listElement.appendChild(summaryDiv);
+            
+            // Добавляем информацию о порогах
+            const thresholdDiv = document.createElement('div');
+            thresholdDiv.className = 'threshold-info';
+            
+            const thresholdTitle = document.createElement('div');
+            thresholdTitle.style.fontWeight = 'bold';
+            thresholdTitle.style.marginBottom = '5px';
+            thresholdTitle.textContent = 'Пороги напряжения:';
+            
+            const lowThreshold = document.createElement('div');
+            lowThreshold.innerHTML = `<span class="threshold-label">Нижний порог:</span> <span class="threshold-low">${LOW_THRESHOLD} V</span>`;
+            
+            const highThreshold = document.createElement('div');
+            highThreshold.innerHTML = `<span class="threshold-label">Верхний порог:</span> <span class="threshold-high">${HIGH_THRESHOLD} V</span>`;
+            
+            thresholdDiv.appendChild(thresholdTitle);
+            thresholdDiv.appendChild(lowThreshold);
+            thresholdDiv.appendChild(highThreshold);
+            
+            listElement.appendChild(thresholdDiv);
         }
         
         function closeDetailsModal() {
@@ -1364,16 +1328,29 @@
                             const details = detailsCache[cacheKey];
                             
                             if (details && details.length > 0) {
-                                const closestVoltage = getClosestToThresholdVoltage(details);
-                                
-                                if (closestVoltage !== null) {
-                                    cell.className = 'voltage-value ' + getVoltageClass(closestVoltage);
-                                    cell.textContent = closestVoltage.toFixed(0) + 'V';
+                                // Получаем среднее напряжение
+                                const voltages = details.filter(d => d.voltage !== undefined).map(d => d.voltage);
+                                if (voltages.length > 0) {
+                                    const avgVoltage = voltages.reduce((sum, v) => sum + v, 0) / voltages.length;
+                                    
+                                    cell.className = 'voltage-value';
+                                    
+                                    // Определяем цвет в зависимости от напряжения
+                                    if (avgVoltage < LOW_THRESHOLD) {
+                                        cell.classList.add('voltage-low');
+                                    } else if (avgVoltage > HIGH_THRESHOLD) {
+                                        cell.classList.add('voltage-high');
+                                    } else {
+                                        cell.classList.add('voltage-normal');
+                                    }
+                                    
+                                    // Добавляем пробел после числа
+                                    cell.textContent = Math.round(avgVoltage) + ' V';
                                     
                                     // Создаем всплывающую подсказку
                                     const dateParts = formattedDate.split('-');
                                     const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-                                    cell.title = `Напряжение: ${closestVoltage.toFixed(1)}V\nДата: ${displayDate}\nВремя: ${hour}:00\nБлижайшее к порогу за этот час\nКликните для просмотра всех записей`;
+                                    cell.title = `Среднее напряжение: ${avgVoltage.toFixed(1)}V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
                                 } else {
                                     // Если нет данных о напряжении, показываем "+"
                                     cell.className = 'yes';

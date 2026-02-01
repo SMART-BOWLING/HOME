@@ -198,7 +198,15 @@
             max-width: 60px;
         }
         
-        /* Стили для напряжения */
+        /* Стили для эмодзи лампочки */
+        .light-on {
+            font-size: 24px !important;
+            padding: 2px 0 !important;
+            color: #FFD700 !important; /* Золотистый цвет для лампочки */
+            text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* Стили для напряжения (если все же будет использоваться где-то) */
         .voltage-value {
             font-weight: 700;
             font-size: 12px !important;
@@ -617,6 +625,11 @@
                 font-size: 10px;
             }
             
+            .light-on {
+                font-size: 20px !important;
+                padding: 1px 0 !important;
+            }
+            
             .modal {
                 padding: 5px;
             }
@@ -711,6 +724,10 @@
                 max-width: 45px;
             }
             
+            .light-on {
+                font-size: 18px !important;
+            }
+            
             .time-display,
             .voltage-display {
                 font-size: 11px;
@@ -745,6 +762,10 @@
             
             th {
                 padding: 10px 2px;
+            }
+            
+            .light-on {
+                font-size: 22px !important;
             }
             
             .yes, .no {
@@ -820,6 +841,10 @@
                 max-width: none;
                 min-width: 50px;
             }
+            
+            .light-on {
+                font-size: 26px !important;
+            }
         }
         
         /* Для высоких экранов */
@@ -861,6 +886,10 @@
         @media (max-height: 600px) {
             th, td {
                 padding: 4px 1px;
+            }
+            
+            .light-on {
+                font-size: 20px !important;
             }
             
             .yes, .no {
@@ -1565,7 +1594,11 @@
                         const hasLight = schedule[hour] && schedule[hour][day] === true;
                         
                         if (hasLight) {
-                            // Получаем детальные данные из кэша
+                            // Вместо напряжения показываем лампочку эмодзи
+                            cell.className = 'light-on';
+                            cell.textContent = '💡';
+                            
+                            // Получаем детальные данные из кэша для подсказки
                             const targetDate = new Date(currentDate);
                             const dayOfWeek = targetDate.getDay();
                             const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -1578,44 +1611,20 @@
                             const cacheKey = `${formattedDate}-${hour}-${day}`;
                             const details = detailsCache[cacheKey];
                             
+                            // Создаем всплывающую подсказку
+                            const dateParts = formattedDate.split('-');
+                            const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                            
                             if (details && details.length > 0) {
                                 // Получаем напряжение ближайшее к порогам
                                 const closestData = getClosestToThreshold(details);
+                                const whichThreshold = closestData.whichThreshold === 'low' ? 
+                                    `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
+                                    `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
                                 
-                                if (closestData.voltage !== null) {
-                                    cell.className = 'voltage-value';
-                                    
-                                    // Определяем цвет в зависимости от напряжения
-                                    if (closestData.voltage < LOW_THRESHOLD) {
-                                        cell.classList.add('voltage-low');
-                                    } else if (closestData.voltage > HIGH_THRESHOLD) {
-                                        cell.classList.add('voltage-high');
-                                    } else {
-                                        cell.classList.add('voltage-normal');
-                                    }
-                                    
-                                    // Добавляем пробел после числа
-                                    cell.textContent = Math.round(closestData.voltage) + ' V';
-                                    
-                                    // Создаем всплывающую подсказку
-                                    const dateParts = formattedDate.split('-');
-                                    const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-                                    const whichThreshold = closestData.whichThreshold === 'low' ? 
-                                        `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
-                                        `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
-                                    
-                                    cell.title = `Напряжение ближе к порогу: ${closestData.voltage.toFixed(1)}V\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
-                                } else {
-                                    // Если нет данных о напряжении, показываем "+"
-                                    cell.className = 'yes';
-                                    cell.textContent = '+';
-                                    cell.title = 'Кликните для просмотра всех записей за этот час';
-                                }
+                                cell.title = `Свет был в этот час\nНапряжение ближе к порогу: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
                             } else {
-                                // Если нет детальных данных, показываем "+"
-                                cell.className = 'yes';
-                                cell.textContent = '+';
-                                cell.title = 'Кликните для просмотра всех записей за этот час';
+                                cell.title = `Свет был в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра всех записей`;
                             }
                         } else {
                             cell.innerHTML = '<a><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="Нет света"></a>';

@@ -170,12 +170,7 @@
             width: 60px;
             min-width: 60px;
             max-width: 60px;
-            cursor: pointer;
             transition: all 0.2s;
-        }
-        
-        th:first-child:hover {
-            background: #3d566e;
         }
         
         td:first-child {
@@ -279,43 +274,6 @@
         /* Стили для среднего значения */
         .average-value {
             font-size: 14px;
-        }
-        
-        /* Модальные окна */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            overflow-y: auto;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        /* Модальное окно выбора даты */
-        #dateModal .modal-content {
-            background: #FFFFFF;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            width: 95%;
-            max-width: 400px;
-            max-height: 90vh;
-            height: auto;
-            min-height: 250px;
-            overflow-y: auto;
-            position: relative;
-            display: flex;
-            flex-direction: column;
         }
         
         /* Модальное окно детальных данных */
@@ -431,64 +389,6 @@
             border-radius: 6px;
         }
         
-        #dateModal .date-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            -webkit-appearance: none;
-            appearance: none;
-            position: relative;
-            z-index: 1;
-            background: white;
-        }
-        
-        #dateModal .date-input::-webkit-calendar-picker-indicator {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            opacity: 0.7;
-            cursor: pointer;
-        }
-        
-        .date-input::-webkit-inner-spin-button,
-        .date-input::-webkit-clear-button {
-            display: none;
-        }
-        
-        /* Кнопки выбора типа данных (только свет) */
-        .data-type-buttons {
-            display: block;
-            margin-bottom: 15px;
-        }
-        
-        #dateModal .data-type-btn {
-            padding: 10px;
-            background: #2c3e50;
-            color: white;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            width: 100%;
-        }
-        
-        #dateModal .data-type-btn:hover {
-            background: #34495e;
-        }
-        
-        #dateModal .data-type-btn.active {
-            background: #3498db;
-            color: white;
-        }
-        
         /* Кнопки модальных окон */
         .modal-buttons {
             display: flex;
@@ -505,24 +405,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-        }
-        
-        #dateModal .modal-ok {
-            background: #3498db;
-            color: white;
-        }
-        
-        #dateModal .modal-ok:hover {
-            background: #2980b9;
-        }
-        
-        #dateModal .modal-cancel {
-            background: #95a5a6;
-            color: white;
-        }
-        
-        #dateModal .modal-cancel:hover {
-            background: #7f8c8d;
         }
         
         #detailsModal .modal-button {
@@ -549,29 +431,6 @@
             text-align: right;
             flex: 0.7;
             padding-left: 10px;
-        }
-        
-        .threshold-info {
-            background: #f8f9fa;
-            border-left: 4px solid #3498db;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        
-        .threshold-label {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-right: 5px;
-        }
-        
-        .threshold-low {
-            color: #e74c3c;
-        }
-        
-        .threshold-high {
-            color: #e67e22;
         }
         
         /* Для очень маленьких экранов */
@@ -905,6 +764,26 @@
                 max-height: 70vh;
             }
         }
+        
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -944,25 +823,6 @@
         </table>
     </div>
     
-    <!-- Модальное окно для выбора типа данных -->
-    <div class="modal" id="dateModal">
-        <div class="modal-content">
-            <div class="modal-title">Выберите дату для просмотра расписания</div>
-            <input type="date" id="datePicker" class="date-input">
-            
-            <div class="data-type-buttons">
-                <button class="data-type-btn active" data-type="light" onclick="selectDataType('light')">
-                    РАСПИСАНИЕ СВЕТА
-                </button>
-            </div>
-            
-            <div class="modal-buttons">
-                <button class="modal-button modal-ok" onclick="selectDate()">ОК</button>
-                <button class="modal-button modal-cancel" onclick="closeModal()">Отмена</button>
-            </div>
-        </div>
-    </div>
-    
     <!-- Модальное окно для отображения детальных данных -->
     <div class="modal" id="detailsModal">
         <div class="modal-content details-modal">
@@ -985,7 +845,6 @@
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
         let currentDate = new Date();
-        let currentDataType = 'light';
         let detailsCache = {}; // Кэш для детальных данных
         let lastRecordData = null; // Данные последней записи
         
@@ -1074,7 +933,6 @@
                 currentDate = new Date(dateInput.value);
                 detailsCache = {}; // Очищаем кэш при смене даты
                 lastRecordData = null; // Сбрасываем последнюю запись
-                updateTimeHeader();
                 updateLastRecordDisplay();
                 loadSchedule();
             }
@@ -1085,58 +943,6 @@
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
-        }
-        
-        function formatDateForDisplay(date) {
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-            return date.toLocaleDateString('ru-RU', options);
-        }
-        
-        function showDateModal() {
-            const modal = document.getElementById('dateModal');
-            const datePicker = document.getElementById('datePicker');
-            
-            datePicker.value = formatDateForInput(currentDate);
-            modal.classList.add('active');
-            
-            setTimeout(() => {
-                datePicker.focus();
-            }, 100);
-        }
-        
-        function closeModal() {
-            const modal = document.getElementById('dateModal');
-            modal.classList.remove('active');
-        }
-        
-        function selectDataType(type) {
-            currentDataType = type;
-            
-            document.querySelectorAll('.data-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.type === type) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            if (document.getElementById('scheduleBody').innerHTML !== '') {
-                loadSchedule();
-            }
-        }
-        
-        function selectDate() {
-            const datePicker = document.getElementById('datePicker');
-            if (datePicker.value) {
-                const dateInput = document.getElementById('dateInput');
-                dateInput.value = datePicker.value;
-                handleDateChange();
-            }
-            closeModal();
         }
         
         async function showDetails(hour, day) {
@@ -1372,21 +1178,12 @@
             summaryDiv.appendChild(maxVoltageText);
             
             listElement.appendChild(summaryDiv);
-            
-            // Убрали блок threshold-info с текстом о порогах напряжения
         }
         
         function closeDetailsModal() {
             const modal = document.getElementById('detailsModal');
             modal.classList.remove('active');
             document.getElementById('tableContainer').focus();
-        }
-        
-        function updateTimeHeader() {
-            const timeHeader = document.getElementById('timeHeader');
-            const dateStr = formatDateForDisplay(currentDate);
-            timeHeader.textContent = 'Время';
-            timeHeader.title = `Расписание света - неделя с ${dateStr}`;
         }
         
         function adjustTableLayout() {
@@ -1719,14 +1516,7 @@
         
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeModal();
                 closeDetailsModal();
-            }
-        });
-        
-        document.getElementById('dateModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
             }
         });
         
@@ -1736,17 +1526,8 @@
             }
         });
         
-        document.getElementById('datePicker').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                selectDate();
-            }
-        });
-        
         document.addEventListener('DOMContentLoaded', function() {
             setupDateInput();
-            updateTimeHeader();
-            
-            document.getElementById('timeHeader').addEventListener('click', showDateModal);
             
             // Инициализация отображения последней записи
             updateLastRecordDisplay();

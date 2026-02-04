@@ -18,7 +18,53 @@
             touch-action: manipulation;
         }
         
-        /* Новый блок с информацией */
+        /* Панель навигации по дням недели */
+        .days-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .day-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .day-nav-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .day-nav-item.active {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .day-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .day-date {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* Блок с информацией */
         .info-container {
             display: flex;
             justify-content: space-between;
@@ -124,6 +170,7 @@
             font-weight: 900;
         }
         
+        /* Контейнер таблицы - удалено, так как теперь используем grid */
         .table-container {
             width: 100%;
             max-width: 100vw;
@@ -134,146 +181,134 @@
             -webkit-overflow-scrolling: touch;
         }
         
-        table {
-            width: auto;
-            min-width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
+        /* УДАЛЕНО: table, th, td стили */
+        
+        /* НОВЫЕ СТИЛИ: Grid контейнер для прямоугольников */
+        .hours-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
-        th, td {
-            border: 1px solid #e1e8ed;
-            padding: 8px 4px;
-            text-align: center;
-            font-size: 13px;
-            word-break: break-word;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 0;
+        /* Стиль для каждой ячейки в grid */
+        .hour-cell {
             cursor: pointer;
+            position: relative;
         }
         
-        th {
-            background: #2c3e50;
-            color: white;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            padding: 12px 4px;
+        /* Прямоугольники с временем и индикацией */
+        .time-rectangle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 90px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+            padding: 10px 5px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        th:first-child {
-            left: 0;
-            z-index: 20;
-            background: #34495e;
-            width: 60px;
-            min-width: 60px;
-            max-width: 60px;
-            transition: all 0.2s;
+        .time-rectangle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        td:first-child {
-            background: #f8f9fa;
-            font-weight: 600;
-            position: sticky;
-            left: 0;
-            z-index: 5;
-            width: 60px;
-            min-width: 60px;
-            max-width: 60px;
-            color: #2c3e50;
-            border-right: 2px solid #dee2e6;
+        /* Стили для прямоугольников в зависимости от наличия света */
+        .time-rectangle.has-light {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1565c0;
+            border: 2px solid #90caf9;
         }
         
-        /* Стили для ячеек с данными */
-        th:not(:first-child),
-        td:not(:first-child) {
-            width: calc((100vw - 76px) / 7);
-            max-width: 60px;
+        .time-rectangle.no-light {
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            color: #757575;
+            border: 2px solid #bdbdbd;
         }
         
-        /* Стили для эмодзи лампочки */
-        .light-on {
-            font-size: 24px !important;
-            padding: 2px 0 !important;
-            color: #FFD700 !important; /* Золотистый цвет для лампочки */
+        /* Индикаторы молнии */
+        .lightning-indicator {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .lightning-on {
+            color: #FFD700;
             text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
         }
         
-        /* Стили для напряжения (если все же будет использоваться где-то) */
-        .voltage-value {
+        .lightning-off {
+            color: #bdbdbd;
+            text-decoration: line-through;
+        }
+        
+        /* Время в прямоугольнике */
+        .hour-time {
+            font-size: 18px;
             font-weight: 700;
-            font-size: 12px !important;
-            padding: 4px 2px;
+            margin-bottom: 4px;
+        }
+        
+        /* Дополнительная информация в прямоугольнике */
+        .hour-info {
+            font-size: 11px;
+            color: #666;
             text-align: center;
-            white-space: nowrap;
+            width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
-        .voltage-very-low {
-            color: #ff6b6b !important;
-            font-weight: 900 !important;
-            background-color: #fff5f5 !important;
+        .voltage-info {
+            font-weight: 600;
+            font-size: 12px;
         }
         
-        .voltage-very-high {
-            color: #ff922b !important;
-            font-weight: 900 !important;
-            background-color: #fff9f0 !important;
+        /* Стили для текущего часа */
+        .hour-cell.current-hour .time-rectangle {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+            position: relative;
         }
         
-        .voltage-low {
-            color: #e74c3c !important;
-            font-weight: 800 !important;
+        .hour-cell.current-hour .time-rectangle::after {
+            content: 'СЕЙЧАС';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #4CAF50;
+            color: white;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
         }
         
-        .voltage-high {
-            color: #e67e22 !important;
-            font-weight: 800 !important;
+        /* Индикатор загрузки */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         
-        .voltage-normal {
-            color: #3498db !important;
-        }
-        
-        .yes {
-            color: #27ae60;
-            font-weight: 700;
-            font-size: 20px;
-            padding: 4px 2px;
-        }
-        
-        .no {
-            color: #e74c3c;
-            font-weight: 700;
-            font-size: 20px;
-            padding: 4px 2px;
-        }
-        
-        /* Стиль для ячеек с иконкой отсутствия света */
-        td a img {
-            width: 15px;
-            height: 15px;
-            vertical-align: middle;
-            transition: transform 0.2s;
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%);
-        }
-        
-        td a img:hover {
-            transform: scale(1.1);
-        }
-        
-        .current-hour td:first-child {
-            background: #e3f2fd;
-            color: #1565c0;
-            border-right: 2px solid #90caf9;
-        }
-        
-        /* Стили для среднего значения */
-        .average-value {
-            font-size: 14px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         /* Модальное окно детальных данных */
@@ -435,12 +470,30 @@
         
         /* Для очень маленьких экранов */
         @media (max-width: 480px) {
+            .days-navigation {
+                padding: 8px;
+                gap: 5px;
+            }
+            
+            .day-nav-item {
+                min-width: 55px;
+                padding: 6px 8px;
+            }
+            
+            .day-name {
+                font-size: 12px;
+            }
+            
+            .day-date {
+                font-size: 10px;
+            }
+            
             .info-container {
-                flex-direction: row; /* Изменил с column на row */
+                flex-direction: row;
                 gap: 5px;
                 align-items: center;
                 padding: 8px;
-                flex-wrap: wrap; /* Позволяет переносить элементы */
+                flex-wrap: wrap;
             }
             
             .date-input-container {
@@ -466,7 +519,7 @@
             }
             
             .date-label {
-                display: none; /* Скрываем пустую метку на мобильных */
+                display: none;
             }
             
             .time-display,
@@ -476,127 +529,46 @@
                 padding: 4px 6px;
             }
             
-            th:first-child,
-            td:first-child {
-                width: 55px;
-                min-width: 55px;
-                max-width: 55px;
+            /* Адаптация grid для мобильных */
+            .hours-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .time-rectangle {
+                height: 80px;
+                padding: 8px 4px;
+            }
+            
+            .hour-time {
+                font-size: 16px;
+            }
+            
+            .lightning-indicator {
+                font-size: 18px;
+            }
+            
+            .hour-info {
                 font-size: 10px;
             }
             
-            .light-on {
-                font-size: 20px !important;
-                padding: 1px 0 !important;
-            }
-            
-            .modal {
-                padding: 5px;
-            }
-            
-            .modal-content {
-                padding: 12px;
-                max-width: calc(100vw - 10px);
-                width: 100%;
-                max-height: 95vh;
-            }
-            
-            .details-modal {
-                max-width: calc(100vw - 10px);
-                padding: 12px;
-            }
-            
-            .modal-title {
-                font-size: 16px;
-                margin-bottom: 12px;
-            }
-            
-            .date-input {
-                font-size: 14px;
-                padding: 8px;
-            }
-            
-            .detail-item {
-                font-size: 11px;
-            }
-            
-            .detail-time {
-                min-width: 70px;
-            }
-            
-            .detail-value {
-                min-width: 70px;
-            }
-            
-            .details-list {
-                max-height: 65vh;
-            }
-            
-            .voltage-value {
-                font-size: 10px !important;
-            }
-        }
-        
-        /* Для экстремально узких экранов */
-        @media (max-width: 360px) {
-            .info-container {
-                flex-direction: column; /* На очень узких экранах вертикально */
-                gap: 8px;
-                align-items: stretch;
-            }
-            
-            .date-input-container {
-                justify-content: space-between;
-                width: 100%;
-            }
-            
-            .last-record-info {
-                width: 100%;
-                align-items: stretch;
-            }
-            
-            .last-record-data {
-                justify-content: space-between;
-                width: 100%;
-            }
-            
-            .date-input-field {
-                min-width: 110px;
-                padding: 5px 6px;
-                font-size: 12px;
-            }
-            
-            .date-label {
-                display: none;
-            }
-            
-            th:first-child,
-            td:first-child {
-                width: 50px;
-                min-width: 50px;
-                max-width: 50px;
-                font-size: 9px;
-            }
-            
-            th:not(:first-child),
-            td:not(:first-child) {
-                width: calc((100vw - 66px) / 7);
-                max-width: 45px;
-            }
-            
-            .light-on {
-                font-size: 18px !important;
-            }
-            
-            .time-display,
-            .voltage-display {
-                font-size: 11px;
-                min-width: 55px;
-                padding: 3px 5px;
+            .hour-cell.current-hour .time-rectangle::after {
+                font-size: 8px;
+                padding: 1px 3px;
             }
         }
         
         /* Для средних мобильных */
         @media (min-width: 481px) and (max-width: 768px) {
+            .days-navigation {
+                padding: 10px;
+            }
+            
+            .day-nav-item {
+                min-width: 65px;
+            }
+            
             .info-container {
                 padding: 8px 12px;
             }
@@ -614,154 +586,54 @@
                 padding: 4px 8px;
             }
             
-            th, td {
-                padding: 4px 2px;
-                font-size: 12px;
+            /* Адаптация grid для планшетов */
+            .hours-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 12px;
             }
             
-            th {
-                padding: 10px 2px;
-            }
-            
-            .light-on {
-                font-size: 22px !important;
-            }
-            
-            .yes, .no {
-                font-size: 18px;
-                padding: 3px 1px;
-            }
-            
-            .voltage-value {
-                font-size: 11px !important;
-            }
-            
-            #detailsModal .modal-content {
-                max-width: 90%;
-                max-height: 90vh;
-            }
-            
-            .details-list {
-                max-height: 65vh;
+            .time-rectangle {
+                height: 85px;
             }
         }
         
         /* Для десктопов */
         @media (min-width: 769px) {
+            .days-navigation {
+                padding: 12px 20px;
+            }
+            
             .info-container {
                 padding: 12px 20px;
             }
             
-            .modal {
+            .day-nav-item {
+                min-width: 80px;
+            }
+            
+            /* Адаптация grid для десктопов */
+            .hours-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
                 padding: 20px;
             }
             
-            .modal-content {
-                max-width: 500px;
-                padding: 25px;
+            .time-rectangle {
+                height: 100px;
+                font-size: 18px;
             }
             
-            #detailsModal .modal-content {
-                max-width: 550px;
-                max-height: 85vh;
-                min-height: 400px;
+            .hour-time {
+                font-size: 20px;
             }
             
-            .details-modal {
-                max-width: 550px;
-                min-height: 400px;
+            .lightning-indicator {
+                font-size: 24px;
             }
             
-            .details-list {
-                max-height: 65vh;
-                min-height: 300px;
-            }
-            
-            .table-container {
-                overflow-x: hidden;
-                width: fit-content;
-                min-width: 100%;
-            }
-            
-            table {
-                width: 100%;
-            }
-            
-            th:first-child,
-            td:first-child {
-                width: 60px;
-                min-width: 60px;
-                max-width: 60px;
-            }
-            
-            th:not(:first-child),
-            td:not(:first-child) {
-                width: auto;
-                max-width: none;
-                min-width: 50px;
-            }
-            
-            .light-on {
-                font-size: 26px !important;
-            }
-        }
-        
-        /* Для высоких экранов */
-        @media (min-height: 700px) {
-            .modal-content {
-                max-height: 85vh;
-            }
-            
-            #detailsModal .modal-content {
-                max-height: 90vh;
-            }
-            
-            .details-list {
-                max-height: 70vh;
-            }
-        }
-        
-        @media (min-height: 800px) {
-            #detailsModal .modal-content {
-                max-height: 85vh;
-            }
-            
-            .details-list {
-                max-height: 65vh;
-            }
-        }
-        
-        @media (min-height: 1000px) {
-            #detailsModal .modal-content {
-                max-height: 80vh;
-            }
-            
-            .details-list {
-                max-height: 60vh;
-                min-height: 400px;
-            }
-        }
-        
-        @media (max-height: 600px) {
-            th, td {
-                padding: 4px 1px;
-            }
-            
-            .light-on {
-                font-size: 20px !important;
-            }
-            
-            .yes, .no {
-                font-size: 14px;
-            }
-            
-            .modal-content {
-                max-height: 95vh;
-                margin: 10px;
-            }
-            
-            .details-list {
-                max-height: 70vh;
+            .hour-info {
+                font-size: 12px;
             }
         }
         
@@ -784,18 +656,41 @@
         .modal.active {
             display: flex;
         }
+        
+        /* День недели заголовок */
+        .day-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .day-header small {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
-    <!-- Новый блок с информацией -->
+    <!-- Панель навигации по дням недели -->
+    <div class="days-navigation" id="daysNavigation">
+        <!-- Дни будут загружены динамически -->
+    </div>
+    
+    <!-- Блок с информацией -->
     <div class="info-container">
         <div class="date-input-container">
-            <div class="date-label"></div> <!-- Убрали текст "Дата:" -->
+            <div class="date-label"></div>
             <input type="date" id="dateInput" class="date-input-field">
         </div>
         
         <div class="last-record-info">
-            <div class="last-record-title"></div> <!-- Убрали текст "ПОСЛЕДНЯЯ ЗАПИСЬ" -->
+            <div class="last-record-title"></div>
             <div class="last-record-data">
                 <div class="time-display" id="lastRecordTime">--:--</div>
                 <div class="voltage-display voltage-normal" id="lastRecordVoltage">-- V</div>
@@ -803,24 +698,14 @@
         </div>
     </div>
     
-    <div class="table-container" id="tableContainer">
-        <table id="scheduleTable">
-            <thead>
-                <tr>
-                    <th id="timeHeader">Время</th>
-                    <th id="day1">Пн</th>
-                    <th id="day2">Вт</th>
-                    <th id="day3">Ср</th>
-                    <th id="day4">Чт</th>
-                    <th id="day5">Пт</th>
-                    <th id="day6">Сб</th>
-                    <th id="day7">Вс</th>
-                </tr>
-            </thead>
-            <tbody id="scheduleBody">
-                <!-- Данные будут загружены динамически -->
-            </tbody>
-        </table>
+    <!-- Заголовок дня -->
+    <div class="day-header" id="currentDayHeader">
+        Загрузка...
+    </div>
+    
+    <!-- Grid контейнер с часами (вместо таблицы) -->
+    <div class="hours-grid" id="hoursGrid">
+        <!-- Часы будут загружены динамически -->
     </div>
     
     <!-- Модальное окно для отображения детальных данных -->
@@ -838,29 +723,310 @@
 
     <script>
         const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywAwxNCmr6h2GyuoB8RJ1muyyjGk9k_35zJtw5CApMICM78bZK7jr0V7MC8MGW9ruH/exec';
-        // Параметры напряжения
-        const LOW_THRESHOLD = 210;  // Нижний порог
-        const HIGH_THRESHOLD = 250; // Верхний порог
+        const LOW_THRESHOLD = 210;
+        const HIGH_THRESHOLD = 250;
         
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
         let currentDate = new Date();
-        let detailsCache = {}; // Кэш для детальных данных
-        let lastRecordData = null; // Данные последней записи
+        let detailsCache = {};
+        let lastRecordData = null;
+        let currentDayIndex = new Date().getDay() - 1; // 0-6, где 0=понедельник
+        if (currentDayIndex < 0) currentDayIndex = 6; // воскресенье = 6
         
-        // Функция для получения последней записи из детальных данных
+        // Функция для создания навигации по дням
+        function createDaysNavigation(weekInfo) {
+            const nav = document.getElementById('daysNavigation');
+            nav.innerHTML = '';
+            
+            if (weekInfo && weekInfo.length === 7) {
+                weekInfo.forEach((day, index) => {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = `day-nav-item ${index === currentDayIndex ? 'active' : ''}`;
+                    dayElement.dataset.dayIndex = index;
+                    
+                    const dayName = document.createElement('div');
+                    dayName.className = 'day-name';
+                    dayName.textContent = day.dayName;
+                    
+                    const dayDate = document.createElement('div');
+                    dayDate.className = 'day-date';
+                    dayDate.textContent = day.date;
+                    
+                    dayElement.appendChild(dayName);
+                    dayElement.appendChild(dayDate);
+                    
+                    dayElement.addEventListener('click', () => {
+                        // Удаляем активный класс у всех элементов
+                        document.querySelectorAll('.day-nav-item').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        
+                        // Добавляем активный класс к выбранному элементу
+                        dayElement.classList.add('active');
+                        
+                        // Обновляем текущий день
+                        currentDayIndex = index;
+                        
+                        // Обновляем заголовок дня
+                        updateDayHeader(day);
+                        
+                        // Обновляем отображение расписания
+                        displayCurrentDaySchedule();
+                    });
+                    
+                    nav.appendChild(dayElement);
+                });
+            }
+        }
+        
+        // Функция для обновления заголовка дня
+        function updateDayHeader(dayInfo) {
+            const header = document.getElementById('currentDayHeader');
+            if (dayInfo) {
+                header.innerHTML = `${dayInfo.dayName}<br><small>${dayInfo.date}</small>`;
+            }
+        }
+        
+        // Функция для отображения расписания текущего дня в формате grid
+        function displayCurrentDaySchedule() {
+            const grid = document.getElementById('hoursGrid');
+            grid.innerHTML = '';
+            
+            // Получаем данные для текущей недели
+            const weekData = window.currentWeekData;
+            if (!weekData || !weekData.schedule) return;
+            
+            const schedule = weekData.schedule;
+            
+            for (let hour = 0; hour < 24; hour++) {
+                const cell = document.createElement('div');
+                cell.className = 'hour-cell';
+                
+                // Проверяем, является ли этот час текущим
+                const today = new Date();
+                if (today.toDateString() === currentDate.toDateString() && 
+                    hour === currentHour && 
+                    currentDayIndex === (today.getDay() - 1 >= 0 ? today.getDay() - 1 : 6)) {
+                    cell.classList.add('current-hour');
+                }
+                
+                const hasLight = schedule[hour] && schedule[hour][currentDayIndex] === true;
+                
+                // Создаем прямоугольник с временем
+                const timeRect = document.createElement('div');
+                timeRect.className = `time-rectangle ${hasLight ? 'has-light' : 'no-light'}`;
+                
+                // Добавляем индикатор молнии
+                const lightning = document.createElement('div');
+                lightning.className = `lightning-indicator ${hasLight ? 'lightning-on' : 'lightning-off'}`;
+                lightning.textContent = '⚡';
+                
+                // Добавляем время
+                const hourTime = document.createElement('div');
+                hourTime.className = 'hour-time';
+                hourTime.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                
+                // Контейнер для дополнительной информации
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'hour-info';
+                
+                timeRect.appendChild(lightning);
+                timeRect.appendChild(hourTime);
+                timeRect.appendChild(infoDiv);
+                
+                // Добавляем информацию о напряжении, если есть свет
+                if (hasLight) {
+                    // Получаем детальные данные из кэша
+                    const cacheKey = getCacheKey(hour, currentDayIndex);
+                    const details = detailsCache[cacheKey];
+                    
+                    if (details && details.length > 0) {
+                        const closestData = getClosestToThreshold(details);
+                        const voltageInfo = document.createElement('div');
+                        voltageInfo.className = 'voltage-info';
+                        voltageInfo.textContent = `Близко: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : '--'}`;
+                        
+                        infoDiv.appendChild(voltageInfo);
+                        
+                        // Добавляем всплывающую подсказку
+                        const displayDate = getDisplayDateForDay(currentDayIndex);
+                        const whichThreshold = closestData.whichThreshold === 'low' ? 
+                            `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
+                            `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
+                        
+                        cell.title = `Свет был в этот час\nНапряжение ближе к порогу: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
+                    } else {
+                        // Если данных нет в кэше, показываем индикатор загрузки
+                        const loadingSpan = document.createElement('span');
+                        loadingSpan.className = 'loading';
+                        loadingSpan.style.display = 'inline-block';
+                        loadingSpan.style.width = '12px';
+                        loadingSpan.style.height = '12px';
+                        loadingSpan.style.marginRight = '5px';
+                        
+                        const loadingText = document.createTextNode('Загрузка...');
+                        
+                        infoDiv.appendChild(loadingSpan);
+                        infoDiv.appendChild(loadingText);
+                        
+                        // Загружаем данные асинхронно
+                        loadVoltageDataForHour(hour, currentDayIndex).then(() => {
+                            // После загрузки обновляем ячейку
+                            updateCellVoltageInfo(cell, hour, currentDayIndex);
+                        }).catch(() => {
+                            infoDiv.innerHTML = 'Нет данных';
+                        });
+                        
+                        const displayDate = getDisplayDateForDay(currentDayIndex);
+                        cell.title = `Свет был в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nЗагрузка данных о напряжении...`;
+                    }
+                } else {
+                    infoDiv.textContent = 'Нет света';
+                    cell.title = 'Нет света - кликните для просмотра записей за этот час';
+                }
+                
+                // Добавляем обработчик клика
+                cell.addEventListener('click', () => {
+                    showDetails(hour, currentDayIndex);
+                });
+                
+                cell.appendChild(timeRect);
+                grid.appendChild(cell);
+            }
+        }
+        
+        // Вспомогательная функция для получения ключа кэша
+        function getCacheKey(hour, day) {
+            const targetDate = new Date(currentDate);
+            const dayOfWeek = targetDate.getDay();
+            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const monday = new Date(targetDate);
+            monday.setDate(targetDate.getDate() - diffToMonday);
+            
+            const specificDate = new Date(monday);
+            specificDate.setDate(monday.getDate() + day);
+            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
+            
+            return `${formattedDate}-${hour}-${day}`;
+        }
+        
+        // Вспомогательная функция для получения отображаемой даты
+        function getDisplayDateForDay(day) {
+            const targetDate = new Date(currentDate);
+            const dayOfWeek = targetDate.getDay();
+            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const monday = new Date(targetDate);
+            monday.setDate(targetDate.getDate() - diffToMonday);
+            
+            const specificDate = new Date(monday);
+            specificDate.setDate(monday.getDate() + day);
+            
+            return formatDate(specificDate, 'dd.MM.yyyy');
+        }
+        
+        // Функция для загрузки данных о напряжении для конкретного часа
+        async function loadVoltageDataForHour(hour, day) {
+            const cacheKey = getCacheKey(hour, day);
+            
+            // Если уже есть в кэше, не загружаем
+            if (detailsCache[cacheKey]) {
+                return detailsCache[cacheKey];
+            }
+            
+            try {
+                const targetDate = new Date(currentDate);
+                const dayOfWeek = targetDate.getDay();
+                const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const monday = new Date(targetDate);
+                monday.setDate(targetDate.getDate() - diffToMonday);
+                
+                const specificDate = new Date(monday);
+                specificDate.setDate(monday.getDate() + day);
+                const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
+                
+                const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
+                
+                if (data.success && data.data.details.length > 0) {
+                    detailsCache[cacheKey] = data.data.details;
+                    
+                    // Обновляем последнюю запись
+                    updateLastRecordAfterLoad();
+                    
+                    return data.data.details;
+                }
+            } catch (error) {
+                console.warn(`Не удалось загрузить данные для ${hour}:00, день ${day}:`, error);
+                throw error;
+            }
+            
+            return null;
+        }
+        
+        // Функция для обновления информации о напряжении в ячейке
+        function updateCellVoltageInfo(cell, hour, day) {
+            const cacheKey = getCacheKey(hour, day);
+            const details = detailsCache[cacheKey];
+            
+            if (details && details.length > 0) {
+                const closestData = getClosestToThreshold(details);
+                const displayDate = getDisplayDateForDay(day);
+                const whichThreshold = closestData.whichThreshold === 'low' ? 
+                    `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
+                    `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
+                
+                // Обновляем содержимое ячейки
+                const infoDiv = cell.querySelector('.hour-info');
+                if (infoDiv) {
+                    infoDiv.innerHTML = '';
+                    const voltageInfo = document.createElement('div');
+                    voltageInfo.className = 'voltage-info';
+                    voltageInfo.textContent = `Близко: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : '--'}`;
+                    infoDiv.appendChild(voltageInfo);
+                }
+                
+                // Обновляем всплывающую подсказку
+                cell.title = `Свет был в этот час\nНапряжение ближе к порогу: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
+            }
+        }
+        
+        // Функция для асинхронной загрузки данных о напряжении для всех часов с светом
+        async function loadVoltageDataForAllLights(schedule) {
+            const promises = [];
+            
+            for (let hour = 0; hour < 24; hour++) {
+                if (schedule[hour] && schedule[hour][currentDayIndex] === true) {
+                    // Добавляем задержку между запросами, чтобы не перегружать сервер
+                    promises.push(
+                        new Promise(resolve => {
+                            setTimeout(async () => {
+                                try {
+                                    await loadVoltageDataForHour(hour, currentDayIndex);
+                                } catch (error) {
+                                    // Игнорируем ошибки для отдельных часов
+                                }
+                                resolve();
+                            }, hour * 100); // Задержка 100 мс между запросами
+                        })
+                    );
+                }
+            }
+            
+            // Запускаем все запросы, но не ждем их завершения
+            Promise.all(promises).then(() => {
+                console.log('Все данные о напряжении загружены');
+            });
+        }
+        
         function findLastRecordFromDetails() {
             let lastRecord = null;
             let lastTimestamp = null;
             
-            // Ищем во всех кэшированных детальных данных
             Object.keys(detailsCache).forEach(cacheKey => {
                 const details = detailsCache[cacheKey];
                 if (details && details.length > 0) {
-                    // Находим последнюю запись по времени
                     details.forEach(item => {
                         if (item.time) {
-                            // Преобразуем время в timestamp для сравнения
                             const timeParts = item.time.split(':');
                             if (timeParts.length === 2) {
                                 const hour = parseInt(timeParts[0]);
@@ -882,7 +1048,6 @@
             return lastRecord;
         }
         
-        // Функция для обновления отображения последней записи
         function updateLastRecordDisplay() {
             const timeElement = document.getElementById('lastRecordTime');
             const voltageElement = document.getElementById('lastRecordVoltage');
@@ -894,7 +1059,6 @@
                     if (lastRecordData.voltage !== undefined) {
                         voltageElement.textContent = lastRecordData.voltage.toFixed(1) + ' V';
                         
-                        // Определяем класс в зависимости от напряжения
                         voltageElement.className = 'voltage-display ';
                         
                         if (lastRecordData.voltage < 200) {
@@ -920,19 +1084,17 @@
             }
         }
         
-        // Функция для поиска последней записи при загрузке данных
         function updateLastRecordAfterLoad() {
             lastRecordData = findLastRecordFromDetails();
             updateLastRecordDisplay();
         }
         
-        // Обработчик изменения даты
         function handleDateChange() {
             const dateInput = document.getElementById('dateInput');
             if (dateInput.value) {
                 currentDate = new Date(dateInput.value);
-                detailsCache = {}; // Очищаем кэш при смене даты
-                lastRecordData = null; // Сбрасываем последнюю запись
+                detailsCache = {};
+                lastRecordData = null;
                 updateLastRecordDisplay();
                 loadSchedule();
             }
@@ -960,7 +1122,6 @@
             }, 50);
             
             try {
-                // Получаем реальную дату из дня недели
                 const targetDate = new Date(currentDate);
                 const dayOfWeek = targetDate.getDay();
                 const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -1011,7 +1172,6 @@
             const formattedDate = formatDate(date, 'yyyy-MM-dd');
             const cacheKey = `${formattedDate}-${hour}-${day}`;
             
-            // Проверяем кэш
             if (detailsCache[cacheKey]) {
                 displayDetailedData(detailsCache[cacheKey], listElement, formattedDate, hour);
                 return;
@@ -1021,12 +1181,8 @@
                 const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
                 
                 if (data.success && data.data.details.length > 0) {
-                    // Сохраняем в кэш
                     detailsCache[cacheKey] = data.data.details;
-                    
-                    // Обновляем последнюю запись
                     updateLastRecordAfterLoad();
-                    
                     displayDetailedData(data.data.details, listElement, formattedDate, hour);
                 } else {
                     const dateParts = formattedDate.split('-');
@@ -1078,36 +1234,37 @@
                         }
                         reject(new Error('Таймаут загрузки'));
                     }
-                }, 10000);
+                }, 15000); // Увеличил таймаут до 15 секунд
             });
         }
         
         function displayDetailedData(details, listElement, dateStr, hour) {
             listElement.innerHTML = '';
             
-            // Получаем напряжение ближе к порогам
             const closestData = getClosestToThreshold(details);
             const { min: minVoltage, max: maxVoltage } = getMinMaxVoltage(details);
             const totalRecords = details.length;
             
-            // Форматируем дату для отображения
             const dateParts = dateStr.split('-');
             const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
             
-            // Добавляем каждую запись
+            // Добавляем заголовок
+            const header = document.createElement('div');
+            header.className = 'detail-item header';
+            header.innerHTML = `<div>Дата: ${displayDate}</div><div>Время: ${hour}:00-${hour}:59</div>`;
+            listElement.appendChild(header);
+            
+            // Добавляем записи
             details.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'detail-item';
                 
-                // Напряжение слева
                 const voltageSpan = document.createElement('span');
                 voltageSpan.className = 'voltage-left voltage-detail';
                 
                 if (item.voltage !== undefined) {
-                    // Добавляем пробел после числа
                     voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
                     
-                    // Добавляем цвет в зависимости от напряжения
                     if (item.voltage < LOW_THRESHOLD) {
                         voltageSpan.style.color = '#e74c3c';
                     } else if (item.voltage > HIGH_THRESHOLD) {
@@ -1120,7 +1277,6 @@
                     voltageSpan.style.color = '#95a5a6';
                 }
                 
-                // Время справа
                 const timeSpan = document.createElement('span');
                 timeSpan.className = 'time-right';
                 timeSpan.textContent = item.time;
@@ -1131,14 +1287,7 @@
                 listElement.appendChild(div);
             });
             
-            // Добавляем разделитель перед итоговой информацией
-            const separator = document.createElement('div');
-            separator.style.height = '1px';
-            separator.style.background = '#dee2e6';
-            separator.style.margin = '10px 0';
-            listElement.appendChild(separator);
-            
-            // Добавляем итоговую информацию
+            // Добавляем статистику
             const summaryDiv = document.createElement('div');
             summaryDiv.className = 'detail-item summary';
             summaryDiv.style.flexDirection = 'column';
@@ -1146,36 +1295,29 @@
             
             const totalRecordsText = document.createElement('div');
             totalRecordsText.style.marginBottom = '5px';
-            totalRecordsText.innerHTML = `<strong>Итого записей за час:</strong> ${totalRecords}`;
-            
-            const minVoltageText = document.createElement('div');
-            minVoltageText.style.marginBottom = '5px';
-            if (minVoltage !== null) {
-                minVoltageText.innerHTML = `<strong>Самый низкий порог:</strong> ${minVoltage.toFixed(1)} V`;
-            } else {
-                minVoltageText.innerHTML = `<strong>Самый низкий порог:</strong> нет данных`;
-            }
-            
-            const maxVoltageText = document.createElement('div');
-            if (maxVoltage !== null) {
-                maxVoltageText.innerHTML = `<strong>Самый высокий порог:</strong> ${maxVoltage.toFixed(1)} V`;
-            } else {
-                maxVoltageText.innerHTML = `<strong>Самый высокий порог:</strong> нет данных`;
-            }
-            
-            // Добавляем информацию о ближайшем к порогу напряжении
-            const closestVoltageText = document.createElement('div');
-            closestVoltageText.style.marginBottom = '5px';
-            if (closestData.voltage !== null) {
-                closestVoltageText.innerHTML = `<strong>Ближе к порогу:</strong> ${closestData.voltage.toFixed(1)} V`;
-            } else {
-                closestVoltageText.innerHTML = `<strong>Ближе к порогу:</strong> нет данных`;
-            }
+            totalRecordsText.innerHTML = `<strong>Итого записей:</strong> ${totalRecords}`;
             
             summaryDiv.appendChild(totalRecordsText);
-            summaryDiv.appendChild(closestVoltageText);
-            summaryDiv.appendChild(minVoltageText);
-            summaryDiv.appendChild(maxVoltageText);
+            
+            if (closestData.voltage !== null) {
+                const closestText = document.createElement('div');
+                closestText.style.marginBottom = '5px';
+                closestText.innerHTML = `<strong>Ближе к порогу:</strong> ${closestData.voltage.toFixed(1)} V`;
+                summaryDiv.appendChild(closestText);
+            }
+            
+            if (minVoltage !== null) {
+                const minText = document.createElement('div');
+                minText.style.marginBottom = '5px';
+                minText.innerHTML = `<strong>Минимальное:</strong> ${minVoltage.toFixed(1)} V`;
+                summaryDiv.appendChild(minText);
+            }
+            
+            if (maxVoltage !== null) {
+                const maxText = document.createElement('div');
+                maxText.innerHTML = `<strong>Максимальное:</strong> ${maxVoltage.toFixed(1)} V`;
+                summaryDiv.appendChild(maxText);
+            }
             
             listElement.appendChild(summaryDiv);
         }
@@ -1183,83 +1325,8 @@
         function closeDetailsModal() {
             const modal = document.getElementById('detailsModal');
             modal.classList.remove('active');
-            document.getElementById('tableContainer').focus();
         }
         
-        function adjustTableLayout() {
-            const container = document.getElementById('tableContainer');
-            const firstColWidth = 60;
-            
-            if (window.innerWidth < 769) {
-                const availableWidth = window.innerWidth - firstColWidth - 16;
-                const dayColumns = 7;
-                const columnWidth = Math.max(40, Math.floor(availableWidth / dayColumns));
-                
-                document.querySelectorAll('th:not(:first-child), td:not(:first-child)').forEach(cell => {
-                    cell.style.width = columnWidth + 'px';
-                    cell.style.minWidth = columnWidth + 'px';
-                    cell.style.maxWidth = columnWidth + 'px';
-                });
-                
-                if (document.getElementById('scheduleTable').offsetWidth > window.innerWidth) {
-                    container.style.overflowX = 'auto';
-                } else {
-                    container.style.overflowX = 'hidden';
-                }
-            } else {
-                document.querySelectorAll('th:not(:first-child), td:not(:first-child)').forEach(cell => {
-                    cell.style.width = 'auto';
-                    cell.style.minWidth = '';
-                    cell.style.maxWidth = '';
-                });
-                container.style.overflowX = 'hidden';
-            }
-        }
-        
-        function setupDateInput() {
-            const dateInput = document.getElementById('dateInput');
-            
-            // Устанавливаем текущую дату
-            dateInput.value = formatDateForInput(currentDate);
-            
-            // Обработчик изменения даты
-            dateInput.addEventListener('change', handleDateChange);
-            
-            // Улучшение UX для мобильных устройств
-            if ('ontouchstart' in window) {
-                dateInput.addEventListener('touchstart', function(e) {
-                    e.stopPropagation();
-                }, { passive: true });
-            }
-        }
-        
-        async function loadSchedule() {
-            const tbody = document.getElementById('scheduleBody');
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">Загрузка...</td></tr>';
-            
-            try {
-                const formattedDate = formatDateForInput(currentDate);
-                const data = await loadViaJSONP(formattedDate);
-                
-                if (data.success) {
-                    // Загружаем детальные данные для всех ячеек с напряжением
-                    await loadAllVoltagesForWeek(data.data);
-                    displayLightSchedule(data.data);
-                    setupCellClickHandlers();
-                    
-                    // Обновляем последнюю запись
-                    updateLastRecordAfterLoad();
-                    
-                    setTimeout(adjustTableLayout, 100);
-                } else {
-                    showError(data.error || 'Неизвестная ошибка');
-                }
-            } catch (error) {
-                showError('Ошибка загрузки: ' + error.message);
-            }
-        }
-        
-        // Функция для получения самого низкого и высокого напряжения
         function getMinMaxVoltage(details) {
             if (!details || details.length === 0) return { min: null, max: null };
             
@@ -1279,7 +1346,6 @@
             };
         }
         
-        // Функция для получения напряжения ближайшего к порогам
         function getClosestToThreshold(details) {
             if (!details || details.length === 0) return { voltage: null, distance: null, whichThreshold: null };
             
@@ -1292,7 +1358,6 @@
                 Math.abs(voltageRecords[0].voltage - HIGH_THRESHOLD)
             );
             
-            // Ищем запись с напряжением, которое ближе всего к порогам
             for (let i = 1; i < voltageRecords.length; i++) {
                 const voltage = voltageRecords[i].voltage;
                 const distanceToLow = Math.abs(voltage - LOW_THRESHOLD);
@@ -1305,7 +1370,6 @@
                 }
             }
             
-            // Определяем, к какому порогу ближе
             const distanceToLow = Math.abs(closestVoltage - LOW_THRESHOLD);
             const distanceToHigh = Math.abs(closestVoltage - HIGH_THRESHOLD);
             const whichThreshold = distanceToLow < distanceToHigh ? 'low' : 'high';
@@ -1317,151 +1381,52 @@
             };
         }
         
-        async function loadAllVoltagesForWeek(data) {
-            const schedule = data.schedule;
-            if (!schedule || schedule.length !== 24) return;
+        async function loadSchedule() {
+            const grid = document.getElementById('hoursGrid');
+            grid.innerHTML = '<div style="text-align: center; padding: 40px 20px; grid-column: 1 / -1;">Загрузка...</div>';
             
             try {
-                // Загружаем по одному часу для оптимизации
-                for (let hour = 0; hour < 24; hour++) {
-                    for (let day = 0; day < 7; day++) {
-                        if (schedule[hour] && schedule[hour][day] === true) {
-                            const targetDate = new Date(currentDate);
-                            const dayOfWeek = targetDate.getDay();
-                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                            const monday = new Date(targetDate);
-                            monday.setDate(targetDate.getDate() - diffToMonday);
-                            
-                            const specificDate = new Date(monday);
-                            specificDate.setDate(monday.getDate() + day);
-                            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
-                            const cacheKey = `${formattedDate}-${hour}-${day}`;
-                            
-                            // Если нет в кэше, загружаем
-                            if (!detailsCache[cacheKey]) {
-                                try {
-                                    const detailsData = await loadDetailedDataViaJSONP(formattedDate, hour, day);
-                                    if (detailsData.success) {
-                                        detailsCache[cacheKey] = detailsData.data.details;
-                                    }
-                                } catch (error) {
-                                    console.warn(`Не удалось загрузить данные для ${hour}:00, день ${day}`);
-                                }
-                            }
-                        }
+                const formattedDate = formatDateForInput(currentDate);
+                const data = await loadViaJSONP(formattedDate);
+                
+                if (data.success) {
+                    // Сохраняем данные для всей недели
+                    window.currentWeekData = data.data;
+                    
+                    // Создаем навигацию по дням
+                    createDaysNavigation(data.data.weekInfo);
+                    
+                    // Устанавливаем заголовок для текущего дня
+                    if (data.data.weekInfo && data.data.weekInfo[currentDayIndex]) {
+                        updateDayHeader(data.data.weekInfo[currentDayIndex]);
                     }
+                    
+                    // Отображаем расписание для текущего дня
+                    displayCurrentDaySchedule();
+                    
+                    // Запускаем фоновую загрузку данных о напряжении
+                    loadVoltageDataForAllLights(data.data.schedule);
+                    
+                    // Обновляем последнюю запись
+                    updateLastRecordAfterLoad();
+                } else {
+                    showError(data.error || 'Неизвестная ошибка');
                 }
             } catch (error) {
-                console.error('Ошибка при загрузке напряжений:', error);
+                showError('Ошибка загрузки: ' + error.message);
             }
         }
         
-        function displayLightSchedule(data) {
-            const schedule = data.schedule;
-            const weekInfo = data.weekInfo;
-            const tbody = document.getElementById('scheduleBody');
+        function setupDateInput() {
+            const dateInput = document.getElementById('dateInput');
+            dateInput.value = formatDateForInput(currentDate);
+            dateInput.addEventListener('change', handleDateChange);
             
-            if (weekInfo) {
-                weekInfo.forEach((day, index) => {
-                    const dayElement = document.getElementById(`day${index + 1}`);
-                    if (dayElement && day.date) {
-                        const dateParts = day.date.split('.');
-                        dayElement.innerHTML = `${day.dayName}<br><small style="font-size: 10px; opacity: 0.8;">${dateParts[0]}.${dateParts[1]}</small>`;
-                    }
-                });
+            if ('ontouchstart' in window) {
+                dateInput.addEventListener('touchstart', function(e) {
+                    e.stopPropagation();
+                }, { passive: true });
             }
-            
-            tbody.innerHTML = '';
-            
-            if (schedule && schedule.length === 24) {
-                for (let hour = 0; hour < 24; hour++) {
-                    const row = document.createElement('tr');
-                    
-                    const today = new Date();
-                    if (today.toDateString() === currentDate.toDateString() && hour === currentHour) {
-                        row.className = 'current-hour';
-                    }
-                    
-                    const timeCell = document.createElement('td');
-                    timeCell.textContent = hour.toString().padStart(2, '0') + ':00';
-                    row.appendChild(timeCell);
-                    
-                    for (let day = 0; day < 7; day++) {
-                        const cell = document.createElement('td');
-                        const hasLight = schedule[hour] && schedule[hour][day] === true;
-                        
-                        if (hasLight) {
-                            // Вместо напряжения показываем лампочку эмодзи
-                            cell.className = 'light-on';
-                            cell.textContent = '💡';
-                            
-                            // Получаем детальные данные из кэша для подсказки
-                            const targetDate = new Date(currentDate);
-                            const dayOfWeek = targetDate.getDay();
-                            const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-                            const monday = new Date(targetDate);
-                            monday.setDate(targetDate.getDate() - diffToMonday);
-                            
-                            const specificDate = new Date(monday);
-                            specificDate.setDate(monday.getDate() + day);
-                            const formattedDate = formatDate(specificDate, 'yyyy-MM-dd');
-                            const cacheKey = `${formattedDate}-${hour}-${day}`;
-                            const details = detailsCache[cacheKey];
-                            
-                            // Создаем всплывающую подсказку
-                            const dateParts = formattedDate.split('-');
-                            const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-                            
-                            if (details && details.length > 0) {
-                                // Получаем напряжение ближайшее к порогам
-                                const closestData = getClosestToThreshold(details);
-                                const whichThreshold = closestData.whichThreshold === 'low' ? 
-                                    `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
-                                    `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
-                                
-                                cell.title = `Свет был в этот час\nНапряжение ближе к порогу: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${details.length}\nКликните для просмотра всех записей`;
-                            } else {
-                                cell.title = `Свет был в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра всех записей`;
-                            }
-                        } else {
-                            cell.innerHTML = '<a><img src="https://i.postimg.cc/J7qmryzP/free-icon-no-flash-1687721.png" border="0" alt="Нет света"></a>';
-                            cell.title = 'Нет света - кликните для просмотра записей за этот час';
-                            cell.classList.remove('no');
-                        }
-                        
-                        row.appendChild(cell);
-                    }
-                    
-                    tbody.appendChild(row);
-                }
-            } else {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px 20px; color: #718096;">
-                            Нет данных для отображения
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-        
-        function setupCellClickHandlers() {
-            const cells = document.querySelectorAll('td:not(:first-child)');
-            cells.forEach(cell => {
-                cell.removeEventListener('click', handleCellClick);
-                cell.addEventListener('click', handleCellClick);
-                cell.style.cursor = 'pointer';
-            });
-        }
-        
-        function handleCellClick(event) {
-            const cell = event.target;
-            const row = cell.parentElement;
-            const tbody = row.parentElement;
-            const hour = Array.from(tbody.children).indexOf(row);
-            const day = Array.from(row.children).indexOf(cell) - 1;
-            
-            showDetails(hour, day);
         }
         
         function loadViaJSONP(date) {
@@ -1503,14 +1468,12 @@
         }
         
         function showError(message) {
-            const tbody = document.getElementById('scheduleBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px 20px; color: #e74c3c;">
-                        Ошибка: ${message}<br>
-                        <small>Попробуйте обновить страницу</small>
-                    </td>
-                </tr>
+            const grid = document.getElementById('hoursGrid');
+            grid.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #e74c3c; grid-column: 1 / -1;">
+                    Ошибка: ${message}<br>
+                    <small>Попробуйте обновить страницу</small>
+                </div>
             `;
         }
         
@@ -1528,34 +1491,32 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             setupDateInput();
-            
-            // Инициализация отображения последней записи
             updateLastRecordDisplay();
-            
             loadSchedule();
             
             window.addEventListener('resize', function() {
-                adjustTableLayout();
                 adjustDetailsListHeight();
             });
             
             window.addEventListener('orientationchange', function() {
                 setTimeout(function() {
-                    adjustTableLayout();
                     adjustDetailsListHeight();
                 }, 300);
             });
             
+            // Обновляем подсветку текущего часа каждую минуту
             setInterval(() => {
                 currentHour = new Date().getHours();
                 const today = new Date();
-                const rows = document.querySelectorAll('#scheduleBody tr');
+                const cells = document.querySelectorAll('.hour-cell');
                 
-                rows.forEach((row, index) => {
-                    if (today.toDateString() === currentDate.toDateString() && index === currentHour) {
-                        row.className = 'current-hour';
+                cells.forEach((cell, index) => {
+                    if (today.toDateString() === currentDate.toDateString() && 
+                        index === currentHour && 
+                        currentDayIndex === (today.getDay() - 1 >= 0 ? today.getDay() - 1 : 6)) {
+                        cell.classList.add('current-hour');
                     } else {
-                        row.className = '';
+                        cell.classList.remove('current-hour');
                     }
                 });
             }, 60000);

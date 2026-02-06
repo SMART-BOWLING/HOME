@@ -525,12 +525,13 @@
         const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywAwxNCmr6h2GyuoB8RJ1muyyjGk9k_35zJtw5CApMICM78bZK7jr0V7MC8MGW9ruH/exec';
         const LOW_THRESHOLD = 210;
         const HIGH_THRESHOLD = 250;
-        const NO_LIGHT_THRESHOLD = 50; // Если напряжение меньше 50V - света нет
+        const NO_LIGHT_THRESHOLD = 150; // Если напряжение меньше 150V - света нет
         
         let currentHour = new Date().getHours();
         let scriptUrl = DEFAULT_SCRIPT_URL;
         let currentDate = new Date();
         let detailsCache = {};
+        let allDetailsCache = {}; // Кэш для ВСЕХ данных (включая < 150V)
         
         // Функция для отображения расписания текущего дня в формате grid
         function displayCurrentDaySchedule() {
@@ -561,11 +562,11 @@
                 if (schedule[hour] && schedule[hour][dayIndex] === true) {
                     // Проверяем реальные данные о напряжении, если они есть
                     const cacheKey = getCacheKey(hour, dayIndex);
-                    const details = detailsCache[cacheKey];
+                    const allDetails = allDetailsCache[cacheKey]; // Используем ВСЕ данные
                     
-                    if (details && details.length > 0) {
-                        // Проверяем, есть ли записи с напряжением больше порога
-                        const voltageRecords = details.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD);
+                    if (allDetails && allDetails.length > 0) {
+                        // Проверяем, есть ли записи с напряжением >= 150V
+                        const voltageRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD);
                         hasLight = voltageRecords.length > 0;
                     } else {
                         // Если данных нет, используем расписание
@@ -616,19 +617,24 @@
                 
                 // Добавляем информацию о напряжении во всплывающую подсказку
                 const cacheKey = getCacheKey(hour, dayIndex);
-                const details = detailsCache[cacheKey];
+                const allDetails = allDetailsCache[cacheKey];
                 const displayDate = formatDate(currentDate, 'dd.MM.yyyy');
                 
-                if (hasLight && details && details.length > 0) {
-                    const closestData = getClosestToThreshold(details);
+                if (allDetails && allDetails.length > 0) {
+                    const closestData = getClosestToThreshold(allDetails);
                     const whichThreshold = closestData.whichThreshold === 'low' ? 
                         `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
                         `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
                     
-                    // Фильтруем записи где напряжение >= 50V
-                    const validRecords = details.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD);
+                    // Подсчитываем записи с напряжением >= 150V
+                    const validRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD);
+                    const lowVoltageRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage < NO_LIGHT_THRESHOLD);
                     
-                    tile.title = `Свет был в этот час\nНапряжение: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${validRecords.length}\nКликните для просмотра всех записей`;
+                    if (hasLight) {
+                        tile.title = `Свет был в этот час\nНапряжение: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей ≥150V: ${validRecords.length}\nЗаписей <150V: ${lowVoltageRecords.length}\nКликните для просмотра всех записей`;
+                    } else {
+                        tile.title = `Света не было в этот час\nПричина: все записи напряжения < 150V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${allDetails.length}`;
+                    }
                 } else if (hasLight) {
                     tile.title = `Свет был в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра записей`;
                 } else {
@@ -657,8 +663,8 @@
             const cacheKey = getCacheKey(hour, day);
             
             // Если уже есть в кэше, не загружаем
-            if (detailsCache[cacheKey]) {
-                return detailsCache[cacheKey];
+            if (allDetailsCache[cacheKey]) {
+                return allDetailsCache[cacheKey];
             }
             
             try {
@@ -666,13 +672,16 @@
                 const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
                 
                 if (data.success && data.data.details.length > 0) {
-                    // Фильтруем записи с напряжением >= 50V
+                    // Сохраняем ВСЕ данные (включая < 150V) в allDetailsCache
+                    allDetailsCache[cacheKey] = data.data.details;
+                    
+                    // Фильтруем записи с напряжением >= 150V для detailsCache
                     const validDetails = data.data.details.filter(d => 
                         d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD
                     );
-                    
                     detailsCache[cacheKey] = validDetails;
-                    return validDetails;
+                    
+                    return data.data.details; // Возвращаем ВСЕ данные
                 }
             } catch (error) {
                 console.warn(`Не удалось загрузить данные для ${hour}:00:`, error);
@@ -687,6 +696,7 @@
             if (dateInput.value) {
                 currentDate = new Date(dateInput.value);
                 detailsCache = {};
+                allDetailsCache = {};
                 loadSchedule();
             }
         }
@@ -755,8 +765,8 @@
             const formattedDate = formatDate(date, 'yyyy-MM-dd');
             const cacheKey = `${formattedDate}-${hour}-${day}`;
             
-            if (detailsCache[cacheKey]) {
-                displayDetailedData(detailsCache[cacheKey], listElement, formattedDate, hour);
+            if (allDetailsCache[cacheKey]) {
+                displayDetailedData(allDetailsCache[cacheKey], listElement, formattedDate, hour);
                 return;
             }
             
@@ -764,13 +774,9 @@
                 const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
                 
                 if (data.success && data.data.details.length > 0) {
-                    // Фильтруем записи с напряжением >= 50V
-                    const validDetails = data.data.details.filter(d => 
-                        d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD
-                    );
-                    
-                    detailsCache[cacheKey] = validDetails;
-                    displayDetailedData(validDetails, listElement, formattedDate, hour);
+                    // Сохраняем ВСЕ данные в кэш
+                    allDetailsCache[cacheKey] = data.data.details;
+                    displayDetailedData(data.data.details, listElement, formattedDate, hour);
                 } else {
                     const dateParts = formattedDate.split('-');
                     const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
@@ -834,9 +840,8 @@
                 
                 listElement.innerHTML = `
                     <div class="no-data">
-                        Нет записей о напряжении ≥ 50V<br>
-                        ${displayDate}, ${hour}:00 - ${hour}:59<br>
-                        <small>Это означает, что света не было</small>
+                        Нет записей за этот час<br>
+                        ${displayDate}, ${hour}:00 - ${hour}:59
                     </div>
                 `;
                 return;
@@ -845,6 +850,10 @@
             const closestData = getClosestToThreshold(details);
             const { min: minVoltage, max: maxVoltage } = getMinMaxVoltage(details);
             const totalRecords = details.length;
+            
+            // Подсчет записей по категориям
+            const highVoltageRecords = details.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD).length;
+            const lowVoltageRecords = details.filter(d => d.voltage !== undefined && d.voltage < NO_LIGHT_THRESHOLD).length;
             
             const dateParts = dateStr.split('-');
             const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
@@ -866,7 +875,11 @@
                 if (item.voltage !== undefined) {
                     voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
                     
-                    if (item.voltage < LOW_THRESHOLD) {
+                    // Подсвечиваем записи < 150V красным
+                    if (item.voltage < NO_LIGHT_THRESHOLD) {
+                        voltageSpan.style.color = '#ff3b30';
+                        voltageSpan.style.fontWeight = 'bold';
+                    } else if (item.voltage < LOW_THRESHOLD) {
                         voltageSpan.style.color = '#ff3b30';
                     } else if (item.voltage > HIGH_THRESHOLD) {
                         voltageSpan.style.color = '#ff9500';
@@ -896,9 +909,20 @@
             
             const totalRecordsText = document.createElement('div');
             totalRecordsText.style.marginBottom = '5px';
-            totalRecordsText.innerHTML = `<strong>Итого записей (≥ 50V):</strong> ${totalRecords}`;
-            
+            totalRecordsText.innerHTML = `<strong>Итого записей:</strong> ${totalRecords}`;
             summaryDiv.appendChild(totalRecordsText);
+            
+            const highVoltageText = document.createElement('div');
+            highVoltageText.style.marginBottom = '5px';
+            highVoltageText.innerHTML = `<strong>Записей ≥ 150V:</strong> ${highVoltageRecords}`;
+            highVoltageText.style.color = '#34c759';
+            summaryDiv.appendChild(highVoltageText);
+            
+            const lowVoltageText = document.createElement('div');
+            lowVoltageText.style.marginBottom = '5px';
+            lowVoltageText.innerHTML = `<strong>Записей < 150V:</strong> ${lowVoltageRecords}`;
+            lowVoltageText.style.color = '#ff3b30';
+            summaryDiv.appendChild(lowVoltageText);
             
             if (closestData.voltage !== null) {
                 const closestText = document.createElement('div');

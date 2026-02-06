@@ -187,16 +187,6 @@
             flex-direction: column;
         }
         
-        .modal-title {
-            margin-bottom: 15px;
-            color: #000000;
-            font-size: 18px;
-            text-align: center;
-            line-height: 1.4;
-            flex-shrink: 0;
-            font-weight: 590;
-        }
-        
         .details-modal {
             max-width: 450px;
             padding: 15px;
@@ -633,19 +623,17 @@
                     if (hasLight) {
                         tile.title = `Свет был в этот час\nНапряжение: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей ≥150V: ${validRecords.length}\nЗаписей <150V: ${lowVoltageRecords.length}\nКликните для просмотра всех записей`;
                     } else {
-                        tile.title = `Света не было в этот час\nПричина: все записи напряжения < 150V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${allDetails.length}`;
+                        tile.title = `Света не было в этот час\nПричина: все записи напряжения < 150V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${allDetails.length}\nКликните для просмотра всех записей`;
                     }
                 } else if (hasLight) {
                     tile.title = `Свет был в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра записей`;
                 } else {
-                    tile.title = `Света не было в этот час\nДата: ${displayDate}\nВремя: ${hour}:00`;
+                    tile.title = `Света не было в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра записей`;
                 }
                 
-                // Добавляем обработчик клика
+                // Добавляем обработчик клика на ВСЕ плитки
                 tile.addEventListener('click', () => {
-                    if (hasLight) {
-                        showDetails(hour, dayIndex);
-                    }
+                    showDetails(hour, dayIndex);
                 });
                 
                 grid.appendChild(tile);
@@ -858,54 +846,19 @@
             const dateParts = dateStr.split('-');
             const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
             
-            // Добавляем заголовок
-            const header = document.createElement('div');
-            header.className = 'detail-item header';
-            header.innerHTML = `<div>Дата: ${displayDate}</div><div>Время: ${hour}:00-${hour}:59</div>`;
-            listElement.appendChild(header);
-            
-            // Добавляем записи
-            details.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'detail-item';
-                
-                const voltageSpan = document.createElement('span');
-                voltageSpan.className = 'voltage-left voltage-detail';
-                
-                if (item.voltage !== undefined) {
-                    voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
-                    
-                    // Подсвечиваем записи < 150V красным
-                    if (item.voltage < NO_LIGHT_THRESHOLD) {
-                        voltageSpan.style.color = '#ff3b30';
-                        voltageSpan.style.fontWeight = 'bold';
-                    } else if (item.voltage < LOW_THRESHOLD) {
-                        voltageSpan.style.color = '#ff3b30';
-                    } else if (item.voltage > HIGH_THRESHOLD) {
-                        voltageSpan.style.color = '#ff9500';
-                    } else {
-                        voltageSpan.style.color = '#34c759';
-                    }
-                } else {
-                    voltageSpan.textContent = '-';
-                    voltageSpan.style.color = '#8e8e93';
-                }
-                
-                const timeSpan = document.createElement('span');
-                timeSpan.className = 'time-right';
-                timeSpan.textContent = item.time;
-                
-                div.appendChild(voltageSpan);
-                div.appendChild(timeSpan);
-                
-                listElement.appendChild(div);
-            });
-            
-            // Добавляем статистику
+            // Добавляем статистику вверху
             const summaryDiv = document.createElement('div');
             summaryDiv.className = 'detail-item summary';
             summaryDiv.style.flexDirection = 'column';
             summaryDiv.style.alignItems = 'flex-start';
+            summaryDiv.style.marginBottom = '10px';
+            
+            const headerText = document.createElement('div');
+            headerText.style.marginBottom = '8px';
+            headerText.style.fontWeight = '590';
+            headerText.style.fontSize = '14px';
+            headerText.innerHTML = `${displayDate}, ${hour}:00-${hour}:59`;
+            summaryDiv.appendChild(headerText);
             
             const totalRecordsText = document.createElement('div');
             totalRecordsText.style.marginBottom = '5px';
@@ -945,6 +898,51 @@
             }
             
             listElement.appendChild(summaryDiv);
+            
+            // Добавляем заголовок для списка записей
+            const recordsHeader = document.createElement('div');
+            recordsHeader.className = 'detail-item header';
+            recordsHeader.style.marginTop = '5px';
+            recordsHeader.style.marginBottom = '5px';
+            recordsHeader.innerHTML = `<div>Напряжение</div><div>Время</div>`;
+            listElement.appendChild(recordsHeader);
+            
+            // Добавляем записи
+            details.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'detail-item';
+                
+                const voltageSpan = document.createElement('span');
+                voltageSpan.className = 'voltage-left voltage-detail';
+                
+                if (item.voltage !== undefined) {
+                    voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
+                    
+                    // Подсвечиваем записи < 150V красным
+                    if (item.voltage < NO_LIGHT_THRESHOLD) {
+                        voltageSpan.style.color = '#ff3b30';
+                        voltageSpan.style.fontWeight = 'bold';
+                    } else if (item.voltage < LOW_THRESHOLD) {
+                        voltageSpan.style.color = '#ff3b30';
+                    } else if (item.voltage > HIGH_THRESHOLD) {
+                        voltageSpan.style.color = '#ff9500';
+                    } else {
+                        voltageSpan.style.color = '#34c759';
+                    }
+                } else {
+                    voltageSpan.textContent = '-';
+                    voltageSpan.style.color = '#8e8e93';
+                }
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'time-right';
+                timeSpan.textContent = item.time;
+                
+                div.appendChild(voltageSpan);
+                div.appendChild(timeSpan);
+                
+                listElement.appendChild(div);
+            });
         }
         
         function closeDetailsModal() {

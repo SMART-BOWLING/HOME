@@ -612,7 +612,6 @@
         let currentDate = new Date();
         let detailsCache = {};
         let lastRecordData = null;
-        let currentDayIndex = 0;
         
         // Функция для отображения расписания текущего дня в формате grid
         function displayCurrentDaySchedule() {
@@ -621,9 +620,13 @@
             
             // Получаем данные для выбранной даты
             const weekData = window.currentWeekData;
-            if (!weekData || !weekData.schedule) return;
+            if (!weekData || !weekData.schedule) {
+                console.log('Нет данных schedule в weekData:', weekData);
+                return;
+            }
             
             const schedule = weekData.schedule;
+            console.log('Получен schedule:', schedule);
             
             for (let hour = 0; hour < 24; hour++) {
                 const tile = document.createElement('div');
@@ -636,7 +639,20 @@
                     tile.classList.add('current');
                 }
                 
-                const hasLight = schedule[hour] && schedule[hour][currentDayIndex] === true;
+                // Правильно определяем, есть ли свет в этот час
+                // schedule[hour] должен быть массивом из 7 элементов (для дней недели)
+                // Или просто true/false если данные для одного дня
+                let hasLight = false;
+                
+                if (Array.isArray(schedule[hour])) {
+                    // Если это массив, берем первый элемент (для выбранной даты)
+                    hasLight = schedule[hour][0] === true;
+                } else {
+                    // Если это не массив, проверяем как boolean
+                    hasLight = schedule[hour] === true;
+                }
+                
+                console.log(`Час ${hour}: hasLight = ${hasLight}, schedule[hour] =`, schedule[hour]);
                 
                 // Добавляем класс 'off' если света нет
                 if (!hasLight) {
@@ -1005,9 +1021,11 @@
             
             try {
                 const formattedDate = formatDateForInput(currentDate);
+                console.log('Загрузка расписания для даты:', formattedDate);
                 const data = await loadViaJSONP(formattedDate);
                 
                 if (data.success) {
+                    console.log('Данные успешно загружены:', data);
                     // Сохраняем данные для выбранной даты
                     window.currentWeekData = data.data;
                     
@@ -1017,9 +1035,11 @@
                     // Обновляем последнюю запись
                     updateLastRecordAfterLoad();
                 } else {
+                    console.log('Ошибка в данных:', data.error);
                     showError(data.error || 'Неизвестная ошибка');
                 }
             } catch (error) {
+                console.log('Ошибка загрузки:', error);
                 showError('Ошибка загрузки: ' + error.message);
             }
         }

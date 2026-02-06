@@ -342,6 +342,87 @@
             display: flex;
         }
         
+        /* Стили для улучшенной статистики */
+        .stats-container {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5ea;
+        }
+        
+        .stats-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 12px;
+            text-align: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            padding: 6px 0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 2px;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 590;
+            color: #000000;
+        }
+        
+        .stat-value.high {
+            color: #34c759;
+        }
+        
+        .stat-value.low {
+            color: #ff3b30;
+        }
+        
+        .records-list {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: white;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid #e5e5ea;
+        }
+        
+        .record-voltage {
+            font-weight: 590;
+            min-width: 70px;
+        }
+        
+        .record-time {
+            color: #8e8e93;
+            font-size: 12px;
+        }
+        
         /* Для очень маленьких экранов */
         @media (max-width: 480px) {
             body {
@@ -387,6 +468,15 @@
             .no-light-icon {
                 width: 20px;
                 height: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            
+            .stats-container {
+                padding: 12px;
             }
         }
         
@@ -621,7 +711,7 @@
                     const lowVoltageRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage < NO_LIGHT_THRESHOLD);
                     
                     if (hasLight) {
-                        tile.title = `Свет был в этот час\nНапряжение: ${closestData.voltage ? closestData.voltage.toFixed(1) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей ≥150V: ${validRecords.length}\nЗаписей <150V: ${lowVoltageRecords.length}\nКликните для просмотра всех записей`;
+                        tile.title = `Свет был в этот час\nНапряжение: ${closestData.voltage ? formatVoltage(closestData.voltage) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей ≥150V: ${validRecords.length}\nЗаписей <150V: ${lowVoltageRecords.length}\nКликните для просмотра всех записей`;
                     } else {
                         tile.title = `Света не было в этот час\nПричина: все записи напряжения < 150V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${allDetails.length}\nКликните для просмотра всех записей`;
                     }
@@ -637,6 +727,23 @@
                 });
                 
                 grid.appendChild(tile);
+            }
+        }
+        
+        // Функция для форматирования напряжения (убирает лишние нули)
+        function formatVoltage(voltage) {
+            if (voltage === undefined || voltage === null) return 'нет данных';
+            // Если число целое - показываем без десятичных, иначе с одной цифрой после запятой
+            if (Number.isInteger(voltage)) {
+                return voltage.toString();
+            } else {
+                // Округляем до одной цифры после запятой
+                const rounded = Math.round(voltage * 10) / 10;
+                // Если после округления стало целым числом - показываем без десятичных
+                if (Number.isInteger(rounded)) {
+                    return rounded.toString();
+                }
+                return rounded.toFixed(1).replace('.0', '');
             }
         }
         
@@ -846,77 +953,67 @@
             const dateParts = dateStr.split('-');
             const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
             
-            // Добавляем статистику вверху
-            const summaryDiv = document.createElement('div');
-            summaryDiv.className = 'detail-item summary';
-            summaryDiv.style.flexDirection = 'column';
-            summaryDiv.style.alignItems = 'flex-start';
-            summaryDiv.style.marginBottom = '10px';
+            // Создаем контейнер для статистики
+            const statsContainer = document.createElement('div');
+            statsContainer.className = 'stats-container';
             
-            const headerText = document.createElement('div');
-            headerText.style.marginBottom = '8px';
-            headerText.style.fontWeight = '590';
-            headerText.style.fontSize = '14px';
-            headerText.innerHTML = `${displayDate}, ${hour}:00-${hour}:59`;
-            summaryDiv.appendChild(headerText);
+            // Заголовок
+            const header = document.createElement('div');
+            header.className = 'stats-header';
+            header.textContent = `${displayDate}, ${hour}:00-${hour}:59`;
+            statsContainer.appendChild(header);
             
-            const totalRecordsText = document.createElement('div');
-            totalRecordsText.style.marginBottom = '5px';
-            totalRecordsText.innerHTML = `<strong>Итого записей:</strong> ${totalRecords}`;
-            summaryDiv.appendChild(totalRecordsText);
+            // Сетка для статистики
+            const statsGrid = document.createElement('div');
+            statsGrid.className = 'stats-grid';
             
-            const highVoltageText = document.createElement('div');
-            highVoltageText.style.marginBottom = '5px';
-            highVoltageText.innerHTML = `<strong>Записей ≥ 150V:</strong> ${highVoltageRecords}`;
-            highVoltageText.style.color = '#34c759';
-            summaryDiv.appendChild(highVoltageText);
+            // Итого записей
+            const totalStat = createStatItem('Итого записей', totalRecords.toString());
+            statsGrid.appendChild(totalStat);
             
-            const lowVoltageText = document.createElement('div');
-            lowVoltageText.style.marginBottom = '5px';
-            lowVoltageText.innerHTML = `<strong>Записей < 150V:</strong> ${lowVoltageRecords}`;
-            lowVoltageText.style.color = '#ff3b30';
-            summaryDiv.appendChild(lowVoltageText);
+            // Записей ≥ 150V
+            const highStat = createStatItem('≥ 150V', highVoltageRecords.toString(), 'high');
+            statsGrid.appendChild(highStat);
             
+            // Записей < 150V
+            const lowStat = createStatItem('< 150V', lowVoltageRecords.toString(), 'low');
+            statsGrid.appendChild(lowStat);
+            
+            // Ближе к порогу
             if (closestData.voltage !== null) {
-                const closestText = document.createElement('div');
-                closestText.style.marginBottom = '5px';
-                closestText.innerHTML = `<strong>Ближе к порогу:</strong> ${closestData.voltage.toFixed(1)} V`;
-                summaryDiv.appendChild(closestText);
+                const closestStat = createStatItem('Ближе к порогу', formatVoltage(closestData.voltage) + 'V');
+                statsGrid.appendChild(closestStat);
             }
             
+            // Минимальное
             if (minVoltage !== null) {
-                const minText = document.createElement('div');
-                minText.style.marginBottom = '5px';
-                minText.innerHTML = `<strong>Минимальное:</strong> ${minVoltage.toFixed(1)} V`;
-                summaryDiv.appendChild(minText);
+                const minStat = createStatItem('Минимальное', formatVoltage(minVoltage) + 'V');
+                statsGrid.appendChild(minStat);
             }
             
+            // Максимальное
             if (maxVoltage !== null) {
-                const maxText = document.createElement('div');
-                maxText.innerHTML = `<strong>Максимальное:</strong> ${maxVoltage.toFixed(1)} V`;
-                summaryDiv.appendChild(maxText);
+                const maxStat = createStatItem('Максимальное', formatVoltage(maxVoltage) + 'V');
+                statsGrid.appendChild(maxStat);
             }
             
-            listElement.appendChild(summaryDiv);
+            statsContainer.appendChild(statsGrid);
+            listElement.appendChild(statsContainer);
             
-            // Добавляем заголовок для списка записей
-            const recordsHeader = document.createElement('div');
-            recordsHeader.className = 'detail-item header';
-            recordsHeader.style.marginTop = '5px';
-            recordsHeader.style.marginBottom = '5px';
-            recordsHeader.innerHTML = `<div>Напряжение</div><div>Время</div>`;
-            listElement.appendChild(recordsHeader);
+            // Контейнер для списка записей
+            const recordsContainer = document.createElement('div');
+            recordsContainer.className = 'records-list';
             
             // Добавляем записи
             details.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'detail-item';
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
                 
                 const voltageSpan = document.createElement('span');
-                voltageSpan.className = 'voltage-left voltage-detail';
+                voltageSpan.className = 'record-voltage';
                 
                 if (item.voltage !== undefined) {
-                    voltageSpan.textContent = item.voltage.toFixed(1) + ' V';
+                    voltageSpan.textContent = formatVoltage(item.voltage) + ' V';
                     
                     // Подсвечиваем записи < 150V красным
                     if (item.voltage < NO_LIGHT_THRESHOLD) {
@@ -935,14 +1032,40 @@
                 }
                 
                 const timeSpan = document.createElement('span');
-                timeSpan.className = 'time-right';
+                timeSpan.className = 'record-time';
                 timeSpan.textContent = item.time;
                 
-                div.appendChild(voltageSpan);
-                div.appendChild(timeSpan);
+                recordItem.appendChild(voltageSpan);
+                recordItem.appendChild(timeSpan);
                 
-                listElement.appendChild(div);
+                recordsContainer.appendChild(recordItem);
             });
+            
+            listElement.appendChild(recordsContainer);
+        }
+        
+        // Вспомогательная функция для создания элемента статистики
+        function createStatItem(label, value, type = '') {
+            const statItem = document.createElement('div');
+            statItem.className = 'stat-item';
+            
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'stat-label';
+            labelSpan.textContent = label;
+            
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'stat-value';
+            if (type === 'high') {
+                valueSpan.classList.add('high');
+            } else if (type === 'low') {
+                valueSpan.classList.add('low');
+            }
+            valueSpan.textContent = value;
+            
+            statItem.appendChild(labelSpan);
+            statItem.appendChild(valueSpan);
+            
+            return statItem;
         }
         
         function closeDetailsModal() {

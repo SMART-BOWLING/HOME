@@ -1,662 +1,1740 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Добавить деталь KH</title>
-  <style>
-    :root {
-      --light-bg: #d7dce3;
-      --dark-bg: #1a2f40;
-      --accent: #dc143c;
-      --text-dark: #1a2f40;
-      --text-light: #ffffff;
-      --input-padding: 14px;
-      --border-radius: 8px;
-      --success: #28a745;
-      --warning: #ffc107;
-    }
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
-      -webkit-tap-highlight-color: transparent;
-    }
-    html, body {
-      height: 100%;
-      overflow: hidden;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background-color: var(--light-bg);
-      color: var(--text-dark);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      min-height: 100vh;
-      height: 100vh;
-    }
-    .container {
-      background-color: var(--text-light);
-      border-radius: var(--border-radius);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-      padding: 15px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      max-height: 96vh;
-    }
-    header {
-      background-color: var(--dark-bg);
-      padding: 12px;
-      border-radius: var(--border-radius);
-      text-align: center;
-      margin: 0 0 15px 0;
-      flex-shrink: 0;
-    }
-    header h1 {
-      font-size: 1.3rem;
-      color: var(--text-light);
-      font-weight: 600;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-      overflow: hidden;
-    }
-    .form-content {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-      overflow: hidden;
-      justify-content: space-between;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-    label {
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: #444;
-    }
-    input[type="text"],
-    input[type="number"],
-    input[type="file"] {
-      width: 100%;
-      padding: var(--input-padding);
-      border: 2px solid #ccc;
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s;
-      min-height: 44px;
-    }
-    input:focus {
-      border-color: var(--accent);
-    }
-    input[type="file"] {
-      padding: 10px;
-      background-color: #f8f9fa;
-    }
-    input[type="file"]::file-selector-button {
-      padding: 8px 12px;
-      background-color: var(--dark-bg);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    button {
-      padding: 14px;
-      background-color: var(--accent);
-      color: var(--text-light);
-      border: none;
-      border-radius: var(--border-radius);
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      min-height: 50px;
-      flex-shrink: 0;
-      margin-top: auto;
-    }
-    button:hover, button:active {
-      background-color: #b0102f;
-    }
-    button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-    
-    /* Стили для индикатора загрузки */
-    .loader {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 4px solid var(--accent);
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .loader-text {
-      color: white;
-      margin-top: 12px;
-      font-size: 1rem;
-      text-align: center;
-    }
-    
-    .loader-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    /* Преимум для изображения */
-    .image-preview {
-      display: none;
-      margin-top: 10px;
-      max-width: 100%;
-      text-align: center;
-    }
-    
-    .image-preview img {
-      max-width: 100%;
-      max-height: 150px;
-      border-radius: var(--border-radius);
-      border: 2px solid #ddd;
-    }
-    
-    .preview-title {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 5px;
-    }
-
-    /* Сообщения о статусе */
-    .status-message {
-      display: none;
-      padding: 10px;
-      border-radius: var(--border-radius);
-      margin: 10px 0;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    
-    .status-success {
-      background-color: rgba(40, 167, 69, 0.1);
-      border: 1px solid var(--success);
-      color: var(--success);
-    }
-    
-    .status-error {
-      background-color: rgba(220, 20, 60, 0.1);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-    }
-
-    /* Медиа-запросы для адаптивности */
-    @media (max-width: 480px) {
-      body {
-        padding: 8px;
-      }
-      
-      .container {
-        padding: 12px;
-        max-height: 98vh;
-      }
-      
-      header {
-        padding: 10px;
-        margin-bottom: 12px;
-      }
-      
-      header h1 {
-        font-size: 1.2rem;
-      }
-      
-      input[type="text"],
-      input[type="number"],
-      input[type="file"] {
-        padding: 12px;
-        font-size: 16px;
-      }
-      
-      button {
-        padding: 12px;
-        font-size: 1rem;
-      }
-      
-      .spinner {
-        width: 35px;
-        height: 35px;
-        border-width: 3px;
-      }
-      
-      .loader-text {
-        font-size: 0.9rem;
-      }
-    }
-
-    @media (max-width: 350px) and (max-height: 650px) {
-      header h1 {
-        font-size: 1.1rem;
-      }
-      
-      input[type="text"],
-      input[type="number"],
-      input[type="file"] {
-        padding: 10px;
-        min-height: 40px;
-      }
-      
-      button {
-        padding: 10px;
-        font-size: 0.95rem;
-        min-height: 45px;
-      }
-      
-      .form-group {
-        gap: 4px;
-      }
-      
-      label {
-        font-size: 0.85rem;
-      }
-    }
-
-    /* Для landscape ориентации */
-    @media (max-height: 500px) and (orientation: landscape) {
-      body {
-        align-items: flex-start;
-        padding-top: 5px;
-        padding-bottom: 5px;
-      }
-      
-      .container {
-        max-height: 98vh;
-        overflow-y: auto;
-      }
-      
-      header {
-        padding: 8px;
-      }
-      
-      header h1 {
-        font-size: 1.1rem;
-      }
-    }
-
-    /* Для очень высоких экранов */
-    @media (min-height: 800px) {
-      .container {
-        max-height: 90vh;
-      }
-      
-      form {
-        gap: 16px;
-      }
-      
-      .form-group {
-        gap: 8px;
-      }
-    }
-  </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+            padding: 20px 16px;
+            background: #f8f8f8;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Блок с информацией */
+        .info-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.04),
+                0 1px 2px rgba(0,0,0,0.06);
+        }
+        
+        .date-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-label {
+            font-size: 14px;
+            font-weight: 590;
+            color: #000000;
+            white-space: nowrap;
+            opacity: 0.9;
+        }
+        
+        .date-input-field {
+            padding: 10px 12px;
+            border: 1px solid #c7c7cc;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 140px;
+            font-family: inherit;
+        }
+        
+        .date-input-field:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+        
+        /* Сетка плиток - УМЕНЬШЕНА ВЫСОТА */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .tile {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px 8px; /* Уменьшен padding */
+            text-align: center;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.04),
+                0 1px 2px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+            min-height: 80px; /* Уменьшена минимальная высота */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid transparent;
+        }
+        
+        .tile:hover {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 6px rgba(0,0,0,0.05),
+                0 2px 4px rgba(0,0,0,0.06);
+        }
+        
+        /* Света нет */
+        .tile.off {
+            background: #fafafa;
+            color: #999999;
+        }
+        
+        .tile.off .hour {
+            color: #999999;
+            opacity: 0.7;
+        }
+        
+        .tile.off .content {
+            color: #999999;
+        }
+        
+        .hour {
+            font-size: 15px; /* Немного уменьшен размер шрифта */
+            font-weight: 590;
+            color: #000000;
+            margin-bottom: 6px; /* Уменьшен отступ */
+            opacity: 0.9;
+        }
+        
+        .content {
+            font-size: 13px; /* Уменьшен размер шрифта */
+            font-weight: 400;
+            color: #666666;
+            line-height: 1.2;
+            min-height: 0; /* Убрана фиксированная высота */
+            height: 0;
+            overflow: hidden;
+        }
+        
+        /* Текущий час */
+        .tile.current {
+            background: #ffffff;
+            border: 2px solid #007aff;
+            box-shadow: 
+                0 0 0 3px rgba(0,122,255,0.08),
+                0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* Иконки - немного уменьшены */
+        .icon-container {
+            width: 28px;
+            height: 28px;
+            margin: 0 auto 6px; /* Уменьшен отступ */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .light-icon {
+            color: #ffcc00;
+            width: 20px; /* Уменьшен размер */
+            height: 20px;
+        }
+        
+        .no-light-icon {
+            color: #c7c7cc;
+            width: 20px; /* Уменьшен размер */
+            height: 20px;
+            opacity: 0.5;
+        }
+        
+        .no-light-icon line {
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+        
+        /* График напряжения */
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.04),
+                0 1px 2px rgba(0,0,0,0.06);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 590;
+            color: #000000;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        #voltageChart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-color.low {
+            background-color: #ff3b30;
+        }
+        
+        .legend-color.normal {
+            background-color: #34c759;
+        }
+        
+        .legend-color.high {
+            background-color: #ff9500;
+        }
+        
+        .legend-color.none {
+            background-color: #c7c7cc;
+        }
+        
+        .loading-chart {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            color: #8e8e93;
+            font-style: italic;
+        }
+        
+        .no-data-chart {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            color: #8e8e93;
+            text-align: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        /* Модальное окно детальных данных */
+        #detailsModal .modal-content {
+            background: #FFFFFF;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.1),
+                0 1px 8px rgba(0,0,0,0.08);
+            width: 95%;
+            max-width: 450px;
+            max-height: 95vh;
+            height: auto;
+            min-height: 350px;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .details-modal {
+            max-width: 450px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
+        
+        .details-list {
+            margin-bottom: 15px;
+            max-height: 70vh;
+            overflow-y: auto;
+            flex-grow: 1;
+            min-height: 250px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e5ea;
+            font-size: 13px;
+            background: white;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            padding: 12px;
+        }
+        
+        .detail-item.header {
+            background: #f5f5f7;
+            font-weight: 590;
+            border-bottom: 1px solid #d1d1d6;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            font-size: 12px;
+            padding: 12px;
+            border-radius: 6px;
+        }
+        
+        .detail-item.summary {
+            background: #f5f5f7;
+            font-weight: 590;
+            border-top: 1px solid #d1d1d6;
+            margin-top: 5px;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            color: #000000;
+        }
+        
+        .detail-item:last-child:not(.summary) {
+            border-bottom: none;
+        }
+        
+        .detail-time {
+            font-weight: 590;
+            color: #000000;
+            min-width: 80px;
+            flex: 0.7;
+            text-align: left;
+            opacity: 0.9;
+        }
+        
+        .detail-value {
+            font-weight: 590;
+            min-width: 80px;
+            flex: 1;
+            text-align: left;
+        }
+        
+        .detail-value.voltage {
+            color: #007aff;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8e8e93;
+            font-style: italic;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        /* Кнопки модальных окон */
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+        
+        .modal-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 590;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        #detailsModal .modal-button {
+            background: #007aff;
+            color: white;
+        }
+        
+        #detailsModal .modal-button:hover {
+            background: #0056cc;
+        }
+        
+        /* Специальные стили для модального окна с деталями */
+        .voltage-detail {
+            font-weight: 590;
+        }
+        
+        .voltage-left {
+            text-align: left;
+            flex: 1;
+            padding-right: 10px;
+        }
+        
+        .time-right {
+            text-align: right;
+            flex: 0.7;
+            padding-left: 10px;
+        }
+        
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        /* Стили для улучшенной статистики */
+        .stats-container {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5ea;
+        }
+        
+        .stats-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 12px;
+            text-align: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            padding: 6px 0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 2px;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 590;
+            color: #000000;
+        }
+        
+        .stat-value.high {
+            color: #34c759;
+        }
+        
+        .stat-value.low {
+            color: #ff3b30;
+        }
+        
+        .records-list {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: white;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid #e5e5ea;
+        }
+        
+        .record-voltage {
+            font-weight: 590;
+            min-width: 70px;
+        }
+        
+        .record-time {
+            color: #8e8e93;
+            font-size: 12px;
+        }
+        
+        /* Анимация загрузки */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #666666;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Для очень маленьких экранов */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px 12px;
+            }
+            
+            .info-container {
+                padding: 12px;
+            }
+            
+            .date-input-field {
+                min-width: 120px;
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            /* Адаптация grid для мобильных */
+            .tile-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .tile {
+                padding: 10px 6px; /* Еще меньше на мобильных */
+                min-height: 70px; /* Еще меньше на мобильных */
+            }
+            
+            .hour {
+                font-size: 14px;
+            }
+            
+            .content {
+                font-size: 12px;
+            }
+            
+            .icon-container {
+                width: 24px;
+                height: 24px;
+                margin-bottom: 4px;
+            }
+            
+            .light-icon,
+            .no-light-icon {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            
+            .stats-container {
+                padding: 12px;
+            }
+            
+            .chart-container {
+                padding: 15px;
+            }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+            
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+                border-width: 3px;
+            }
+            
+            .loading-text {
+                font-size: 14px;
+            }
+        }
+        
+        /* Для средних мобильных */
+        @media (min-width: 481px) and (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+            
+            .info-container {
+                padding: 12px;
+            }
+            
+            .date-input-field {
+                padding: 9px 11px;
+                font-size: 13px;
+                min-width: 130px;
+            }
+            
+            /* Адаптация grid для планшетов */
+            .tile-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .tile {
+                min-height: 75px; /* Уменьшено */
+                padding: 10px 8px;
+            }
+            
+            .icon-container {
+                width: 26px;
+                height: 26px;
+            }
+            
+            .light-icon,
+            .no-light-icon {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .chart-wrapper {
+                height: 280px;
+            }
+            
+            .loading-spinner {
+                width: 55px;
+                height: 55px;
+            }
+        }
+        
+        /* Для десктопов */
+        @media (min-width: 769px) {
+            .info-container {
+                padding: 15px 20px;
+            }
+            
+            /* Адаптация grid для десктопов */
+            .tile-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+            
+            .tile {
+                min-height: 80px; /* Уменьшено */
+                padding: 12px 8px;
+            }
+            
+            .hour {
+                font-size: 15px;
+            }
+            
+            .content {
+                font-size: 13px;
+            }
+            
+            .icon-container {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .light-icon,
+            .no-light-icon {
+                width: 20px;
+                height: 20px;
+            }
+        }
+        
+        /* Для очень широких экранов */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 900px;
+            }
+            
+            .tile-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .tile {
+                min-height: 85px; /* Немного больше на широких экранах */
+            }
+        }
+        
+        @media (max-width: 320px) {
+            .tile-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-wrapper {
+                height: 220px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>ADD PART LS KH</h1>
-    </header>
-    
-    <div class="status-message" id="statusMessage"></div>
-    
-    <form id="form">
-      <div class="form-content">
-        <div class="form-group">
-          <label for="number">Номер детали</label>
-          <input type="text" id="number" placeholder="000-000-000" required>
-        </div>
-
-        <div class="form-group">
-          <label for="qty">Количество</label>
-          <input type="number" id="qty" min="1" value="" required>
-        </div>
-
-        <div class="form-group">
-          <label for="photo">Фотография</label>
-          <input type="file" id="photo" accept="image/*" required>
-          <div class="image-preview" id="imagePreview">
-            <div class="preview-title">Предпросмотр:</div>
-            <img id="previewImage" src="" alt="Предпросмотр">
-          </div>
-        </div>
-
-        <button type="submit" id="submit-btn">Отправить</button>
-      </div>
-    </form>
-  </div>
-  
-  <!-- Индикатор загрузки -->
-  <div class="loader" id="loader">
-    <div class="loader-content">
-      <div class="spinner"></div>
-      <div class="loader-text" id="loaderMessage">Загрузка...</div>
+    <!-- Анимация загрузки - будет показываться до полной загрузки графика -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Загрузка данных...</div>
     </div>
-  </div>
+    
+    <div class="container">
+        <!-- Блок с информацией -->
+        <div class="info-container">
+            <div class="date-input-container">
+                <div class="date-label"></div>
+                <input type="date" id="dateInput" class="date-input-field">
+            </div>
+        </div>
+        
+        <!-- Grid контейнер с плитками -->
+        <div class="tile-grid" id="hoursGrid">
+            <!-- Часы будут загружены динамически -->
+        </div>
+        
+        <!-- График напряжения за день -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">График напряжения за день</div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="voltageChart"></canvas>
+                <div class="loading-chart" id="chartLoading">Загрузка графика...</div>
+                <div class="no-data-chart" id="chartNoData" style="display: none;">
+                    <div>Нет данных для построения графика</div>
+                    <small>Выберите день, когда есть записи напряжения</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для отображения детальных данных -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content details-modal">
+            <div class="details-list" id="detailsList">
+                <!-- Данные будут загружены динамически -->
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-button modal-cancel" onclick="closeDetailsModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    // Cloudinary настройки
-    const CLOUDINARY_CLOUD_NAME = 'dplmdnxvk';
-    const CLOUDINARY_UPLOAD_PRESET = 'ADD_KH_LS';
-    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+    <!-- Подключаем Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    // Google Apps Script URL
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzv12sIJBgS34cz8LYfaeDeetyMPRJSGLh7Ca_9zKjARCIDBpWSsQ4O3pqarb-bCuU/exec';
-    
-    // Элементы DOM
-    const form = document.getElementById('form');
-    const submitBtn = document.getElementById('submit-btn');
-    const loader = document.getElementById('loader');
-    const loaderMessage = document.getElementById('loaderMessage');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewImage = document.getElementById('previewImage');
-    const fileInput = document.getElementById('photo');
-    const statusMessage = document.getElementById('statusMessage');
-    
-    // Функция для преобразования Cloudinary URL в нужный формат - ИСПРАВЛЕНА
-    function formatCloudinaryUrl(originalUrl) {
-      try {
-        console.log('Исходный URL от Cloudinary:', originalUrl);
+    <script>
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywAwxNCmr6h2GyuoB8RJ1muyyjGk9k_35zJtw5CApMICM78bZK7jr0V7MC8MGW9ruH/exec';
+        const LOW_THRESHOLD = 210;
+        const HIGH_THRESHOLD = 250;
+        const NO_LIGHT_THRESHOLD = 150; // Если напряжение меньше 150V - света нет
         
-        // Разбираем URL на части
-        const url = new URL(originalUrl);
+        let currentHour = new Date().getHours();
+        let scriptUrl = DEFAULT_SCRIPT_URL;
+        let currentDate = new Date();
+        let detailsCache = {};
+        let allDetailsCache = {}; // Кэш для ВСЕХ данных (включая < 150V)
+        let voltageChart = null;
+        let dayVoltageData = {}; // Данные для графика за день
         
-        // Извлекаем путь после /upload/
-        const pathParts = url.pathname.split('/upload/');
+        // Флаг для отслеживания загрузки графика
+        let isChartLoading = false;
         
-        if (pathParts.length < 2) {
-          console.warn('Не удалось разобрать Cloudinary URL:', originalUrl);
-          return originalUrl;
+        // Функция для отображения расписания текущего дня в формате grid
+        function displayCurrentDaySchedule() {
+            const grid = document.getElementById('hoursGrid');
+            grid.innerHTML = '';
+            
+            // Получаем данные для текущей недели
+            const weekData = window.currentWeekData;
+            if (!weekData || !weekData.schedule) return;
+            
+            const schedule = weekData.schedule;
+            
+            // Получаем день недели для выбранной даты
+            const dayOfWeek = currentDate.getDay();
+            const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 0-6, где 0=понедельник
+            
+            for (let hour = 0; hour < 24; hour++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                
+                // Проверяем, является ли этот час текущим
+                const today = new Date();
+                if (today.toDateString() === currentDate.toDateString() && hour === currentHour) {
+                    tile.classList.add('current');
+                }
+                
+                let hasLight = false;
+                if (schedule[hour] && schedule[hour][dayIndex] === true) {
+                    // Проверяем реальные данные о напряжении, если они есть
+                    const cacheKey = getCacheKey(hour, dayIndex);
+                    const allDetails = allDetailsCache[cacheKey]; // Используем ВСЕ данные
+                    
+                    if (allDetails && allDetails.length > 0) {
+                        // Проверяем, есть ли записи с напряжением >= 150V
+                        const voltageRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD);
+                        hasLight = voltageRecords.length > 0;
+                    } else {
+                        // Если данных нет, используем расписание
+                        hasLight = true;
+                    }
+                }
+                
+                // Добавляем класс 'off' если света нет
+                if (!hasLight) {
+                    tile.classList.add('off');
+                }
+                
+                // Создаем элемент для часа
+                const hourElement = document.createElement('div');
+                hourElement.className = 'hour';
+                hourElement.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                
+                // Создаем элемент для иконки
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'icon-container';
+                
+                if (hasLight) {
+                    // Иконка лампочки (свет был)
+                    iconContainer.innerHTML = `
+                        <svg class="light-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                        </svg>
+                    `;
+                } else {
+                    // Иконка зачеркнутой молнии (света не было)
+                    iconContainer.innerHTML = `
+                        <svg class="no-light-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            <line x1="4" y1="4" x2="20" y2="20"/>
+                        </svg>
+                    `;
+                }
+                
+                // Создаем элемент для контента (пустой, без текста)
+                const contentElement = document.createElement('div');
+                contentElement.className = 'content';
+                contentElement.textContent = ''; // Пустая строка вместо "Свет есть/света нет"
+                
+                // Вставляем элементы в плитку
+                tile.appendChild(iconContainer);
+                tile.appendChild(hourElement);
+                tile.appendChild(contentElement);
+                
+                // Добавляем информацию о напряжении во всплывающую подсказку
+                const cacheKey = getCacheKey(hour, dayIndex);
+                const allDetails = allDetailsCache[cacheKey];
+                const displayDate = formatDate(currentDate, 'dd.MM.yyyy');
+                
+                if (allDetails && allDetails.length > 0) {
+                    const closestData = getClosestToThreshold(allDetails);
+                    const whichThreshold = closestData.whichThreshold === 'low' ? 
+                        `Ближе к нижнему порогу (${LOW_THRESHOLD}V)` : 
+                        `Ближе к верхнему порогу (${HIGH_THRESHOLD}V)`;
+                    
+                    // Подсчитываем записи с напряжением >= 150V
+                    const validRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD);
+                    const lowVoltageRecords = allDetails.filter(d => d.voltage !== undefined && d.voltage < NO_LIGHT_THRESHOLD);
+                    
+                    if (hasLight) {
+                        tile.title = `Свет был в этот час\nНапряжение: ${closestData.voltage ? formatVoltage(closestData.voltage) + 'V' : 'нет данных'}\n${whichThreshold}\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей ≥150V: ${validRecords.length}\nЗаписей <150V: ${lowVoltageRecords.length}\nКликните для просмотра всех записей`;
+                    } else {
+                        tile.title = `Света не было в этот час\nПричина: все записи напряжения < 150V\nДата: ${displayDate}\nВремя: ${hour}:00\nЗаписей: ${allDetails.length}\nКликните для просмотра всех записей`;
+                    }
+                } else if (hasLight) {
+                    tile.title = `Свет был в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра записей`;
+                } else {
+                    tile.title = `Света не было в этот час\nДата: ${displayDate}\nВремя: ${hour}:00\nКликните для просмотра записей`;
+                }
+                
+                // Добавляем обработчик клика на ВСЕ плитки
+                tile.addEventListener('click', () => {
+                    showDetails(hour, dayIndex);
+                });
+                
+                grid.appendChild(tile);
+            }
+            
+            // После отображения плиток загружаем данные для графика
+            loadDayVoltageData();
         }
         
-        // Получаем версию (v параметр) из query string
-        const version = url.searchParams.get('v') || '';
-        
-        // Формируем новый путь с трансформациями
-        const newPath = `/upload/f_auto,q_auto,w_800,c_limit${version ? '/v' + version : ''}${pathParts[1]}`;
-        
-        // Собираем новый URL - ВАЖНО: сохраняем хостнейм
-        const newUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image${newPath}`;
-        
-        console.log('Сформированный URL:', newUrl);
-        return newUrl;
-      } catch (error) {
-        console.error('Ошибка при форматировании URL:', error);
-        return originalUrl;
-      }
-    }
-    
-    // Альтернативный метод: извлекаем public_id и строим URL заново - ИСПРАВЛЕН
-    function formatCloudinaryUrlAlternative(cloudinaryResult) {
-      try {
-        const publicId = cloudinaryResult.public_id;
-        const version = cloudinaryResult.version;
-        
-        // Строим URL в нужном формате - ПРАВИЛЬНЫЙ формат
-        let formattedUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_800,c_limit`;
-        
-        // Добавляем версию, если она есть
-        if (version) {
-          formattedUrl += `/v${version}`;
+        // Функция для загрузки данных напряжения за весь день
+        async function loadDayVoltageData() {
+            isChartLoading = true;
+            const chartLoading = document.getElementById('chartLoading');
+            const chartNoData = document.getElementById('chartNoData');
+            const chartWrapper = document.querySelector('.chart-wrapper canvas');
+            
+            chartLoading.style.display = 'flex';
+            chartNoData.style.display = 'none';
+            chartWrapper.style.display = 'none';
+            
+            // Сбрасываем данные за день
+            dayVoltageData = {};
+            
+            // Получаем день недели для выбранной даты
+            const dayOfWeek = currentDate.getDay();
+            const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            
+            // Создаем массив промисов для загрузки данных за каждый час
+            const promises = [];
+            const hourData = {};
+            
+            for (let hour = 0; hour < 24; hour++) {
+                const cacheKey = getCacheKey(hour, dayIndex);
+                
+                // Если уже есть в кэше, используем их
+                if (allDetailsCache[cacheKey]) {
+                    hourData[hour] = allDetailsCache[cacheKey];
+                } else {
+                    // Иначе добавляем промис для загрузки
+                    promises.push(
+                        new Promise(resolve => {
+                            setTimeout(async () => {
+                                try {
+                                    const data = await loadVoltageDataForHour(hour, dayIndex);
+                                    hourData[hour] = data || [];
+                                } catch (error) {
+                                    hourData[hour] = [];
+                                }
+                                resolve();
+                            }, hour * 50); // Задержка между запросами
+                        })
+                    );
+                }
+            }
+            
+            // Ждем загрузки всех данных
+            await Promise.all(promises);
+            
+            // Обрабатываем данные для каждого часа
+            const minData = [];
+            const maxData = [];
+            const labels = [];
+            
+            for (let hour = 0; hour < 24; hour++) {
+                labels.push(`${hour.toString().padStart(2, '0')}:00`);
+                
+                const details = hourData[hour] || [];
+                const voltages = details.filter(d => d.voltage !== undefined).map(d => d.voltage);
+                
+                if (voltages.length > 0) {
+                    dayVoltageData[hour] = {
+                        min: Math.min(...voltages),
+                        max: Math.max(...voltages),
+                        count: voltages.length,
+                        hasLight: voltages.some(v => v >= NO_LIGHT_THRESHOLD)
+                    };
+                    minData.push(Math.min(...voltages));
+                    maxData.push(Math.max(...voltages));
+                } else {
+                    dayVoltageData[hour] = {
+                        min: null,
+                        max: null,
+                        count: 0,
+                        hasLight: false
+                    };
+                    minData.push(null);
+                    maxData.push(null);
+                }
+            }
+            
+            // Скрываем индикатор загрузки графика
+            chartLoading.style.display = 'none';
+            
+            // Проверяем, есть ли данные для отображения
+            const hasData = Object.values(dayVoltageData).some(data => data.count > 0);
+            
+            if (hasData) {
+                chartWrapper.style.display = 'block';
+                updateVoltageChart(labels, minData, maxData);
+            } else {
+                chartNoData.style.display = 'flex';
+            }
+            
+            // Помечаем, что загрузка графика завершена
+            isChartLoading = false;
+            
+            // Проверяем, можно ли скрыть общий индикатор загрузки
+            checkAndHideLoadingOverlay();
         }
         
-        // Добавляем public_id
-        formattedUrl += `/${publicId}`;
-        
-        // Добавляем расширение .jpg если его нет
-        if (!formattedUrl.endsWith('.jpg') && !formattedUrl.endsWith('.jpeg') && 
-            !formattedUrl.endsWith('.png') && !formattedUrl.endsWith('.gif')) {
-          formattedUrl += '.jpg';
+        // Функция для проверки и скрытия индикатора загрузки
+        function checkAndHideLoadingOverlay() {
+            // Ждем, пока график не загрузится
+            if (!isChartLoading) {
+                // Даем небольшую задержку для плавности
+                setTimeout(() => {
+                    const loadingOverlay = document.getElementById('loadingOverlay');
+                    loadingOverlay.classList.remove('active');
+                }, 500);
+            }
         }
         
-        console.log('Альтернативный метод - сформированный URL:', formattedUrl);
-        return formattedUrl;
-      } catch (error) {
-        console.error('Ошибка альтернативного метода:', error);
-        return cloudinaryResult.secure_url;
-      }
-    }
-    
-    // Третий метод: простой и надежный
-    function formatCloudinaryUrlSimple(cloudinaryResult) {
-      try {
-        // Берем public_id из результата
-        const publicId = cloudinaryResult.public_id;
-        const version = cloudinaryResult.version;
-        
-        // Просто строим URL по шаблону
-        const formattedUrl = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_800,c_limit${version ? '/v' + version : ''}/${publicId}.jpg`;
-        
-        console.log('Простой метод - сформированный URL:', formattedUrl);
-        return formattedUrl;
-      } catch (error) {
-        console.error('Ошибка простого метода:', error);
-        return cloudinaryResult.secure_url;
-      }
-    }
-    
-    // Предпросмотр изображения
-    fileInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        // Проверяем размер файла (макс 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-          showMessage('Файл слишком большой. Максимальный размер: 10MB', 'error');
-          e.target.value = '';
-          return;
+        // Функция для обновления графика
+        function updateVoltageChart(labels, minData, maxData) {
+            const ctx = document.getElementById('voltageChart').getContext('2d');
+            
+            // Если график уже существует, уничтожаем его
+            if (voltageChart) {
+                voltageChart.destroy();
+            }
+            
+            // Создаем график с реальными данными
+            voltageChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data: maxData,
+                            borderColor: '#ff9500', // Верхняя линия (оранжевая)
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.35,
+                            fill: false
+                        },
+                        {
+                            data: minData,
+                            borderColor: '#007aff', // Нижняя линия (синяя)
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.35,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const hour = context.dataIndex;
+                                    const hourData = dayVoltageData[hour] || {};
+                                    const datasetIndex = context.datasetIndex;
+                                    
+                                    if (value === null) {
+                                        return 'Нет данных';
+                                    }
+                                    
+                                    let label = datasetIndex === 0 ? 'Максимум: ' : 'Минимум: ';
+                                    label += `${formatVoltage(value)} V`;
+                                    label += ` | Записей: ${hourData.count || 0}`;
+                                    
+                                    if (!hourData.hasLight && hourData.count > 0) {
+                                        label += ' | Нет света';
+                                    }
+                                    
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: true,
+                                color: '#eee',
+                                drawTicks: true
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 90,
+                                minRotation: 90,
+                                font: { size: 12 },
+                                align: 'center'
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 300,
+                            ticks: {
+                                stepSize: 50   // разметка каждые 50 В
+                            },
+                            grid: { color: '#eee' }
+                        }
+                    }
+                }
+            });
         }
         
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          previewImage.src = e.target.result;
-          imagePreview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      } else {
-        imagePreview.style.display = 'none';
-        previewImage.src = '';
-      }
-    });
-    
-    // Показать сообщение
-    function showMessage(text, type = 'success') {
-      statusMessage.textContent = text;
-      statusMessage.className = `status-message status-${type}`;
-      statusMessage.style.display = 'block';
-      
-      setTimeout(() => {
-        statusMessage.style.display = 'none';
-      }, 5000);
-    }
-    
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const number = document.getElementById('number').value.trim();
-      const qty = document.getElementById('qty').value;
-      
-      if (!number) {
-        showMessage('Введите номер детали', 'error');
-        document.getElementById('number').focus();
-        return;
-      }
-      
-      if (!qty || qty < 1) {
-        showMessage('Введите корректное количество', 'error');
-        document.getElementById('qty').focus();
-        return;
-      }
-      
-      if (fileInput.files.length === 0) {
-        showMessage('Выберите фотографию', 'error');
-        return;
-      }
-      
-      // Блокируем кнопку и показываем индикатор загрузки
-      submitBtn.disabled = true;
-      loader.style.display = 'flex';
-      loaderMessage.textContent = 'Загрузка изображения...';
-      
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = async function(evt) {
-        try {
-          const base64Data = evt.target.result;
-          
-          // Шаг 1: Загружаем изображение в Cloudinary
-          loaderMessage.textContent = 'Загрузка в Cloudinary...';
-          
-          const timestamp = Math.floor(Date.now() / 1000);
-          const publicId = 'BB_part_' + number.replace(/[^\w]/g, '_') + '_' + timestamp;
-          
-          // Создаем FormData для Cloudinary
-          const cloudinaryFormData = new FormData();
-          cloudinaryFormData.append('file', base64Data);
-          cloudinaryFormData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-          cloudinaryFormData.append('public_id', publicId);
-          cloudinaryFormData.append('folder', 'ZIP_BB');
-          
-          // Отправляем в Cloudinary
-          const cloudinaryResponse = await fetch(CLOUDINARY_UPLOAD_URL, {
-            method: 'POST',
-            body: cloudinaryFormData
-          });
-          
-          if (!cloudinaryResponse.ok) {
-            const errorText = await cloudinaryResponse.text();
-            throw new Error(`Ошибка Cloudinary: ${errorText}`);
-          }
-          
-          const cloudinaryResult = await cloudinaryResponse.json();
-          
-          if (cloudinaryResult.error) {
-            throw new Error(`Cloudinary: ${cloudinaryResult.error.message}`);
-          }
-          
-          console.log('Cloudinary результат:', cloudinaryResult);
-          
-          // Используем простой метод для гарантированного результата
-          const formattedUrl = formatCloudinaryUrlSimple(cloudinaryResult);
-          
-          console.log('Форматированный Cloudinary URL:', formattedUrl);
-          
-          // Проверяем что URL правильный
-          if (!formattedUrl.includes('res.cloudinary.com')) {
-            throw new Error('Неправильный формат Cloudinary URL');
-          }
-          
-          // Шаг 2: Отправляем данные в Google Sheets
-          loaderMessage.textContent = 'Сохранение данных...';
-          
-          // Отправляем форматированную ссылку и base64
-          const formData = new FormData();
-          formData.append('number', number);
-          formData.append('qty', qty);
-          formData.append('imageUrl', formattedUrl);  // Форматированная Cloudinary ссылка для колонки D
-          formData.append('base64', base64Data);       // Base64 для ImgBB (колонка F)
-          
-          const response = await fetch(GAS_URL, {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Ошибка сети: ${response.status}`);
-          }
-          
-          const result = await response.json();
-          
-          // Скрываем индикатор загрузки
-          loader.style.display = 'none';
-          submitBtn.disabled = false;
-          
-          if (result.result === 'success') {
-            showMessage(
-              `✅ Данные сохранены!\n` +
-              `Номер: ${number}\n` +
-              `Количество: ${qty}\n` +
-              `Ссылка: создана`,
-              'success'
+        // Функция для форматирования напряжения (убирает лишние нули)
+        function formatVoltage(voltage) {
+            if (voltage === undefined || voltage === null) return 'нет данных';
+            // Если число целое - показываем без десятичных, иначе с одной цифрой после запятой
+            if (Number.isInteger(voltage)) {
+                return voltage.toString();
+            } else {
+                // Округляем до одной цифры после запятой
+                const rounded = Math.round(voltage * 10) / 10;
+                // Если после округления стало целым числом - показываем без десятичных
+                if (Number.isInteger(rounded)) {
+                    return rounded.toString();
+                }
+                return rounded.toFixed(1).replace('.0', '');
+            }
+        }
+        
+        // Вспомогательная функция для получения ключа кэша
+        function getCacheKey(hour, day) {
+            const formattedDate = formatDate(currentDate, 'yyyy-MM-dd');
+            return `${formattedDate}-${hour}-${day}`;
+        }
+        
+        // Функция для загрузки данных о напряжении для конкретного часа
+        async function loadVoltageDataForHour(hour, day) {
+            const cacheKey = getCacheKey(hour, day);
+            
+            // Если уже есть в кэше, не загружаем
+            if (allDetailsCache[cacheKey]) {
+                return allDetailsCache[cacheKey];
+            }
+            
+            try {
+                const formattedDate = formatDate(currentDate, 'yyyy-MM-dd');
+                const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
+                
+                if (data.success && data.data.details.length > 0) {
+                    // Сохраняем ВСЕ данные (включая < 150V) в allDetailsCache
+                    allDetailsCache[cacheKey] = data.data.details;
+                    
+                    // Фильтруем записи с напряжением >= 150V для detailsCache
+                    const validDetails = data.data.details.filter(d => 
+                        d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD
+                    );
+                    detailsCache[cacheKey] = validDetails;
+                    
+                    return data.data.details; // Возвращаем ВСЕ данные
+                }
+            } catch (error) {
+                console.warn(`Не удалось загрузить данные для ${hour}:00:`, error);
+                throw error;
+            }
+            
+            return null;
+        }
+        
+        function handleDateChange() {
+            const dateInput = document.getElementById('dateInput');
+            if (dateInput.value) {
+                currentDate = new Date(dateInput.value);
+                detailsCache = {};
+                allDetailsCache = {};
+                dayVoltageData = {};
+                
+                // Показываем индикатор загрузки
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.classList.add('active');
+                
+                loadSchedule();
+            }
+        }
+        
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        async function showDetails(hour, day) {
+            const modal = document.getElementById('detailsModal');
+            const list = document.getElementById('detailsList');
+            
+            list.innerHTML = '<div class="no-data">Загрузка...</div>';
+            modal.classList.add('active');
+            
+            setTimeout(() => {
+                if (list) {
+                    list.scrollTop = 0;
+                }
+                adjustDetailsListHeight();
+            }, 50);
+            
+            try {
+                const formattedDate = formatDate(currentDate, 'yyyy-MM-dd');
+                await loadRealDetailedData(hour, day, currentDate, list);
+            } catch (error) {
+                list.innerHTML = `
+                    <div class="no-data">
+                        Ошибка загрузки: ${error.message}<br>
+                        <small style="color: #8e8e93;">Проверьте подключение к интернету</small>
+                    </div>
+                `;
+            }
+        }
+        
+        function adjustDetailsListHeight() {
+            const detailsList = document.getElementById('detailsList');
+            if (!detailsList) return;
+            
+            const viewportHeight = window.innerHeight;
+            const modalPadding = 30;
+            const buttonsHeight = 60;
+            const otherElementsHeight = 40;
+            
+            const availableHeight = viewportHeight - modalPadding - buttonsHeight - otherElementsHeight;
+            const listHeight = Math.max(250, availableHeight * 0.8);
+            detailsList.style.maxHeight = listHeight + 'px';
+            detailsList.style.minHeight = listHeight + 'px';
+        }
+        
+        function formatDate(date, format) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            
+            if (format === 'dd.MM.yyyy') {
+                return `${day}.${month}.${year}`;
+            }
+            return `${year}-${month}-${day}`;
+        }
+        
+        async function loadRealDetailedData(hour, day, date, listElement) {
+            const formattedDate = formatDate(date, 'yyyy-MM-dd');
+            const cacheKey = `${formattedDate}-${hour}-${day}`;
+            
+            if (allDetailsCache[cacheKey]) {
+                displayDetailedData(allDetailsCache[cacheKey], listElement, formattedDate, hour);
+                return;
+            }
+            
+            try {
+                const data = await loadDetailedDataViaJSONP(formattedDate, hour, day);
+                
+                if (data.success && data.data.details.length > 0) {
+                    // Сохраняем ВСЕ данные в кэш
+                    allDetailsCache[cacheKey] = data.data.details;
+                    displayDetailedData(data.data.details, listElement, formattedDate, hour);
+                } else {
+                    const dateParts = formattedDate.split('-');
+                    const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                    
+                    listElement.innerHTML = `
+                        <div class="no-data">
+                            Нет записей за этот час<br>
+                            ${displayDate}, ${hour}:00 - ${hour}:59
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        function loadDetailedDataViaJSONP(date, hour, day) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'details_callback_' + Date.now();
+                const url = scriptUrl + '?mode=details&date=' + encodeURIComponent(date) + 
+                           '&hour=' + hour + '&day=' + day + 
+                           '&callback=' + callbackName;
+                
+                const script = document.createElement('script');
+                script.src = url;
+                
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    resolve(data);
+                };
+                
+                script.onerror = function() {
+                    delete window[callbackName];
+                    if (script.parentNode) {
+                        document.body.removeChild(script);
+                    }
+                    reject(new Error('Ошибка загрузки детальных данных'));
+                };
+                
+                document.body.appendChild(script);
+                
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        if (script.parentNode) {
+                            document.body.removeChild(script);
+                        }
+                        reject(new Error('Таймаут загрузки'));
+                    }
+                }, 15000);
+            });
+        }
+        
+        function displayDetailedData(details, listElement, dateStr, hour) {
+            listElement.innerHTML = '';
+            
+            if (details.length === 0) {
+                const dateParts = dateStr.split('-');
+                const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+                
+                listElement.innerHTML = `
+                    <div class="no-data">
+                        Нет записей за этот час<br>
+                        ${displayDate}, ${hour}:00 - ${hour}:59
+                    </div>
+                `;
+                return;
+            }
+            
+            const closestData = getClosestToThreshold(details);
+            const { min: minVoltage, max: maxVoltage } = getMinMaxVoltage(details);
+            const totalRecords = details.length;
+            
+            // Подсчет записей по категориям
+            const highVoltageRecords = details.filter(d => d.voltage !== undefined && d.voltage >= NO_LIGHT_THRESHOLD).length;
+            const lowVoltageRecords = details.filter(d => d.voltage !== undefined && d.voltage < NO_LIGHT_THRESHOLD).length;
+            
+            const dateParts = dateStr.split('-');
+            const displayDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+            
+            // Создаем контейнер для статистики
+            const statsContainer = document.createElement('div');
+            statsContainer.className = 'stats-container';
+            
+            // Заголовок
+            const header = document.createElement('div');
+            header.className = 'stats-header';
+            header.textContent = `${displayDate}, ${hour}:00-${hour}:59`;
+            statsContainer.appendChild(header);
+            
+            // Сетка для статистики
+            const statsGrid = document.createElement('div');
+            statsGrid.className = 'stats-grid';
+            
+            // Итого записей
+            const totalStat = createStatItem('Итого записей', totalRecords.toString());
+            statsGrid.appendChild(totalStat);
+            
+            // Записей ≥ 150V
+            const highStat = createStatItem('≥ 150V', highVoltageRecords.toString(), 'high');
+            statsGrid.appendChild(highStat);
+            
+            // Записей < 150V
+            const lowStat = createStatItem('< 150V', lowVoltageRecords.toString(), 'low');
+            statsGrid.appendChild(lowStat);
+            
+            // Ближе к порогу
+            if (closestData.voltage !== null) {
+                const closestStat = createStatItem('Ближе к порогу', formatVoltage(closestData.voltage) + 'V');
+                statsGrid.appendChild(closestStat);
+            }
+            
+            // Минимальное
+            if (minVoltage !== null) {
+                const minStat = createStatItem('Минимальное', formatVoltage(minVoltage) + 'V');
+                statsGrid.appendChild(minStat);
+            }
+            
+            // Максимальное
+            if (maxVoltage !== null) {
+                const maxStat = createStatItem('Максимальное', formatVoltage(maxVoltage) + 'V');
+                statsGrid.appendChild(maxStat);
+            }
+            
+            statsContainer.appendChild(statsGrid);
+            listElement.appendChild(statsContainer);
+            
+            // Контейнер для списка записей
+            const recordsContainer = document.createElement('div');
+            recordsContainer.className = 'records-list';
+            
+            // Добавляем записи
+            details.forEach(item => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
+                
+                const voltageSpan = document.createElement('span');
+                voltageSpan.className = 'record-voltage';
+                
+                if (item.voltage !== undefined) {
+                    voltageSpan.textContent = formatVoltage(item.voltage) + ' V';
+                    
+                    // Подсвечиваем записи < 150V красным
+                    if (item.voltage < NO_LIGHT_THRESHOLD) {
+                        voltageSpan.style.color = '#ff3b30';
+                        voltageSpan.style.fontWeight = 'bold';
+                    } else if (item.voltage < LOW_THRESHOLD) {
+                        voltageSpan.style.color = '#ff3b30';
+                    } else if (item.voltage > HIGH_THRESHOLD) {
+                        voltageSpan.style.color = '#ff9500';
+                    } else {
+                        voltageSpan.style.color = '#34c759';
+                    }
+                } else {
+                    voltageSpan.textContent = '-';
+                    voltageSpan.style.color = '#8e8e93';
+                }
+                
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'record-time';
+                timeSpan.textContent = item.time;
+                
+                recordItem.appendChild(voltageSpan);
+                recordItem.appendChild(timeSpan);
+                
+                recordsContainer.appendChild(recordItem);
+            });
+            
+            listElement.appendChild(recordsContainer);
+        }
+        
+        // Вспомогательная функция для создания элемента статистики
+        function createStatItem(label, value, type = '') {
+            const statItem = document.createElement('div');
+            statItem.className = 'stat-item';
+            
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'stat-label';
+            labelSpan.textContent = label;
+            
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'stat-value';
+            if (type === 'high') {
+                valueSpan.classList.add('high');
+            } else if (type === 'low') {
+                valueSpan.classList.add('low');
+            }
+            valueSpan.textContent = value;
+            
+            statItem.appendChild(labelSpan);
+            statItem.appendChild(valueSpan);
+            
+            return statItem;
+        }
+        
+        function closeDetailsModal() {
+            const modal = document.getElementById('detailsModal');
+            modal.classList.remove('active');
+        }
+        
+        function getMinMaxVoltage(details) {
+            if (!details || details.length === 0) return { min: null, max: null };
+            
+            let minVoltage = Infinity;
+            let maxVoltage = -Infinity;
+            
+            details.forEach(item => {
+                if (item.voltage !== undefined) {
+                    if (item.voltage < minVoltage) minVoltage = item.voltage;
+                    if (item.voltage > maxVoltage) maxVoltage = item.voltage;
+                }
+            });
+            
+            return {
+                min: minVoltage === Infinity ? null : minVoltage,
+                max: maxVoltage === -Infinity ? null : maxVoltage
+            };
+        }
+        
+        function getClosestToThreshold(details) {
+            if (!details || details.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+            
+            const voltageRecords = details.filter(d => d.voltage !== undefined);
+            if (voltageRecords.length === 0) return { voltage: null, distance: null, whichThreshold: null };
+            
+            let closestVoltage = voltageRecords[0].voltage;
+            let minDistance = Math.min(
+                Math.abs(voltageRecords[0].voltage - LOW_THRESHOLD),
+                Math.abs(voltageRecords[0].voltage - HIGH_THRESHOLD)
             );
             
-            // Сбрасываем форму
-            document.getElementById('form').reset();
-            imagePreview.style.display = 'none';
+            for (let i = 1; i < voltageRecords.length; i++) {
+                const voltage = voltageRecords[i].voltage;
+                const distanceToLow = Math.abs(voltage - LOW_THRESHOLD);
+                const distanceToHigh = Math.abs(voltage - HIGH_THRESHOLD);
+                const currentMinDistance = Math.min(distanceToLow, distanceToHigh);
+                
+                if (currentMinDistance < minDistance) {
+                    minDistance = currentMinDistance;
+                    closestVoltage = voltage;
+                }
+            }
             
-            // Автофокус на первом поле
-            document.getElementById('number').focus();
+            const distanceToLow = Math.abs(closestVoltage - LOW_THRESHOLD);
+            const distanceToHigh = Math.abs(closestVoltage - HIGH_THRESHOLD);
+            const whichThreshold = distanceToLow < distanceToHigh ? 'low' : 'high';
             
-            // Показываем ссылки в консоли для отладки
-            console.log('✅ Форматированный Cloudinary URL (колонка D):', formattedUrl);
-            console.log('✅ Исходный Cloudinary URL:', cloudinaryResult.secure_url);
-            
-          } else {
-            throw new Error(result.message || 'Ошибка сохранения');
-          }
-          
-        } catch (error) {
-          // Скрываем индикатор загрузки в случае ошибки
-          loader.style.display = 'none';
-          submitBtn.disabled = false;
-          
-          console.error('Ошибка:', error);
-          showMessage(`❌ ${error.message}`, 'error');
+            return {
+                voltage: closestVoltage,
+                distance: minDistance,
+                whichThreshold: whichThreshold
+            };
         }
-      };
-      
-      reader.onerror = function() {
-        loader.style.display = 'none';
-        submitBtn.disabled = false;
-        showMessage('❌ Ошибка при чтении файла', 'error');
-      };
-      
-      reader.readAsDataURL(file);
-    });
-    
-    // Улучшение UX: фокус на первом поле при загрузке
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('number').focus();
-    });
-  </script>
+        
+        async function loadSchedule() {
+            const grid = document.getElementById('hoursGrid');
+            grid.innerHTML = '<div style="text-align: center; padding: 40px 20px; grid-column: 1 / -1; color: #8e8e93;">Загрузка...</div>';
+            
+            try {
+                const formattedDate = formatDateForInput(currentDate);
+                const data = await loadViaJSONP(formattedDate);
+                
+                if (data.success) {
+                    // Сохраняем данные для всей недели
+                    window.currentWeekData = data.data;
+                    
+                    // Отображаем расписание для текущего дня
+                    displayCurrentDaySchedule();
+                    
+                    // Запускаем фоновую загрузку данных о напряжении
+                    loadVoltageDataForAllLights(data.data.schedule);
+                } else {
+                    showError(data.error || 'Неизвестная ошибка');
+                }
+            } catch (error) {
+                showError('Ошибка загрузки: ' + error.message);
+            }
+        }
+        
+        // Функция для асинхронной загрузки данных о напряжении для всех часов с светом
+        async function loadVoltageDataForAllLights(schedule) {
+            const promises = [];
+            
+            // Получаем день недели для выбранной даты
+            const dayOfWeek = currentDate.getDay();
+            const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            
+            for (let hour = 0; hour < 24; hour++) {
+                if (schedule[hour] && schedule[hour][dayIndex] === true) {
+                    // Добавляем задержку между запросами, чтобы не перегружать сервер
+                    promises.push(
+                        new Promise(resolve => {
+                            setTimeout(async () => {
+                                try {
+                                    await loadVoltageDataForHour(hour, dayIndex);
+                                } catch (error) {
+                                    // Игнорируем ошибки для отдельных часов
+                                }
+                                resolve();
+                            }, hour * 100);
+                        })
+                    );
+                }
+            }
+            
+            // Запускаем все запросы, но не ждем их завершения
+            Promise.all(promises).then(() => {
+                console.log('Все данные о напряжении загружены');
+                // Обновляем отображение после загрузки данных
+                displayCurrentDaySchedule();
+            });
+        }
+        
+        function setupDateInput() {
+            const dateInput = document.getElementById('dateInput');
+            dateInput.value = formatDateForInput(currentDate);
+            dateInput.addEventListener('change', handleDateChange);
+            
+            if ('ontouchstart' in window) {
+                dateInput.addEventListener('touchstart', function(e) {
+                    e.stopPropagation();
+                }, { passive: true });
+            }
+        }
+        
+        function loadViaJSONP(date) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'jsonp_callback_' + Date.now();
+                const url = date 
+                    ? scriptUrl + '?mode=read&date=' + date + '&callback=' + callbackName
+                    : scriptUrl + '?mode=read&callback=' + callbackName;
+                    
+                const script = document.createElement('script');
+                script.src = url;
+                
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    resolve(data);
+                };
+                
+                script.onerror = function() {
+                    delete window[callbackName];
+                    if (script.parentNode) {
+                        document.body.removeChild(script);
+                    }
+                    reject(new Error('Ошибка загрузки данных'));
+                };
+                
+                document.body.appendChild(script);
+                
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        if (script.parentNode) {
+                            document.body.removeChild(script);
+                        }
+                        reject(new Error('Таймаут загрузки'));
+                    }
+                }, 10000);
+            });
+        }
+        
+        function showError(message) {
+            const grid = document.getElementById('hoursGrid');
+            grid.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #ff3b30; grid-column: 1 / -1;">
+                    Ошибка: ${message}<br>
+                    <small style="color: #8e8e93;">Попробуйте обновить страницу</small>
+                </div>
+            `;
+            
+            // Скрываем индикатор загрузки при ошибке
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('active');
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDetailsModal();
+            }
+        });
+        
+        document.getElementById('detailsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailsModal();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDateInput();
+            
+            // Показываем индикатор загрузки при первоначальной загрузке
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.add('active');
+            
+            loadSchedule();
+            
+            window.addEventListener('resize', function() {
+                adjustDetailsListHeight();
+            });
+            
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    adjustDetailsListHeight();
+                    if (voltageChart) {
+                        voltageChart.resize();
+                    }
+                }, 300);
+            });
+            
+            // Обновляем подсветку текущего часа каждую минуту
+            setInterval(() => {
+                currentHour = new Date().getHours();
+                const today = new Date();
+                const tiles = document.querySelectorAll('.tile');
+                
+                tiles.forEach((tile, index) => {
+                    if (today.toDateString() === currentDate.toDateString() && index === currentHour) {
+                        tile.classList.add('current');
+                    } else {
+                        tile.classList.remove('current');
+                    }
+                });
+            }, 60000);
+            
+            // Обработчик клика по графику для открытия деталей часа
+            document.getElementById('voltageChart').addEventListener('click', function(event) {
+                if (!voltageChart) return;
+                
+                const points = voltageChart.getElementsAtEventForMode(event, 'index', { intersect: true }, true);
+                if (points.length > 0) {
+                    const firstPoint = points[0];
+                    const hour = firstPoint.index;
+                    
+                    // Получаем день недели для выбранной даты
+                    const dayOfWeek = currentDate.getDay();
+                    const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                    
+                    // Открываем детали для этого часа
+                    showDetails(hour, dayIndex);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

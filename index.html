@@ -195,32 +195,6 @@
             color: #000000;
         }
         
-        .chart-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .chart-button {
-            padding: 8px 12px;
-            background: #f2f2f7;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #000000;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .chart-button:hover {
-            background: #e5e5ea;
-        }
-        
-        .chart-button.active {
-            background: #007aff;
-            color: white;
-        }
-        
         .chart-wrapper {
             position: relative;
             height: 300px;
@@ -650,22 +624,6 @@
                 height: 250px;
             }
             
-            .chart-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .chart-controls {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .chart-button {
-                flex: 1;
-                text-align: center;
-            }
-            
             .loading-spinner {
                 width: 50px;
                 height: 50px;
@@ -853,7 +811,6 @@
         let detailsCache = {};
         let allDetailsCache = {}; // Кэш для ВСЕХ данных (включая < 150V)
         let voltageChart = null;
-        let chartDataType = 'average'; // 'average', 'min', 'max'
         let dayVoltageData = {}; // Данные для графика за день
         
         // Флаг для отслеживания загрузки графика
@@ -1041,7 +998,6 @@
                 
                 if (voltages.length > 0) {
                     dayVoltageData[hour] = {
-                        average: voltages.reduce((a, b) => a + b, 0) / voltages.length,
                         min: Math.min(...voltages),
                         max: Math.max(...voltages),
                         count: voltages.length,
@@ -1051,7 +1007,6 @@
                     maxData.push(Math.max(...voltages));
                 } else {
                     dayVoltageData[hour] = {
-                        average: null,
                         min: null,
                         max: null,
                         count: 0,
@@ -1111,7 +1066,7 @@
                     datasets: [
                         {
                             data: maxData,
-                            borderColor: '#ff9500', // Верхняя линия (красная/оранжевая)
+                            borderColor: '#ff9500', // Верхняя линия (оранжевая)
                             borderWidth: 2,
                             pointRadius: 4,
                             tension: 0.35,
@@ -1148,11 +1103,6 @@
                                     
                                     let label = datasetIndex === 0 ? 'Максимум: ' : 'Минимум: ';
                                     label += `${formatVoltage(value)} V`;
-                                    
-                                    if (hourData.average !== null) {
-                                        label += ` | Среднее: ${formatVoltage(hourData.average)} V`;
-                                    }
-                                    
                                     label += ` | Записей: ${hourData.count || 0}`;
                                     
                                     if (!hourData.hasLight && hourData.count > 0) {

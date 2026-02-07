@@ -742,11 +742,6 @@
         <div class="chart-container">
             <div class="chart-header">
                 <div class="chart-title">График напряжения за день</div>
-                <div class="chart-controls">
-                    <button class="chart-button active" data-type="average">Среднее</button>
-                    <button class="chart-button" data-type="min">Минимум</button>
-                    <button class="chart-button" data-type="max">Максимум</button>
-                </div>
             </div>
             <div class="chart-wrapper">
                 <canvas id="voltageChart"></canvas>
@@ -754,24 +749,6 @@
                 <div class="no-data-chart" id="chartNoData" style="display: none;">
                     <div>Нет данных для построения графика</div>
                     <small>Выберите день, когда есть записи напряжения</small>
-                </div>
-            </div>
-            <div class="chart-legend">
-                <div class="legend-item">
-                    <div class="legend-color low"></div>
-                    <span>&lt; 150V (нет света)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color normal"></div>
-                    <span>150V-250V (норма)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color high"></div>
-                    <span>&gt; 250V (высокое)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color none"></div>
-                    <span>Нет данных</span>
                 </div>
             </div>
         </div>
@@ -977,7 +954,13 @@
             await Promise.all(promises);
             
             // Обрабатываем данные для каждого часа
+            const minData = [];
+            const maxData = [];
+            const labels = [];
+            
             for (let hour = 0; hour < 24; hour++) {
+                labels.push(`${hour.toString().padStart(2, '0')}:00`);
+                
                 const details = hourData[hour] || [];
                 const voltages = details.filter(d => d.voltage !== undefined).map(d => d.voltage);
                 
@@ -989,6 +972,8 @@
                         count: voltages.length,
                         hasLight: voltages.some(v => v >= NO_LIGHT_THRESHOLD)
                     };
+                    minData.push(Math.min(...voltages));
+                    maxData.push(Math.max(...voltages));
                 } else {
                     dayVoltageData[hour] = {
                         average: null,
@@ -997,6 +982,8 @@
                         count: 0,
                         hasLight: false
                     };
+                    minData.push(null);
+                    maxData.push(null);
                 }
             }
             
@@ -1008,92 +995,50 @@
             
             if (hasData) {
                 chartWrapper.style.display = 'block';
-                updateVoltageChart();
+                updateVoltageChart(labels, minData, maxData);
             } else {
                 chartNoData.style.display = 'flex';
             }
         }
         
         // Функция для обновления графика
-        function updateVoltageChart() {
+        function updateVoltageChart(labels, minData, maxData) {
             const ctx = document.getElementById('voltageChart').getContext('2d');
-            
-            // Подготавливаем данные для графика
-            const labels = [];
-            const data = [];
-            const backgroundColors = [];
-            const borderColors = [];
-            
-            for (let hour = 0; hour < 24; hour++) {
-                labels.push(`${hour.toString().padStart(2, '0')}:00`);
-                
-                const hourData = dayVoltageData[hour] || {};
-                let value = null;
-                
-                if (chartDataType === 'average') {
-                    value = hourData.average;
-                } else if (chartDataType === 'min') {
-                    value = hourData.min;
-                } else if (chartDataType === 'max') {
-                    value = hourData.max;
-                }
-                
-                data.push(value);
-                
-                // Определяем цвет в зависимости от напряжения
-                if (value === null || hourData.count === 0) {
-                    // Нет данных
-                    backgroundColors.push('rgba(199, 199, 204, 0.2)');
-                    borderColors.push('rgba(199, 199, 204, 0.5)');
-                } else if (value < NO_LIGHT_THRESHOLD) {
-                    // Нет света (< 150V)
-                    backgroundColors.push('rgba(255, 59, 48, 0.2)');
-                    borderColors.push('rgba(255, 59, 48, 1)');
-                } else if (value > HIGH_THRESHOLD) {
-                    // Высокое напряжение (> 250V)
-                    backgroundColors.push('rgba(255, 149, 0, 0.2)');
-                    borderColors.push('rgba(255, 149, 0, 1)');
-                } else {
-                    // Нормальное напряжение (150V-250V)
-                    backgroundColors.push('rgba(52, 199, 89, 0.2)');
-                    borderColors.push('rgba(52, 199, 89, 1)');
-                }
-            }
             
             // Если график уже существует, уничтожаем его
             if (voltageChart) {
                 voltageChart.destroy();
             }
             
-            // Создаем новый график
+            // Создаем график с реальными данными
             voltageChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: chartDataType === 'average' ? 'Среднее напряжение' : 
-                               chartDataType === 'min' ? 'Минимальное напряжение' : 'Максимальное напряжение',
-                        data: data,
-                        backgroundColor: backgroundColors,
-                        borderColor: borderColors,
-                        borderWidth: 2,
-                        pointBackgroundColor: borderColors,
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.3, // Сглаживание линии
-                        spanGaps: true // Пропускать отсутствующие данные
-                    }]
+                    labels,
+                    datasets: [
+                        {
+                            data: maxData,
+                            borderColor: '#ff9500', // Верхняя линия (красная/оранжевая)
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.35,
+                            fill: false
+                        },
+                        {
+                            data: minData,
+                            borderColor: '#007aff', // Нижняя линия (синяя)
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.35,
+                            fill: false
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             mode: 'index',
                             intersect: false,
@@ -1102,15 +1047,17 @@
                                     const value = context.raw;
                                     const hour = context.dataIndex;
                                     const hourData = dayVoltageData[hour] || {};
+                                    const datasetIndex = context.datasetIndex;
                                     
                                     if (value === null) {
                                         return 'Нет данных';
                                     }
                                     
-                                    let label = `${formatVoltage(value)} V`;
+                                    let label = datasetIndex === 0 ? 'Максимум: ' : 'Минимум: ';
+                                    label += `${formatVoltage(value)} V`;
                                     
-                                    if (chartDataType === 'average' && hourData.min !== null && hourData.max !== null) {
-                                        label += ` (${formatVoltage(hourData.min)}-${formatVoltage(hourData.max)} V)`;
+                                    if (hourData.average !== null) {
+                                        label += ` | Среднее: ${formatVoltage(hourData.average)} V`;
                                     }
                                     
                                     label += ` | Записей: ${hourData.count || 0}`;
@@ -1126,42 +1073,27 @@
                     },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Время, часы',
-                                color: '#8e8e93',
-                                font: {
-                                    size: 12
-                                }
-                            },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
+                                display: true,
+                                color: '#eee',
+                                drawTicks: true
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 90,
+                                minRotation: 90,
+                                font: { size: 12 },
+                                align: 'center'
                             }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: 'Напряжение, V',
-                                color: '#8e8e93',
-                                font: {
-                                    size: 12
-                                }
-                            },
                             min: 0,
                             max: 300,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
                             ticks: {
-                                callback: function(value) {
-                                    return value + ' V';
-                                }
-                            }
+                                stepSize: 50   // разметка каждые 50 В
+                            },
+                            grid: { color: '#eee' }
                         }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
                     }
                 }
             });
@@ -1727,27 +1659,6 @@
                     }
                 });
             }, 60000);
-            
-            // Обработчики для кнопок управления графиком
-            document.querySelectorAll('.chart-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    // Убираем активный класс со всех кнопок
-                    document.querySelectorAll('.chart-button').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    
-                    // Добавляем активный класс текущей кнопке
-                    this.classList.add('active');
-                    
-                    // Обновляем тип данных графика
-                    chartDataType = this.dataset.type;
-                    
-                    // Обновляем график
-                    if (voltageChart && Object.keys(dayVoltageData).length > 0) {
-                        updateVoltageChart();
-                    }
-                });
-            });
             
             // Обработчик клика по графику для открытия деталей часа
             document.getElementById('voltageChart').addEventListener('click', function(event) {

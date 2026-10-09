@@ -271,20 +271,22 @@ body.is-off .future-mask::after {
   box-shadow: inset 0 0 0 1px rgba(120,120,130,.25);
 }
 
-/* ===== Отчёт: без серой подложки ===== */
+/* ===== Отчёт: без серой подложки, по центру ===== */
 .summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
+  gap: 12px;
   background: transparent;
   border-radius: 0;
   overflow: visible;
   margin-top: 2px;
+  text-align: center;
 }
 .summary-item {
   background: transparent;
   padding: 4px 0;
   min-width: 0;
+  text-align: center;
 }
 .summary-value { font-size: 23px; font-weight: 750; letter-spacing: -.7px; font-variant-numeric: tabular-nums; }
 .summary-label { margin-top: 3px; font-size: 11px; color: var(--muted); }
@@ -570,6 +572,7 @@ body.is-on .dust { opacity: 1; }
 
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
+  .summary { gap: 8px; }
   .summary-value { font-size: 19px; }
   .summary-label { font-size: 10px; }
   .history-time { font-size: 14px; }
@@ -586,6 +589,7 @@ body.is-on .dust { opacity: 1; }
 @media (max-width: 390px) {
   body { padding-left: 10px; padding-right: 10px; }
   .card { padding: 16px; }
+  .summary { gap: 4px; }
   .summary-value { font-size: 17px; }
   .summary-label { font-size: 9px; }
   .legend { font-size: 10px; }

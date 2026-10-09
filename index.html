@@ -107,12 +107,14 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
    ВЕРХНЯЯ КАРТОЧКА — СТАТУС
+   Левая колонка: иконка + статус + пояснение
+   Правая колонка: переключатель дня + компактная строка связи
    ============================================================ */
 .status-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 20px;
 }
 
 .status-left {
@@ -157,40 +159,38 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 body.is-off .status.off .status-title { color: var(--bad); }
 .status-meta { margin-top: 5px; font-size: 13px; color: var(--muted); }
 
-/* правая колонка: переключатель дня + связь */
-.status-side {
+/* правая колонка — вертикально выровнена, компактна */
+.status-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 11px;
+  gap: 10px;
   flex: 0 0 auto;
 }
 
+/* компактная строка связи: ● 23:18:04 · 5 мин назад */
 .connection {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
-  text-align: right;
-}
-.connection-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .13em;
-  font-weight: 650;
-  color: var(--muted);
-}
-.connection-value {
-  display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 13px;
-  font-weight: 650;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.connection-time {
+  font-weight: 650;
   color: var(--text);
 }
-.connection-ago { font-size: 11px; font-weight: 550; color: var(--muted); }
-.connection-ago::before { content: "·"; margin-right: 6px; opacity: .6; }
+.connection-ago {
+  font-weight: 500;
+  color: var(--muted);
+}
+.connection-ago::before {
+  content: "·";
+  margin-right: 5px;
+  opacity: .6;
+}
 
 .connection-dot {
   width: 7px;
@@ -342,7 +342,6 @@ body.is-off .now-line::before {
   color: #e8e5dc;
   box-shadow: 0 1px 3px rgba(0,0,0,.35);
 }
-/* Убираем двойную чёрную каёмку у маски будущего */
 .future-mask::before { display: none; }
 
 .ticks { position: relative; height: 19px; margin-top: 9px; }
@@ -671,18 +670,24 @@ body.is-on .dust { opacity: 1; }
 .offline-btn.is-busy .offline-spinner { display: block; }
 @keyframes offlineSpin { to { transform: rotate(360deg); } }
 
+/* ===== Мобильная адаптация верхней карточки ===== */
 @media (max-width: 720px) {
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
 
-  .status-card { flex-direction: column; align-items: stretch; gap: 0; }
+  /* Верхняя карточка: статус сверху, нижняя строка — связь слева, кнопки справа */
+  .status-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
   .status-meta { font-size: 12px; }
 
-  .status-side {
-    flex-direction: row;
+  .status-right {
+    flex-direction: row-reverse;
     align-items: center;
     justify-content: space-between;
     width: 100%;
@@ -691,7 +696,7 @@ body.is-on .dust { opacity: 1; }
     padding-top: 14px;
     border-top: 1px solid var(--hair);
   }
-  .connection { align-items: flex-end; }
+  .connection { font-size: 12px; }
 
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
@@ -709,13 +714,17 @@ body.is-on .dust { opacity: 1; }
   .offline-text { font-size: 12px; }
 }
 
+@media (max-width: 420px) {
+  /* на очень узких экранах скрываем «N мин назад», чтобы всё влезало в одну строку */
+  .connection-ago { display: none; }
+}
+
 @media (max-width: 390px) {
   body { padding-left: 10px; padding-right: 10px; }
   .card { padding: 16px; }
   .summary-value { font-size: 17px; }
   .summary-label { font-size: 9px; }
   .legend { font-size: 10px; }
-  .connection-ago { font-size: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -768,19 +777,16 @@ body.is-on .dust { opacity: 1; }
       </div>
     </div>
 
-    <div class="status-side">
+    <div class="status-right">
       <div class="day-switch" role="tablist" aria-label="Выбор дня">
         <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
         <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
       </div>
 
-      <div class="connection" id="connection">
-        <span class="connection-label">последняя связь</span>
-        <span class="connection-value">
-          <span class="connection-dot is-live" id="connectionDot"></span>
-          <span class="connection-time" id="connectionTime">23:18:04</span>
-          <span class="connection-ago" id="connectionAgo">только что</span>
-        </span>
+      <div class="connection" id="connection" title="Последняя связь с устройством">
+        <span class="connection-dot is-live" id="connectionDot"></span>
+        <span class="connection-time" id="connectionTime">23:18:04</span>
+        <span class="connection-ago" id="connectionAgo">только что</span>
       </div>
     </div>
   </header>
@@ -885,7 +891,6 @@ const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_Mq
 const MIN = 60000;
 const pad = n => String(n).padStart(2, '0');
 
-// Сдвиг часов браузера относительно сервера (мс).
 let serverSkew = 0;
 
 let payload = null;
@@ -914,11 +919,11 @@ let offlineNextRetryAt = 0;
 let offlineRecovered = false;
 
 function showOffline(reason) {
-  if (!firstLoadDone) return; // Пусть загрузочный оверлей работает
+  if (!firstLoadDone) return;
   offlineOverlay.classList.add('is-visible');
   offlineReason.textContent = reason || 'Сервер не ответил';
   offlineAttempts.textContent = String(offlineAttemptsCount);
-  offlineNextRetryAt = Date.now() + 30000; // 30 сек
+  offlineNextRetryAt = Date.now() + 30000;
   offlineRecovered = false;
   offlineRetryBtn.disabled = false;
   offlineRetryBtn.classList.remove('is-busy');
@@ -972,7 +977,6 @@ function probeOffline() {
   offlineRetryText.textContent = 'проверяем…';
   offlineRetryFill.classList.add('is-loading');
 
-  // Запускаем основную проверку
   refreshPowerData();
 }
 
@@ -1056,7 +1060,6 @@ function render() {
   const lightOn = payload.hasData && (now - lastConnection <= 90000);
   const onlineStatus = payload.hasData ? lightOn : null;
   const outages = (dayData.outages || []).map(o => ({ ...o }));
-  // Для «живого» статуса всегда берём сегодняшние события, независимо от выбранного дня
   const todayOutages = (payload.today?.outages || []).map(o => ({ ...o }));
 
   document.body.classList.toggle('is-on', lightOn);
@@ -1067,7 +1070,7 @@ function render() {
   document.getElementById('reportTitle').textContent =
     selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';
 
-  // ---------- СТАТУС (всегда актуальный, не зависит от выбранного дня) ----------
+  // ---------- СТАТУС (всегда актуальный) ----------
   const statusBox = document.getElementById('statusBox');
   const statusTitle = document.getElementById('statusTitle');
   const statusMeta = document.getElementById('statusMeta');
@@ -1090,10 +1093,10 @@ function render() {
       : 'нет новых отметок времени';
   }
 
-  // ---------- СВЯЗЬ ----------
+  // ---------- СВЯЗЬ (компактная строка справа) ----------
   if (lastConnection === null || lastConnection === undefined) {
     connectionTime.textContent = '—';
-    connectionAgo.textContent = 'нет данных';
+    connectionAgo.textContent = '';
     connectionAgo.style.display = 'none';
     connectionDot.className = 'connection-dot is-unknown';
     connectionEl.title = 'Отметок времени ещё не было';

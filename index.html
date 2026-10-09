@@ -107,9 +107,10 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
    ВЕРХНЯЯ КАРТОЧКА — СТАТУС
-   Строка 0:                       [Вчера][Сегодня]
-   Строка 1: [иконка] Свет есть
-   Строка 2: без света X           ● 23:18 · 5 мин назад
+   Строка 1: [иконка] Света нет
+   Строка 2: без света 1ч 16м         [Вчера][Сегодня]
+   ─────────────────────────────────────────────────────
+   Строка 3: ● 23:18 · 5 мин назад
    ============================================================ */
 .status-card {
   display: flex;
@@ -117,14 +118,8 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
   gap: 0;
 }
 
-/* верхняя строка — только переключатель дня, справа */
+/* строка 1 — иконка + заголовок */
 .status-head {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 14px;
-}
-
-.status-left {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -165,23 +160,31 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 .status.off .status-title { color: #8a8f98; }
 body.is-off .status.off .status-title { color: var(--bad); }
 
-/* нижняя строка — метаинфа + связь */
-.status-bottom {
+/* строка 2 — метаинфа слева, кнопки справа */
+.status-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-top: 14px;
-  padding-top: 13px;
-  border-top: 1px solid var(--hair);
+  gap: 14px;
+  margin-top: 12px;
 }
 .status-meta {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* строка 3 — связь, отделена линией */
+.status-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair);
 }
 
 /* компактная строка связи: ● 23:18:04 · 5 мин назад */
@@ -693,12 +696,10 @@ body.is-on .dust { opacity: 1; }
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
 
-  .status-head { margin-bottom: 12px; }
-
-  .status-left { gap: 12px; }
+  .status-head { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
-  .status-meta { font-size: 12px; }
+  .status-meta { font-size: 13px; }
   .connection { font-size: 12px; }
 
   .timeline { height: 40px; }
@@ -721,8 +722,8 @@ body.is-on .dust { opacity: 1; }
   .connection-ago { display: none; }
   .status-meta {
     font-size: 12px;
-    max-width: 55%;
   }
+  .status-line { gap: 10px; }
 }
 
 @media (max-width: 390px) {
@@ -732,6 +733,8 @@ body.is-on .dust { opacity: 1; }
   .summary-label { font-size: 9px; }
   .legend { font-size: 10px; }
   .day-btn { padding: 5px 9px; font-size: 11px; }
+  .status-title { font-size: 18px; }
+  .status-meta { font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -764,16 +767,8 @@ body.is-on .dust { opacity: 1; }
 
 <main class="wrap">
   <header class="card status-card status on" id="statusBox">
-    <!-- Верхняя строка: только переключатель дня, справа -->
+    <!-- Строка 1: иконка + заголовок -->
     <div class="status-head">
-      <div class="day-switch" role="tablist" aria-label="Выбор дня">
-        <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
-        <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
-      </div>
-    </div>
-
-    <!-- Средняя строка: иконка + статус -->
-    <div class="status-left">
       <span class="status-icon" id="lightSource" aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <path class="si-glass"
@@ -792,10 +787,18 @@ body.is-on .dust { opacity: 1; }
       </div>
     </div>
 
-    <!-- Нижняя строка: последнее событие слева, связь справа -->
-    <div class="status-bottom">
-      <div class="status-meta" id="statusMeta">Питание стабильно</div>
+    <!-- Строка 2: метаинфа слева, кнопки дня справа -->
+    <div class="status-line">
+      <div class="status-meta" id="statusMeta">без света 1ч 16м</div>
 
+      <div class="day-switch" role="tablist" aria-label="Выбор дня">
+        <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
+        <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
+      </div>
+    </div>
+
+    <!-- Строка 3: связь, отделена линией -->
+    <div class="status-bottom">
       <div class="connection" id="connection" title="Последняя связь с устройством">
         <span class="connection-dot is-live" id="connectionDot"></span>
         <span class="connection-time" id="connectionTime">23:18:04</span>
@@ -1091,12 +1094,12 @@ function render() {
 
   if (onlineStatus === null) {
     statusTitle.textContent = 'Нет данных';
-    statusMeta.textContent = 'ESP32 ещё не отправлял отметки времени';
+    statusMeta.textContent = 'ESP32 ещё не отправлял отметки';
   } else if (lightOn) {
     statusTitle.textContent = 'Свет есть';
     const lastOff = [...todayOutages].reverse().find(o => !o.current && o.end <= now);
     statusMeta.textContent = lastOff
-      ? 'последнее отключение ' + agoText(lastOff.end, now)
+      ? 'без света было ' + fmtDur((now - lastOff.end) / MIN)
       : 'отключений не было';
   } else {
     statusTitle.textContent = 'Света нет';

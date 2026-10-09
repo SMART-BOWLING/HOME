@@ -255,16 +255,16 @@ body.is-off .future-mask::after {
 
 .future-mask.no-data::before { display: none; }
 
-/* ====== Линия «сейчас» — тёплый янтарный ====== */
+/* ====== Линия «сейчас» — в цвете таймлайна ====== */
 .now-line {
   position: absolute;
   top: -9px;
   bottom: -9px;
-  width: 1.5px;
-  background: #d99a2b;
+  width: 2px;
+  background: var(--track);
   transform: translateX(-50%);
   z-index: 5;
-  box-shadow: 0 0 6px rgba(255,170,50,.55), 0 0 14px rgba(255,186,74,.35);
+  box-shadow: 0 0 8px rgba(255,228,168,.85);
 }
 .now-line::before {
   content: "сейчас";
@@ -274,13 +274,13 @@ body.is-off .future-mask::after {
   transform: translateX(-50%);
   padding: 3px 8px;
   border-radius: 5px;
-  background: #d99a2b;
-  color: #fff;
+  background: var(--track);
+  color: #7a5a1e;
   font-size: 9px;
   font-weight: 750;
   letter-spacing: .07em;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(217,154,43,.35);
+  box-shadow: 0 1px 3px rgba(200,150,40,.28);
 }
 /* Убираем двойную чёрную каёмку у маски будущего */
 .future-mask::before { display: none; }

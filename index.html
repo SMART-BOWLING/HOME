@@ -347,7 +347,8 @@ body.is-off .day-btn.is-active {
   bottom: 0;
   min-width: 2px;
   max-width: 100%;
-  background: var(--off);
+  /* 👇 ЕДИНЫЙ ЦВЕТ ДЛЯ ВСЕХ СЕГМЕНТОВ (и при свете, и без) */
+  background: #1b1e25;
   cursor: pointer;
   transition: filter .15s ease;
   /* Фиксируем по вертикали, чтобы не «вылезал» из-за subpixel-рендеринга */
@@ -462,7 +463,7 @@ body.is-off .future-mask::after {
 .legend .ok {
   background: var(--track);
 }
-.legend .off { background: var(--off); }
+.legend .off { background: #1b1e25; }
 .legend .future {
   background:
     repeating-linear-gradient(
@@ -639,35 +640,8 @@ body.is-on .dust { opacity: 1; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
   text-align: center;
-}
-
-.loader .lamp {
-  width: 64px;
-  height: 64px;
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-.loader .lamp svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: drop-shadow(0 0 10px rgba(255, 186, 74, .45));
-}
-.loader .lamp .glass {
-  fill: rgba(255, 210, 124, .32);
-  stroke: #e0a94e;
-  stroke-width: 1.1;
-}
-.loader .lamp .cap { fill: #bb8a3d; }
-.loader .lamp .filament {
-  stroke: #ff9d1f;
-  stroke-width: 1.2;
-  fill: none;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 4px rgba(255, 170, 50, 1));
 }
 
 .loader .progress {
@@ -693,14 +667,6 @@ body.is-on .dust { opacity: 1; }
 }
 
 .loader-overlay.is-error .loader .progress { display: none; }
-.loader-overlay.is-error .loader .lamp svg { filter: none; opacity: .45; }
-.loader-overlay.is-error .loader .filament {
-  stroke: #8a8d93; filter: none;
-}
-.loader-overlay.is-error .loader .glass {
-  fill: rgba(120, 125, 135, .08); stroke: #8a8d93;
-}
-.loader-overlay.is-error .loader .cap { fill: #8a8d93; }
 
 .retry-btn {
   display: none;
@@ -760,19 +726,6 @@ body.is-on .dust { opacity: 1; }
 
 <div class="loader-overlay" id="loaderOverlay" role="status" aria-live="polite">
   <div class="loader">
-    <div class="lamp" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path class="glass"
-          d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-             L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-             C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-             C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-        <rect class="cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-        <path class="filament"
-          d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10" />
-      </svg>
-    </div>
-
     <div class="progress" aria-hidden="true">
       <div class="progress-bar"></div>
     </div>
@@ -1190,6 +1143,19 @@ if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document
 
 // ===== Старт =====
 refreshPowerData();
+
+// ⏰ Автоматическая перезагрузка ровно в момент смены минуты
+function scheduleReloadAtNextMinute() {
+  const now = new Date();
+  const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+  setTimeout(() => {
+    location.reload();
+  }, msToNextMinute);
+}
+scheduleReloadAtNextMinute();
+
+// Дополнительно обновляем данные каждые 30 секунд для актуальности,
+// но перезагрузка страницы произойдёт ровно в 00 секунд каждой минуты.
 setInterval(refreshPowerData, 30000);
 setInterval(render, 10000);
 </script>

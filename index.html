@@ -824,6 +824,9 @@ function reportPowerError(error) {
     document.getElementById('statusMeta').textContent = error.message || String(error);
   }
   document.getElementById('statusBox').classList.add('no-connection');
+  if (payload) {
+    document.getElementById('statusMeta').textContent = 'Нет связи с сервером; показаны последние доступные данные';
+  }
 }
 
 function refreshPowerData() {
@@ -894,3 +897,4 @@ setInterval(render, 10000);
 </script>
 </body>
 </html>
+

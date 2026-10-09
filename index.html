@@ -251,13 +251,6 @@ body.is-off .status.off .status-title { color: var(--bad); }
 body.is-off .connection-dot {
   box-shadow: 0 0 0 3px rgba(120,120,120,.12);
 }
-.status-card.no-connection {
-  border-color: rgba(245,158,11,.45);
-}
-.no-connection .connection-dot {
-  background: var(--warn);
-  box-shadow: 0 0 0 3px rgba(245,158,11,.10);
-}
 
 /* ===== Переключатель дня ===== */
 .day-switch {
@@ -338,6 +331,50 @@ body.is-off .day-btn.is-active {
 }
 .seg:hover { filter: brightness(1.25); }
 
+/* ===== Будущее время на таймлайне ===== */
+.future-mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: rgba(251, 250, 246, 0.62);
+  backdrop-filter: saturate(0.35) brightness(1.02);
+  -webkit-backdrop-filter: saturate(0.35) brightness(1.02);
+  transition: opacity .3s ease;
+}
+.future-mask::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(120, 120, 130, 0.16) 0 1px,
+    transparent 1px 7px
+  );
+  opacity: .9;
+}
+.future-mask::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: rgba(0, 0, 0, .18);
+}
+body.is-off .future-mask {
+  background: rgba(241, 240, 238, 0.66);
+}
+body.is-off .future-mask::after {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(120, 120, 130, 0.14) 0 1px,
+    transparent 1px 7px
+  );
+}
+
 .now-line {
   position: absolute;
   top: -9px;
@@ -402,6 +439,16 @@ body.is-off .day-btn.is-active {
   box-shadow: inset 0 0 0 1px rgba(180,130,30,.20);
 }
 .legend .off { background: var(--off); }
+.legend .future {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(120,120,130,.35) 0 1px,
+      transparent 1px 5px
+    ),
+    var(--bg);
+  box-shadow: inset 0 0 0 1px rgba(120,120,130,.25);
+}
 
 .summary {
   display: grid;
@@ -761,6 +808,7 @@ body.is-on .dust { opacity: 1; }
     <div class="legend">
       <span><i class="ok"></i>свет был</span>
       <span><i class="off"></i>не было света</span>
+      <span><i class="future"></i>ещё не наступило</span>
     </div>
   </section>
 
@@ -932,6 +980,8 @@ function render() {
     else el.textContent = pad(h);
     ticks.appendChild(el);
   }
+
+  // Сегменты отключений
   outages.forEach(o => {
     const start = Math.max(dayStart, o.start);
     const end = Math.min(dayEnd, o.end);
@@ -945,9 +995,20 @@ function render() {
     timeline.appendChild(seg);
   });
 
-  // Линия "сейчас" только для сегодняшнего дня
+  // Будущее время (только для сегодняшнего дня)
   if (selectedDay === 'today') {
-    const pct = (now - dayStart) / windowMs * 100;
+    const pct = Math.min(100, Math.max(0, (now - dayStart) / windowMs * 100));
+
+    // Маска будущего
+    if (pct < 100) {
+      const mask = document.createElement('div');
+      mask.className = 'future-mask';
+      mask.style.left = pct + '%';
+      mask.title = 'Время ещё не наступило';
+      timeline.appendChild(mask);
+    }
+
+    // Линия "сейчас"
     if (pct >= 0 && pct <= 100) {
       const nowLine = document.createElement('div');
       nowLine.className = 'now-line';

@@ -210,7 +210,7 @@ body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
   position: absolute;
   top: 0;
   bottom: 0;
-  min-width: 1px;
+  min-width: 2px;
   max-width: 100%;
   background: #1b1e25;
   cursor: pointer;
@@ -239,8 +239,15 @@ body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.16) 0 1px, transparent 1px 7px);
   opacity: .9;
 }
-/* Раньше здесь была чёрная граница 1px — убрали, чтобы не было полоски в конце графика */
-.future-mask::before { display: none; }
+.future-mask::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: rgba(0,0,0,.18);
+}
 body.is-off .future-mask { background: rgba(241, 240, 238, 0.66); }
 body.is-off .future-mask::after {
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
@@ -248,18 +255,35 @@ body.is-off .future-mask::after {
 
 .future-mask.no-data::before { display: none; }
 
-/* Маркер «сейчас» — теперь тонкий и тёплый, без чёрной полосы */
+/* ====== Линия «сейчас» — тёплый янтарный ====== */
 .now-line {
   position: absolute;
   top: -9px;
   bottom: -9px;
-  width: 1px;
-  background: rgba(160, 110, 30, .55);
+  width: 1.5px;
+  background: #d99a2b;
   transform: translateX(-50%);
   z-index: 5;
+  box-shadow: 0 0 6px rgba(255,170,50,.55), 0 0 14px rgba(255,186,74,.35);
 }
-body.is-off .now-line { background: rgba(70, 70, 75, .55); }
-.now-line::before { display: none; }
+.now-line::before {
+  content: "сейчас";
+  position: absolute;
+  top: -23px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #d99a2b;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .07em;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(217,154,43,.35);
+}
+/* Убираем двойную чёрную каёмку у маски будущего */
+.future-mask::before { display: none; }
 
 .ticks { position: relative; height: 19px; margin-top: 9px; }
 .tick {
@@ -780,11 +804,6 @@ const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_Mq
 const MIN = 60000;
 const pad = n => String(n).padStart(2, '0');
 
-// Порог «настоящего» отключения (в минутах).
-// Отключения короче этого значения считаются дребезгом и не показываются.
-// Текущее (длящееся) отключение показывается всегда, независимо от порога.
-const MIN_OUTAGE_MIN = 1;
-
 // Сдвиг часов браузера относительно сервера (мс).
 let serverSkew = 0;
 
@@ -949,13 +968,7 @@ function render() {
   const lastConnection = payload.lastConnection;
   const lightOn = payload.hasData && (now - lastConnection <= 90000);
   const onlineStatus = payload.hasData ? lightOn : null;
-
-  // Фильтруем «дребезг»: завершённые отключения короче MIN_OUTAGE_MIN минут
-  // не отображаем ни на графике, ни в статистике, ни в истории.
-  // Текущее (длящееся) отключение показываем всегда.
-  const outages = (dayData.outages || [])
-    .filter(o => o.current || o.dur >= MIN_OUTAGE_MIN)
-    .map(o => ({ ...o }));
+  const outages = (dayData.outages || []).map(o => ({ ...o }));
 
   document.body.classList.toggle('is-on', lightOn);
   document.body.classList.toggle('is-off', !lightOn);
@@ -1065,7 +1078,7 @@ function render() {
     const seg = document.createElement('div');
     seg.className = 'seg';
     seg.style.left = leftPct + '%';
-    const finalWidth = Math.max(0.1, widthPct);
+    const finalWidth = Math.max(0.2, widthPct);
     seg.style.width = Math.min(finalWidth, 100 - leftPct) + '%';
     seg.title = timeFormat(o.start) + ' → ' + (o.current ? 'сейчас' : timeFormat(o.end)) +
       ' · ' + fmtDur(o.dur);

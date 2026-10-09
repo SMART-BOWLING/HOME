@@ -3,23 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f1f0ee">
+<meta name="theme-color" content="#fbfaf6">
 <title>Электропитание — мониторинг</title>
 <style>
 *,
 *::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
   --light-x: 46px;
   --light-y: 240px;
 }
-/* =========================================================
-   ОСНОВНАЯ ТЕМА (свет есть)
-========================================================= */
+
 body {
   --bg: #fbfaf6;
   --text: #16181d;
@@ -28,7 +23,6 @@ body {
   --hair: #eeece5;
   --panel: rgba(255,255,255,.64);
   --panel-edge: #e9e6dd;
-  /* ТЁПЛАЯ сплошная дорожка = «свет был» */
   --track: #ffe4a8;
   --off: #1b1e25;
   --ok: #10b981;
@@ -52,15 +46,9 @@ body {
   font-feature-settings: "tnum" 1;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  transition:
-    background .6s ease,
-    color .6s ease;
+  transition: background .6s ease, color .6s ease;
 }
-/* =========================================================
-   СВЕТЛАЯ, НО СЕРАЯ ТЕМА ПРИ ОТКЛЮЧЕНИИ
-   Внимание: --track НЕ переопределяем —
-   тёплая дорожка истории остаётся тёплой всегда.
-========================================================= */
+
 body.is-off {
   --bg: #f1f0ee;
   --text: #45454a;
@@ -74,9 +62,7 @@ body.is-off {
   --bad: #4a4a4f;
   --warn: #8f8f94;
 }
-/* =========================================================
-   ТЁПЛОЕ СВЕЧЕНИЕ
-========================================================= */
+
 body::before {
   content: "";
   position: fixed;
@@ -95,9 +81,8 @@ body::before {
   opacity: 0;
   transition: opacity .8s ease;
 }
-body.is-on::before {
-  opacity: 1;
-}
+body.is-on::before { opacity: 1; }
+
 body::after {
   content: "";
   position: fixed;
@@ -114,9 +99,8 @@ body::after {
   opacity: 0;
   transition: opacity .8s ease;
 }
-body.is-on::after {
-  opacity: 1;
-}
+body.is-on::after { opacity: 1; }
+
 .wrap {
   width: 100%;
   max-width: 760px;
@@ -124,6 +108,7 @@ body.is-on::after {
   position: relative;
   z-index: 10;
 }
+
 .card {
   background: var(--panel);
   border: 1px solid var(--panel-edge);
@@ -138,10 +123,9 @@ body.is-on::after {
     box-shadow .5s ease;
 }
 body.is-on .card {
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.8) inset;
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
 }
-/* STATUS */
+
 .status-card {
   display: flex;
   align-items: center;
@@ -274,7 +258,7 @@ body.is-off .connection-dot {
   background: var(--warn);
   box-shadow: 0 0 0 3px rgba(245,158,11,.10);
 }
-/* SECTION TITLE */
+
 .section-title {
   display: flex;
   justify-content: space-between;
@@ -292,11 +276,7 @@ body.is-off .connection-dot {
   font-size: 11px;
   color: var(--muted);
 }
-/* =========================================================
-   TIMELINE
-   Тёплая дорожка = «свет был». Тёплая ВСЕГДА —
-   даже если сейчас света нет: это история.
-========================================================= */
+
 .timeline-wrap { position: relative; }
 .timeline {
   position: relative;
@@ -311,7 +291,6 @@ body.is-off .connection-dot {
     0 0 55px rgba(255,205,110,.10);
   transition: background .5s ease, box-shadow .5s ease;
 }
-/* сегменты отключений */
 .seg {
   position: absolute;
   top: 0;
@@ -367,7 +346,6 @@ body.is-off .connection-dot {
 .tick.edge-start { transform: translateX(0); }
 .tick.edge-end { transform: translateX(-100%); }
 
-/* LEGEND */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -389,7 +367,6 @@ body.is-off .connection-dot {
 }
 .legend .off { background: var(--off); }
 
-/* SUMMARY */
 .summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -415,7 +392,7 @@ body.is-off .connection-dot {
   font-size: 11px;
   color: var(--muted);
 }
-/* HISTORY */
+
 .history { display: flex; flex-direction: column; }
 .history-row {
   display: grid;
@@ -451,7 +428,7 @@ body.is-off .connection-dot {
   color: var(--muted);
   font-size: 13px;
 }
-/* BEAM */
+
 .beam {
   position: fixed;
   inset: 0;
@@ -480,7 +457,7 @@ body.is-off .connection-dot {
   mix-blend-mode: multiply;
 }
 body.is-on .beam-lamp { opacity: 1; }
-/* DUST */
+
 .dust {
   position: fixed;
   inset: 0 0 auto;
@@ -532,6 +509,114 @@ body.is-on .dust { opacity: 1; }
 .dust i:nth-child(11){ left: 54%; --dx: 30px;  animation-duration: 26s; animation-delay: 12s; }
 .dust i:nth-child(12){ left: 60%; --dx: -20px; animation-duration: 29s; animation-delay: 7s; }
 
+/* =========================================================
+   ЗАГРУЗОЧНЫЙ ОВЕРЛЕЙ
+   Только лампочка + полоса загрузки.
+========================================================= */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--bg);
+  transition: opacity .45s ease, visibility .45s ease;
+}
+.loader-overlay.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  text-align: center;
+}
+
+/* Лампочка: только мягкое свечение от нити, без ореола и покачивания */
+.loader .lamp {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.loader .lamp svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(255, 186, 74, .45));
+}
+.loader .lamp .glass {
+  fill: rgba(255, 210, 124, .32);
+  stroke: #e0a94e;
+  stroke-width: 1.1;
+}
+.loader .lamp .cap { fill: #bb8a3d; }
+.loader .lamp .filament {
+  stroke: #ff9d1f;
+  stroke-width: 1.2;
+  fill: none;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(255, 170, 50, 1));
+}
+
+/* Полоса загрузки */
+.loader .progress {
+  width: 200px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--track);
+  box-shadow:
+    inset 0 0 0 1px rgba(200, 150, 40, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .70);
+  overflow: hidden;
+}
+.loader .progress-bar {
+  width: 40%;
+  height: 100%;
+  border-radius: 3px;
+  background: #e0a94e;
+  animation: slide 1.3s ease-in-out infinite;
+}
+@keyframes slide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(360%); }
+}
+
+/* Состояние ошибки: лампочка гаснет, полоса скрывается */
+.loader-overlay.is-error .loader .progress { display: none; }
+.loader-overlay.is-error .loader .lamp svg { filter: none; opacity: .45; }
+.loader-overlay.is-error .loader .filament {
+  stroke: #8a8d93; filter: none;
+}
+.loader-overlay.is-error .loader .glass {
+  fill: rgba(120, 125, 135, .08); stroke: #8a8d93;
+}
+.loader-overlay.is-error .loader .cap { fill: #8a8d93; }
+
+.retry-btn {
+  display: none;
+  padding: 10px 18px;
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.retry-btn:hover {
+  background: #fff;
+  border-color: #d9d9db;
+}
+.loader-overlay.is-error .retry-btn { display: inline-block; }
+
 @media (max-width: 720px) {
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
@@ -564,11 +649,35 @@ body.is-on .dust { opacity: 1; }
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
-  .dust, .rays { display: none; }
+  .dust { display: none; }
 }
 </style>
 </head>
 <body class="is-on">
+
+<div class="loader-overlay" id="loaderOverlay" role="status" aria-live="polite">
+  <div class="loader">
+    <div class="lamp" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path class="glass"
+          d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
+             L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
+             C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
+             C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+        <rect class="cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+        <path class="filament"
+          d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10" />
+      </svg>
+    </div>
+
+    <div class="progress" aria-hidden="true">
+      <div class="progress-bar"></div>
+    </div>
+
+    <button class="retry-btn" id="retryBtn" type="button">Повторить</button>
+  </div>
+</div>
+
 <div class="beam beam-lamp"></div>
 <div class="dust" aria-hidden="true">
   <i></i><i></i><i></i><i></i>
@@ -648,13 +757,39 @@ body.is-on .dust { opacity: 1; }
   </section>
 </main>
 <script>
-// Реальные данные из Google Таблицы вместо демо-отключений.
+// ===== API =====
+const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbzt8AkQZqvvWnxnX2BETjieDNYN0IT-Zf7RwUkUXl_eZvX24Xrqg188o1k3rRyK6lnlTg/exec';
 const MIN = 60000;
 const pad = n => String(n).padStart(2, '0');
+
 let payload = null;
 let lastSyncAt = 0;
 let loading = false;
+let firstLoadDone = false;
 
+// ===== Загрузочный оверлей =====
+const loaderOverlay = document.getElementById('loaderOverlay');
+const retryBtn = document.getElementById('retryBtn');
+
+function hideLoader() {
+  if (!loaderOverlay || loaderOverlay.classList.contains('is-hidden')) return;
+  loaderOverlay.classList.add('is-hidden');
+  setTimeout(() => {
+    if (loaderOverlay.parentNode) loaderOverlay.parentNode.removeChild(loaderOverlay);
+  }, 500);
+}
+
+function showLoaderError() {
+  if (!loaderOverlay) return;
+  loaderOverlay.classList.add('is-error');
+}
+
+retryBtn.addEventListener('click', () => {
+  loaderOverlay.classList.remove('is-error');
+  refreshPowerData();
+});
+
+// ===== Форматирование =====
 function timeFormat(ts, seconds = false) {
   const options = {
     timeZone: payload?.timezone || 'Europe/Kyiv',
@@ -676,9 +811,10 @@ function agoText(ts, now) {
   if (min < 60) return min + ' мин назад';
   return fmtDur(min) + ' назад';
 }
+
+// ===== Рендер =====
 function render() {
   if (!payload) return;
-  // Подтягиваем время между серверными опросами, не требуя обновления страницы.
   const now = payload.now + (Date.now() - lastSyncAt);
   const dayStart = payload.dayStart, dayEnd = payload.dayEnd;
   const windowMs = dayEnd - dayStart;
@@ -687,7 +823,6 @@ function render() {
   const onlineStatus = payload.hasData ? lightOn : null;
   const outages = (payload.outages || []).map(o => ({ ...o }));
 
-  // Актуализируем незавершённое отключение, пока ждём серверное обновление.
   if (!lightOn && payload.hasData) {
     const start = Math.max(lastConnection + MIN, dayStart);
     const end = Math.min(now, dayEnd);
@@ -702,6 +837,7 @@ function render() {
 
   document.body.classList.toggle('is-on', lightOn);
   document.body.classList.toggle('is-off', !lightOn);
+
   const statusBox = document.getElementById('statusBox');
   const statusTitle = document.getElementById('statusTitle');
   const statusMeta = document.getElementById('statusMeta');
@@ -800,9 +936,7 @@ function render() {
   }
 }
 
-// API того же Google Apps Script. HTML можно открыть отдельно или внутри Apps Script.
-const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbzt8AkQZqvvWnxnX2BETjieDNYN0IT-Zf7RwUkUXl_eZvX24Xrqg188o1k3rRyK6lnlTg/exec';
-let activeRequest = null;
+// ===== Запрос данных =====
 let requestSerial = 0;
 
 function receivePowerData(result) {
@@ -813,27 +947,34 @@ function receivePowerData(result) {
   payload = result;
   lastSyncAt = Date.now();
   loading = false;
+  firstLoadDone = true;
   render();
+  hideLoader();
 }
 
 function reportPowerError(error) {
   loading = false;
   console.error('Ошибка загрузки отметок:', error);
+
+  if (!firstLoadDone) {
+    showLoaderError();
+    return;
+  }
+
   if (!payload) {
     document.getElementById('statusTitle').textContent = 'Ошибка подключения';
     document.getElementById('statusMeta').textContent = error.message || String(error);
+  } else {
+    document.getElementById('statusMeta').textContent =
+      'Нет связи с сервером; показаны последние доступные данные';
   }
   document.getElementById('statusBox').classList.add('no-connection');
-  if (payload) {
-    document.getElementById('statusMeta').textContent = 'Нет связи с сервером; показаны последние доступные данные';
-  }
 }
 
 function refreshPowerData() {
   if (loading) return;
   loading = true;
 
-  // Внутри опубликованного GAS используем его штатный защищённый вызов.
   if (window.google && google.script && google.script.run) {
     google.script.run
       .withSuccessHandler(receivePowerData)
@@ -842,7 +983,6 @@ function refreshPowerData() {
     return;
   }
 
-  // Отдельный HTML использует JSONP: браузер не блокирует CORS, API только на чтение.
   const callbackName = 'powerCallback_' + Date.now() + '_' + (++requestSerial);
   const script = document.createElement('script');
   let finished = false;
@@ -862,12 +1002,13 @@ function refreshPowerData() {
     receivePowerData(result);
   };
   script.onerror = () => {
-    if (cleanup()) reportPowerError(new Error('Не удалось загрузить API. Проверь доступ к развёртыванию.'));
+    if (cleanup()) reportPowerError(new Error('Не удалось загрузить API. Проверьте доступ к развёртыванию.'));
   };
   script.src = POWER_API_URL + '?api=1&callback=' + callbackName + '&_=' + Date.now();
   document.head.appendChild(script);
 }
 
+// ===== Световой источник =====
 const lightSource = document.getElementById('lightSource');
 function updateLightOrigin() {
   if (!lightSource) return;
@@ -891,10 +1032,10 @@ window.addEventListener('load', updateLightOrigin);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLightOrigin);
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
 
+// ===== Старт =====
 refreshPowerData();
 setInterval(refreshPowerData, 30000);
 setInterval(render, 10000);
 </script>
 </body>
 </html>
-

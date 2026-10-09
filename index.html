@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Там где график , убери надпись сегодня, с 00 до 00 , вот код : <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -681,7 +681,8 @@ body.is-on .dust { opacity: 1; }
     </div>
 
     <div class="day-switch" role="tablist" aria-label="Выбор дня">
-      <button class="day-btn" id="btnYesterday" type="button">Вчера</button>
+      <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
+      <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
     </div>
   </header>
 
@@ -728,7 +729,7 @@ body.is-on .dust { opacity: 1; }
   </section>
 </main>
 
-<!-- ============ OFFLINE OVERLAY ============ -->
+<!-- ============ OFFLINE OVERLAY (без «Причина» и «Попыток») ============ -->
 <div class="offline-overlay" id="offlineOverlay">
   <div class="offline-card">
     <span class="offline-lamp" aria-hidden="true">
@@ -877,12 +878,16 @@ retryBtn.addEventListener('click', () => {
   refreshPowerData();
 });
 
-// ===== Переключатель дня (одна кнопка «Вчера» — работает как тумблер) =====
-const btnYesterday = document.getElementById('btnYesterday');
-btnYesterday.addEventListener('click', function () {
-  selectedDay = selectedDay === 'today' ? 'yesterday' : 'today';
-  this.classList.toggle('is-active', selectedDay === 'yesterday');
-  render();
+// ===== Переключатель дня =====
+document.querySelectorAll('.day-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.day === selectedDay) return;
+    selectedDay = btn.dataset.day;
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('is-active', b === btn)
+    );
+    render();
+  });
 });
 
 // ===== Текущее серверное время =====
@@ -958,8 +963,8 @@ function render() {
     if (h % 6 === 0) el.classList.add('major');
     if (h % 2 === 0) el.classList.add('even');
     el.style.left = (h / 24 * 100) + '%';
-    if (h === 0) el.classList.add('edge-start');
-    else if (h === 24) el.classList.add('edge-end');
+    if (h === 0) { el.classList.add('edge-start'); el.textContent = '00'; }
+    else if (h === 24) { el.classList.add('edge-end'); el.textContent = '00'; }
     else el.textContent = pad(h);
     ticks.appendChild(el);
   }

@@ -271,25 +271,39 @@ body.is-off .future-mask::after {
   box-shadow: inset 0 0 0 1px rgba(120,120,130,.25);
 }
 
-/* ===== Отчёт: без серой подложки, по центру ===== */
+/* ===== Отчёт: гармоничные отступы, по центру ===== */
+.report-card .section-title { margin-bottom: 14px; }
+
 .summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 14px;
   background: transparent;
   border-radius: 0;
   overflow: visible;
-  margin-top: 2px;
+  margin-top: 0;
   text-align: center;
 }
 .summary-item {
   background: transparent;
-  padding: 4px 0;
+  padding: 4px 2px 2px;
   min-width: 0;
   text-align: center;
 }
-.summary-value { font-size: 23px; font-weight: 750; letter-spacing: -.7px; font-variant-numeric: tabular-nums; }
-.summary-label { margin-top: 3px; font-size: 11px; color: var(--muted); }
+.summary-value {
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -.8px;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.summary-label {
+  margin-top: 7px;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .01em;
+  line-height: 1.3;
+}
 
 .history { display: flex; flex-direction: column; }
 .history-row {
@@ -572,9 +586,10 @@ body.is-on .dust { opacity: 1; }
 
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
-  .summary { gap: 8px; }
-  .summary-value { font-size: 19px; }
-  .summary-label { font-size: 10px; }
+  .report-card .section-title { margin-bottom: 12px; }
+  .summary { gap: 10px; }
+  .summary-value { font-size: 22px; }
+  .summary-label { font-size: 10px; margin-top: 6px; }
   .history-time { font-size: 14px; }
   .history-duration { font-size: 13px; }
   .section-title { margin-bottom: 15px; }
@@ -589,9 +604,9 @@ body.is-on .dust { opacity: 1; }
 @media (max-width: 390px) {
   body { padding-left: 10px; padding-right: 10px; }
   .card { padding: 16px; }
-  .summary { gap: 4px; }
-  .summary-value { font-size: 17px; }
-  .summary-label { font-size: 9px; }
+  .summary { gap: 6px; }
+  .summary-value { font-size: 19px; }
+  .summary-label { font-size: 9px; margin-top: 5px; }
   .legend { font-size: 10px; }
   .day-btn { padding: 5px 9px; font-size: 11px; }
   .status-title { font-size: 18px; }
@@ -664,7 +679,7 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <section class="card">
+  <section class="card report-card">
     <div class="section-title">
       <h2 id="reportTitle">Отчёт за сегодня</h2>
     </div>
@@ -674,11 +689,11 @@ body.is-on .dust { opacity: 1; }
         <div class="summary-label">отключений</div>
       </div>
       <div class="summary-item">
-        <div class="summary-value" id="totalOutage">0 мин</div>
+        <div class="summary-value" id="totalOutage">0ч 0м</div>
         <div class="summary-label">без света</div>
       </div>
       <div class="summary-item">
-        <div class="summary-value" id="longestOutage">0 мин</div>
+        <div class="summary-value" id="longestOutage">0ч 0м</div>
         <div class="summary-label">самое долгое</div>
       </div>
     </div>
@@ -868,11 +883,13 @@ function timeFormat(ts, seconds = false) {
   return new Intl.DateTimeFormat('ru-RU', options).format(new Date(ts));
 }
 function fmtDur(min) {
-  if (min < 1) return 'меньше минуты';
+  // Точный ноль — «0ч 0м»
+  if (min <= 0) return '0ч 0м';
   const rounded = Math.round(min);
+  if (rounded === 0) return 'меньше минуты';
   if (rounded < 60) return rounded + ' мин';
   const h = Math.floor(rounded / 60), m = rounded % 60;
-  return m ? h + 'ч ' + m + 'м' : h + 'ч';
+  return h + 'ч ' + m + 'м';
 }
 
 // ===== Рендер =====

@@ -259,6 +259,42 @@ body.is-off .connection-dot {
   box-shadow: 0 0 0 3px rgba(245,158,11,.10);
 }
 
+/* ===== Переключатель дня ===== */
+.day-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  margin-bottom: 8px;
+  border-radius: 9px;
+  background: var(--hair);
+  border: 1px solid var(--panel-edge);
+  transition: background .4s ease, border-color .4s ease;
+}
+.day-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  padding: 5px 11px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .25s ease, color .25s ease, box-shadow .25s ease;
+  white-space: nowrap;
+}
+.day-btn:hover { color: var(--text); }
+.day-btn.is-active {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 0 0 1px var(--panel-edge) inset;
+}
+body.is-off .day-btn.is-active {
+  background: rgba(255,255,255,.85);
+}
+
 .section-title {
   display: flex;
   justify-content: space-between;
@@ -511,7 +547,6 @@ body.is-on .dust { opacity: 1; }
 
 /* =========================================================
    ЗАГРУЗОЧНЫЙ ОВЕРЛЕЙ
-   Только лампочка + полоса загрузки.
 ========================================================= */
 .loader-overlay {
   position: fixed;
@@ -537,7 +572,6 @@ body.is-on .dust { opacity: 1; }
   text-align: center;
 }
 
-/* Лампочка: только мягкое свечение от нити, без ореола и покачивания */
 .loader .lamp {
   width: 64px;
   height: 64px;
@@ -565,7 +599,6 @@ body.is-on .dust { opacity: 1; }
   filter: drop-shadow(0 0 4px rgba(255, 170, 50, 1));
 }
 
-/* Полоса загрузки */
 .loader .progress {
   width: 200px;
   height: 5px;
@@ -588,7 +621,6 @@ body.is-on .dust { opacity: 1; }
   100% { transform: translateX(360%); }
 }
 
-/* Состояние ошибки: лампочка гаснет, полоса скрывается */
 .loader-overlay.is-error .loader .progress { display: none; }
 .loader-overlay.is-error .loader .lamp svg { filter: none; opacity: .45; }
 .loader-overlay.is-error .loader .filament {
@@ -620,12 +652,12 @@ body.is-on .dust { opacity: 1; }
 @media (max-width: 720px) {
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
-  .status-card { align-items: flex-start; }
+  .status-card { align-items: flex-start; flex-wrap: wrap; }
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
   .status-meta { font-size: 12px; }
-  .connection { display: none; }
+  .connection { display: flex; flex-direction: column; align-items: flex-end; }
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
   .summary-item { padding: 15px 10px; }
@@ -706,6 +738,10 @@ body.is-on .dust { opacity: 1; }
       </div>
     </div>
     <div class="connection">
+      <div class="day-switch" role="tablist" aria-label="Выбор дня">
+        <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
+        <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
+      </div>
       <div class="connection-label">последняя связь</div>
       <div class="connection-time" id="connectionTime">
         <span class="connection-dot"></span>23:18:04
@@ -716,7 +752,7 @@ body.is-on .dust { opacity: 1; }
   <section class="card">
     <div class="section-title">
       <h2>Электропитание</h2>
-      <span>сегодня, с 00 до 00</span>
+      <span id="dayLabel">сегодня, с 00 до 00</span>
     </div>
     <div class="timeline-wrap">
       <div class="timeline" id="timeline"></div>
@@ -730,7 +766,7 @@ body.is-on .dust { opacity: 1; }
 
   <section class="card">
     <div class="section-title">
-      <h2>Отчёт за сегодня</h2>
+      <h2 id="reportTitle">Отчёт за сегодня</h2>
     </div>
     <div class="summary">
       <div class="summary-item">
@@ -766,6 +802,7 @@ let payload = null;
 let lastSyncAt = 0;
 let loading = false;
 let firstLoadDone = false;
+let selectedDay = 'today'; // 'today' | 'yesterday'
 
 // ===== Загрузочный оверлей =====
 const loaderOverlay = document.getElementById('loaderOverlay');
@@ -787,6 +824,18 @@ function showLoaderError() {
 retryBtn.addEventListener('click', () => {
   loaderOverlay.classList.remove('is-error');
   refreshPowerData();
+});
+
+// ===== Переключатель дня =====
+document.querySelectorAll('.day-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.day === selectedDay) return;
+    selectedDay = btn.dataset.day;
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('is-active', b === btn)
+    );
+    render();
+  });
 });
 
 // ===== Форматирование =====
@@ -816,27 +865,23 @@ function agoText(ts, now) {
 function render() {
   if (!payload) return;
   const now = payload.now + (Date.now() - lastSyncAt);
-  const dayStart = payload.dayStart, dayEnd = payload.dayEnd;
+  const dayKey = selectedDay === 'yesterday' ? 'yesterday' : 'today';
+  const dayData = payload[dayKey] || { dayStart: 0, dayEnd: 0, outages: [] };
+  const dayStart = dayData.dayStart;
+  const dayEnd = dayData.dayEnd;
   const windowMs = dayEnd - dayStart;
   const lastConnection = payload.lastConnection;
   const lightOn = payload.hasData && (now - lastConnection <= 90000);
   const onlineStatus = payload.hasData ? lightOn : null;
-  const outages = (payload.outages || []).map(o => ({ ...o }));
-
-  if (!lightOn && payload.hasData) {
-    const start = Math.max(lastConnection + MIN, dayStart);
-    const end = Math.min(now, dayEnd);
-    const current = outages.find(o => o.current);
-    if (current) {
-      current.end = end;
-      current.dur = Math.max(0, (end - current.start) / MIN);
-    } else if (end > start) {
-      outages.push({ start, end, dur: (end - start) / MIN, current: true });
-    }
-  }
+  const outages = (dayData.outages || []).map(o => ({ ...o }));
 
   document.body.classList.toggle('is-on', lightOn);
   document.body.classList.toggle('is-off', !lightOn);
+
+  document.getElementById('dayLabel').textContent =
+    selectedDay === 'yesterday' ? 'вчера, с 00 до 00' : 'сегодня, с 00 до 00';
+  document.getElementById('reportTitle').textContent =
+    selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';
 
   const statusBox = document.getElementById('statusBox');
   const statusTitle = document.getElementById('statusTitle');
@@ -847,16 +892,24 @@ function render() {
     statusMeta.textContent = 'В колонке A пока нет корректных отметок времени';
   } else if (lightOn) {
     statusTitle.textContent = 'Свет есть';
-    const lastOff = [...outages].reverse().find(o => !o.current && o.end <= now);
-    statusMeta.textContent = lastOff
-      ? 'свет уже ' + fmtDur((now - lastOff.end) / MIN) + ' подряд'
-      : 'соединение активно';
+    if (selectedDay === 'yesterday') {
+      statusMeta.textContent = 'данные за вчера';
+    } else {
+      const lastOff = [...outages].reverse().find(o => !o.current && o.end <= now);
+      statusMeta.textContent = lastOff
+        ? 'свет уже ' + fmtDur((now - lastOff.end) / MIN) + ' подряд'
+        : 'соединение активно';
+    }
   } else {
     statusTitle.textContent = 'Света нет';
-    const current = outages.find(o => o.current);
-    statusMeta.textContent = current
-      ? 'без света уже ' + fmtDur((now - current.start) / MIN)
-      : 'нет новых отметок времени';
+    if (selectedDay === 'yesterday') {
+      statusMeta.textContent = 'данные за вчера';
+    } else {
+      const current = outages.find(o => o.current);
+      statusMeta.textContent = current
+        ? 'без света уже ' + fmtDur((now - current.start) / MIN)
+        : 'нет новых отметок времени';
+    }
   }
 
   const connectionTime = document.getElementById('connectionTime');
@@ -891,12 +944,16 @@ function render() {
       ' · ' + fmtDur(o.dur);
     timeline.appendChild(seg);
   });
-  const pct = (now - dayStart) / windowMs * 100;
-  if (pct >= 0 && pct <= 100) {
-    const nowLine = document.createElement('div');
-    nowLine.className = 'now-line';
-    nowLine.style.left = pct + '%';
-    timeline.appendChild(nowLine);
+
+  // Линия "сейчас" только для сегодняшнего дня
+  if (selectedDay === 'today') {
+    const pct = (now - dayStart) / windowMs * 100;
+    if (pct >= 0 && pct <= 100) {
+      const nowLine = document.createElement('div');
+      nowLine.className = 'now-line';
+      nowLine.style.left = pct + '%';
+      timeline.appendChild(nowLine);
+    }
   }
 
   document.getElementById('outageCount').textContent = outages.length;
@@ -913,7 +970,9 @@ function render() {
   if (!outages.length) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = payload.hasData ? 'Сегодня отключений не было' : 'История пока недоступна';
+    empty.textContent = payload.hasData
+      ? (selectedDay === 'today' ? 'Сегодня отключений не было' : 'Вчера отключений не было')
+      : 'История пока недоступна';
     history.appendChild(empty);
   } else {
     [...outages].reverse().forEach(o => {

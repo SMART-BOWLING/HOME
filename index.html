@@ -1,4 +1,4 @@
-Там где график , убери надпись сегодня, с 00 до 00 , вот код : <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -245,46 +245,6 @@ body.is-off .future-mask::after {
 }
 
 .future-mask.no-data::before { display: none; }
-
-/* ====== Линия «сейчас» — тёмно-жёлтая при свете, чёрная без света ====== */
-.now-line {
-  position: absolute;
-  top: -9px;
-  bottom: -9px;
-  width: 2px;
-  background: #c9962e;
-  transform: translateX(-50%);
-  z-index: 5;
-  box-shadow: 0 0 8px rgba(200,150,40,.55);
-  transition: background .5s ease, box-shadow .5s ease;
-}
-.now-line::before {
-  content: "сейчас";
-  position: absolute;
-  top: -23px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: #c9962e;
-  color: #fff8ec;
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: .07em;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(160,110,20,.35);
-  transition: background .5s ease, color .5s ease, box-shadow .5s ease;
-}
-
-body.is-off .now-line {
-  background: #1b1e25;
-  box-shadow: 0 0 6px rgba(0,0,0,.4);
-}
-body.is-off .now-line::before {
-  background: #1b1e25;
-  color: #e8e5dc;
-  box-shadow: 0 1px 3px rgba(0,0,0,.35);
-}
 .future-mask::before { display: none; }
 
 .ticks { position: relative; height: 19px; margin-top: 9px; }
@@ -1030,13 +990,6 @@ function render() {
       mask.style.left = pct + '%';
       mask.title = 'Время ещё не наступило';
       timeline.appendChild(mask);
-    }
-
-    if (pct >= 0 && pct <= 100) {
-      const nowLine = document.createElement('div');
-      nowLine.className = 'now-line';
-      nowLine.style.left = pct + '%';
-      timeline.appendChild(nowLine);
     }
   }
 

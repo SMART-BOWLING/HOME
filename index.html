@@ -107,8 +107,9 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
    ВЕРХНЯЯ КАРТОЧКА — СТАТУС
-   Строка 1: [иконка] Свет есть    ...    [Вчера][Сегодня]
-   Строка 2: без отключений X       ...    ● 23:18 · 5 мин назад
+   Строка 0:                       [Вчера][Сегодня]
+   Строка 1: [иконка] Свет есть
+   Строка 2: без света X           ● 23:18 · 5 мин назад
    ============================================================ */
 .status-card {
   display: flex;
@@ -116,11 +117,11 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
   gap: 0;
 }
 
-.status-top {
+/* верхняя строка — только переключатель дня, справа */
+.status-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-end;
+  margin-bottom: 14px;
 }
 
 .status-left {
@@ -692,6 +693,8 @@ body.is-on .dust { opacity: 1; }
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
 
+  .status-head { margin-bottom: 12px; }
+
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
@@ -715,7 +718,6 @@ body.is-on .dust { opacity: 1; }
 }
 
 @media (max-width: 420px) {
-  /* на узких экранах скрываем «N мин назад», чтобы строки влезали */
   .connection-ago { display: none; }
   .status-meta {
     font-size: 12px;
@@ -762,30 +764,31 @@ body.is-on .dust { opacity: 1; }
 
 <main class="wrap">
   <header class="card status-card status on" id="statusBox">
-    <!-- Верхняя строка: иконка + статус слева, кнопки дня справа -->
-    <div class="status-top">
-      <div class="status-left">
-        <span class="status-icon" id="lightSource" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path class="si-glass"
-              d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-                 L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-                 C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-                 C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-            <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-            <path class="si-filament"
-              d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
-              fill="none" stroke-linecap="round" />
-          </svg>
-        </span>
-        <div class="status-text">
-          <div class="status-title" id="statusTitle">Свет есть</div>
-        </div>
-      </div>
-
+    <!-- Верхняя строка: только переключатель дня, справа -->
+    <div class="status-head">
       <div class="day-switch" role="tablist" aria-label="Выбор дня">
         <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
         <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
+      </div>
+    </div>
+
+    <!-- Средняя строка: иконка + статус -->
+    <div class="status-left">
+      <span class="status-icon" id="lightSource" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path class="si-glass"
+            d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
+               L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
+               C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
+               C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+          <path class="si-filament"
+            d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
+            fill="none" stroke-linecap="round" />
+        </svg>
+      </span>
+      <div class="status-text">
+        <div class="status-title" id="statusTitle">Свет есть</div>
       </div>
     </div>
 

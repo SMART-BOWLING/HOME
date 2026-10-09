@@ -800,26 +800,69 @@ function render() {
   }
 }
 
+// API того же Google Apps Script. HTML можно открыть отдельно или внутри Apps Script.
+const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbzt8AkQZqvvWnxnX2BETjieDNYN0IT-Zf7RwUkUXl_eZvX24Xrqg188o1k3rRyK6lnlTg/exec';
+let activeRequest = null;
+let requestSerial = 0;
+
+function receivePowerData(result) {
+  if (!result || result.error) {
+    reportPowerError(new Error(result?.error || 'Пустой ответ сервера'));
+    return;
+  }
+  payload = result;
+  lastSyncAt = Date.now();
+  loading = false;
+  render();
+}
+
+function reportPowerError(error) {
+  loading = false;
+  console.error('Ошибка загрузки отметок:', error);
+  if (!payload) {
+    document.getElementById('statusTitle').textContent = 'Ошибка подключения';
+    document.getElementById('statusMeta').textContent = error.message || String(error);
+  }
+  document.getElementById('statusBox').classList.add('no-connection');
+}
+
 function refreshPowerData() {
   if (loading) return;
   loading = true;
-  google.script.run
-    .withSuccessHandler(result => {
-      payload = result;
-      lastSyncAt = Date.now();
-      loading = false;
-      render();
-    })
-    .withFailureHandler(error => {
-      loading = false;
-      if (!payload) {
-        document.getElementById('statusTitle').textContent = 'Ошибка подключения';
-        document.getElementById('statusMeta').textContent = error.message || String(error);
-      }
-      document.getElementById('statusBox').classList.add('no-connection');
-      console.error('Ошибка загрузки отметок:', error);
-    })
-    .getPowerData();
+
+  // Внутри опубликованного GAS используем его штатный защищённый вызов.
+  if (window.google && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(receivePowerData)
+      .withFailureHandler(reportPowerError)
+      .getPowerData();
+    return;
+  }
+
+  // Отдельный HTML использует JSONP: браузер не блокирует CORS, API только на чтение.
+  const callbackName = 'powerCallback_' + Date.now() + '_' + (++requestSerial);
+  const script = document.createElement('script');
+  let finished = false;
+  const cleanup = () => {
+    if (finished) return false;
+    finished = true;
+    clearTimeout(timeout);
+    script.remove();
+    delete window[callbackName];
+    return true;
+  };
+  const timeout = setTimeout(() => {
+    if (cleanup()) reportPowerError(new Error('Сервер не ответил за 20 секунд'));
+  }, 20000);
+  window[callbackName] = result => {
+    if (!cleanup()) return;
+    receivePowerData(result);
+  };
+  script.onerror = () => {
+    if (cleanup()) reportPowerError(new Error('Не удалось загрузить API. Проверь доступ к развёртыванию.'));
+  };
+  script.src = POWER_API_URL + '?api=1&callback=' + callbackName + '&_=' + Date.now();
+  document.head.appendChild(script);
 }
 
 const lightSource = document.getElementById('lightSource');

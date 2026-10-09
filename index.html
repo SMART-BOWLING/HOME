@@ -296,15 +296,6 @@ body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.16) 0 1px, transparent 1px 7px);
   opacity: .9;
 }
-.future-mask::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 1px;
-  background: rgba(0,0,0,.18);
-}
 body.is-off .future-mask { background: rgba(241, 240, 238, 0.66); }
 body.is-off .future-mask::after {
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
@@ -312,16 +303,17 @@ body.is-off .future-mask::after {
 
 .future-mask.no-data::before { display: none; }
 
-/* ====== Линия «сейчас» — в цвете таймлайна ====== */
+/* ====== Линия «сейчас» — тёмно-жёлтая при свете, чёрная без света ====== */
 .now-line {
   position: absolute;
   top: -9px;
   bottom: -9px;
   width: 2px;
-  background: var(--track);
+  background: #c9962e;
   transform: translateX(-50%);
   z-index: 5;
-  box-shadow: 0 0 8px rgba(255,228,168,.85);
+  box-shadow: 0 0 8px rgba(200,150,40,.55);
+  transition: background .5s ease, box-shadow .5s ease;
 }
 .now-line::before {
   content: "сейчас";
@@ -331,13 +323,24 @@ body.is-off .future-mask::after {
   transform: translateX(-50%);
   padding: 3px 8px;
   border-radius: 5px;
-  background: var(--track);
-  color: #7a5a1e;
+  background: #c9962e;
+  color: #fff8ec;
   font-size: 9px;
   font-weight: 750;
   letter-spacing: .07em;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(200,150,40,.28);
+  box-shadow: 0 1px 3px rgba(160,110,20,.35);
+  transition: background .5s ease, color .5s ease, box-shadow .5s ease;
+}
+
+body.is-off .now-line {
+  background: #1b1e25;
+  box-shadow: 0 0 6px rgba(0,0,0,.4);
+}
+body.is-off .now-line::before {
+  background: #1b1e25;
+  color: #e8e5dc;
+  box-shadow: 0 1px 3px rgba(0,0,0,.35);
 }
 /* Убираем двойную чёрную каёмку у маски будущего */
 .future-mask::before { display: none; }

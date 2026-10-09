@@ -239,15 +239,8 @@ body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.16) 0 1px, transparent 1px 7px);
   opacity: .9;
 }
-.future-mask::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 1px;
-  background: rgba(0,0,0,.18);
-}
+/* Раньше здесь была чёрная граница 1px — убрали, чтобы не было полоски в конце графика */
+.future-mask::before { display: none; }
 body.is-off .future-mask { background: rgba(241, 240, 238, 0.66); }
 body.is-off .future-mask::after {
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
@@ -255,32 +248,19 @@ body.is-off .future-mask::after {
 
 .future-mask.no-data::before { display: none; }
 
+/* Маркер «сейчас» — теперь тонкий и тёплый, без чёрной полосы */
 .now-line {
   position: absolute;
   top: -9px;
   bottom: -9px;
-  width: 2px;
-  background: var(--text);
+  width: 1px;
+  background: rgba(160, 110, 30, .55);
   transform: translateX(-50%);
   z-index: 5;
-  box-shadow: 0 0 6px rgba(0,0,0,.20);
 }
-.now-line::before {
-  content: "сейчас";
-  position: absolute;
-  top: -23px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: var(--text);
-  color: var(--bg);
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: .07em;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,.15);
-}
+body.is-off .now-line { background: rgba(70, 70, 75, .55); }
+.now-line::before { display: none; }
+
 .ticks { position: relative; height: 19px; margin-top: 9px; }
 .tick {
   position: absolute;

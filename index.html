@@ -2,888 +2,381 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#fbfaf6">
-<meta name="mobile-web-app-capable" content="yes">
-<title>СВЕТ ДОМ</title>
-
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="apple-touch-icon" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="ГРАФИК">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СВЕТ ДОМ — статус</title>
 <style>
-*,
-*::before,
-*::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --light-x: 46px;
-  --light-y: 240px;
-}
-
-body {
-  --bg: #fbfaf6;
-  --text: #16181d;
-  --muted: #7a7d85;
-  --line: #e8e5dc;
-  --hair: #eeece5;
-  --panel: rgba(255,255,255,.64);
-  --panel-edge: #e9e6dd;
-  --track: #ffe4a8;
-  --off: #1b1e25;
-  --ok: #10b981;
-  --bad: #e11d48;
-  --warn: #f59e0b;
-  min-height: 100vh;
-  padding: 40px max(16px, calc((100vw - 760px) / 2)) 70px;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  line-height: 1.45;
-  font-feature-settings: "tnum" 1;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  transition: background .6s ease, color .6s ease;
-}
-
-body.is-off {
-  --bg: #f1f0ee;
-  --text: #45454a;
-  --muted: #8f8f94;
-  --line: #dcdcde;
-  --hair: #e4e4e6;
-  --panel: rgba(255,255,255,.68);
-  --panel-edge: #d9d9db;
-  --off: #4a4a4f;
-  --ok: #8f8f94;
-  --bad: #4a4a4f;
-  --warn: #8f8f94;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(ellipse 145% 115% at var(--light-x) var(--light-y),
-    rgba(255,201,109,.34) 0%, rgba(255,221,158,.16) 26%,
-    rgba(255,238,208,.05) 52%, transparent 78%);
-  opacity: 0;
-  transition: opacity .8s ease;
-}
-body.is-on::before { opacity: 1; }
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(ellipse 130% 110% at var(--light-x) var(--light-y),
-    transparent 42%, rgba(80,60,20,.07) 100%);
-  opacity: 0;
-  transition: opacity .8s ease;
-}
-body.is-on::after { opacity: 1; }
-
-.wrap { width: 100%; max-width: 760px; margin: 0 auto; position: relative; z-index: 10; }
-
-.card {
-  background: var(--panel);
-  border: 1px solid var(--panel-edge);
-  border-radius: 18px;
-  padding: 22px 24px;
-  margin-bottom: 14px;
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(9px);
-  transition: background .5s ease, border-color .5s ease, box-shadow .5s ease;
-}
-body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
-
-.status-card { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.status-left { display: flex; align-items: center; gap: 15px; }
-.status-icon { width: 34px; height: 34px; flex: 0 0 34px; position: relative; display: grid; place-items: center; }
-.status-icon svg { width: 100%; height: 100%; position: relative; z-index: 2; overflow: visible; }
-.status-icon::before {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--glow, transparent), transparent 70%);
-  opacity: 0;
-}
-.status.on { --glow: rgba(255,186,74,.60); }
-.status.on .status-icon::before { opacity: 1; animation: statusPulse 2.5s ease-out infinite; }
-@keyframes statusPulse {
-  0% { transform: scale(.55); opacity: .7; }
-  100% { transform: scale(1.9); opacity: 0; }
-}
-.si-glass { fill: rgba(120,118,110,.12); stroke: var(--muted); stroke-width: 1.1; transition: fill .4s ease, stroke .4s ease; }
-.si-cap { fill: #9a8558; transition: fill .4s ease; }
-.si-filament { stroke: var(--muted); stroke-width: 1.2; transition: stroke .4s ease; }
-.status.on .si-glass { fill: rgba(255,210,124,.32); stroke: #e0a94e; }
-.status.on .si-cap { fill: #bb8a3d; }
-.status.on .si-filament { stroke: #ff9d1f; filter: drop-shadow(0 0 3px rgba(255,170,50,1)); }
-.status.on .status-icon svg { filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 18px rgba(255,186,74,.55)); }
-.status.off .si-glass { fill: rgba(120,125,135,.08); stroke: #8a8d93; }
-.status.off .si-cap { fill: #8a8d93; }
-.status.off .si-filament { stroke: #6a6d73; }
-.status.off .status-icon svg { filter: none; }
-
-.status-title { font-size: 23px; font-weight: 750; letter-spacing: -.6px; line-height: 1.1; }
-.status.on .status-title { color: #047857; }
-.status.off .status-title { color: #8a8f98; }
-body.is-off .status.off .status-title { color: var(--bad); }
-.status-meta { margin-top: 5px; font-size: 13px; color: var(--muted); }
-.connection { text-align: right; flex: 0 0 auto; }
-.connection-label { font-size: 10px; text-transform: uppercase; letter-spacing: .13em; color: var(--muted); margin-bottom: 3px; }
-.connection-time { font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.connection-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ok);
-  margin-right: 5px;
-  vertical-align: middle;
-  box-shadow: 0 0 0 3px rgba(16,185,129,.10);
-}
-body.is-off .connection-dot { box-shadow: 0 0 0 3px rgba(120,120,120,.12); }
-
-.day-switch {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  margin-bottom: 8px;
-  border-radius: 9px;
-  background: var(--hair);
-  border: 1px solid var(--panel-edge);
-  transition: background .4s ease, border-color .4s ease;
-}
-.day-btn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: .01em;
-  padding: 5px 11px;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: background .25s ease, color .25s ease, box-shadow .25s ease;
-  white-space: nowrap;
-}
-.day-btn:hover { color: var(--text); }
-.day-btn.is-active {
-  background: var(--panel);
-  color: var(--text);
-  box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 0 0 1px var(--panel-edge) inset;
-}
-body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
-
-.section-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
-.section-title h2 { font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
-.section-title span { font-size: 11px; color: var(--muted); }
-
-.timeline-wrap { position: relative; }
-.timeline {
-  position: relative;
-  height: 44px;
-  background: var(--track);
-  border-radius: 8px;
-  overflow: hidden;
-  isolation: isolate;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.70);
-  transition: background .5s ease, box-shadow .5s ease;
-  clip-path: inset(0 round 8px);
-  -webkit-clip-path: inset(0 round 8px);
-  contain: paint;
-}
-.seg {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  min-width: 2px;
-  max-width: 100%;
-  background: #1b1e25;
-  cursor: pointer;
-  transition: filter .15s ease;
-  height: 100%;
-  will-change: left, width;
-}
-.seg:hover { filter: brightness(1.25); }
-
-.future-mask {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  pointer-events: none;
-  z-index: 4;
-  background: rgba(251, 250, 246, 0.62);
-  backdrop-filter: saturate(0.35) brightness(1.02);
-  -webkit-backdrop-filter: saturate(0.35) brightness(1.02);
-  transition: opacity .3s ease;
-}
-.future-mask::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.16) 0 1px, transparent 1px 7px);
-  opacity: .9;
-}
-.future-mask::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 1px;
-  background: rgba(0,0,0,.18);
-}
-body.is-off .future-mask { background: rgba(241, 240, 238, 0.66); }
-body.is-off .future-mask::after {
-  background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
-}
-
-.now-line {
-  position: absolute;
-  top: -9px;
-  bottom: -9px;
-  width: 2px;
-  background: var(--text);
-  transform: translateX(-50%);
-  z-index: 5;
-  box-shadow: 0 0 6px rgba(0,0,0,.20);
-}
-.now-line::before {
-  content: "сейчас";
-  position: absolute;
-  top: -23px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: var(--text);
-  color: var(--bg);
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: .07em;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,.15);
-}
-.ticks { position: relative; height: 19px; margin-top: 9px; }
-.tick {
-  position: absolute;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 550;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.tick.major { color: var(--text); font-weight: 750; }
-.tick.edge-start { transform: translateX(0); }
-.tick.edge-end { transform: translateX(-100%); }
-
-.legend { display: flex; flex-wrap: wrap; gap: 17px; margin-top: 18px; color: var(--muted); font-size: 11px; }
-.legend span { display: flex; align-items: center; gap: 7px; }
-.legend i { width: 14px; height: 5px; border-radius: 3px; display: inline-block; }
-.legend .ok { background: var(--track); }
-.legend .off { background: #1b1e25; }
-.legend .future {
-  background: repeating-linear-gradient(-45deg, rgba(120,120,130,.35) 0 1px, transparent 1px 5px), var(--bg);
-  box-shadow: inset 0 0 0 1px rgba(120,120,130,.25);
-}
-
-.summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--hair);
-  border-radius: 13px;
-  overflow: hidden;
-  margin-top: 2px;
-}
-.summary-item { background: var(--panel); padding: 17px 15px; min-width: 0; }
-.summary-value { font-size: 23px; font-weight: 750; letter-spacing: -.7px; font-variant-numeric: tabular-nums; }
-.summary-label { margin-top: 3px; font-size: 11px; color: var(--muted); }
-
-.history { display: flex; flex-direction: column; }
-.history-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px;
-  align-items: center;
-  padding: 15px 0;
-  border-top: 1px solid var(--hair);
-}
-.history-row:first-child { border-top: none; padding-top: 0; }
-.history-row:last-child { padding-bottom: 0; }
-.history-time { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.history-sub { margin-top: 4px; font-size: 11px; color: var(--muted); }
-.history-duration { font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.history-row.current .history-duration,
-.history-row.current .history-time { color: var(--bad); }
-.empty { text-align: center; padding: 20px 0; color: var(--muted); font-size: 13px; }
-
-.beam { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .7s ease; }
-.beam-lamp {
-  background:
-    radial-gradient(circle 90px at var(--light-x) var(--light-y),
-      rgba(255,228,155,.78), rgba(255,216,140,.30) 45%, transparent 100%),
-    radial-gradient(ellipse 135% 115% at var(--light-x) var(--light-y),
-      rgba(255,205,110,.42), rgba(255,216,142,.22) 26%,
-      rgba(255,232,190,.07) 54%, transparent 82%);
-  mix-blend-mode: multiply;
-}
-body.is-on .beam-lamp { opacity: 1; }
-
-.dust {
-  position: fixed;
-  inset: 0 0 auto;
-  height: 82vh;
-  pointer-events: none;
-  z-index: 4;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-  -webkit-mask-image: radial-gradient(ellipse 70% 95% at var(--light-x) var(--light-y), black, transparent 82%);
-  mask-image: radial-gradient(ellipse 70% 95% at var(--light-x) var(--light-y), black, transparent 82%);
-}
-body.is-on .dust { opacity: 1; }
-.dust i {
-  position: absolute;
-  top: 0;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(255,220,150,.9);
-  box-shadow: 0 0 6px rgba(255,205,120,.8);
-  animation: drift linear infinite;
-}
-@keyframes drift {
-  0% { transform: translate3d(0,-6vh,0) scale(.6); opacity: 0; }
-  12% { opacity: .9; }
-  70% { opacity: .7; }
-  100% { transform: translate3d(var(--dx),66vh,0) scale(1); opacity: 0; }
-}
-.dust i:nth-child(1) { left: 4%;  --dx: 26px;  animation-duration: 22s; }
-.dust i:nth-child(2) { left: 8%;  --dx: -34px; animation-duration: 28s; animation-delay: 3s; }
-.dust i:nth-child(3) { left: 12%; --dx: 20px;  animation-duration: 19s; animation-delay: 6s; }
-.dust i:nth-child(4) { left: 16%; --dx: -16px; animation-duration: 32s; animation-delay: 1s; }
-.dust i:nth-child(5) { left: 21%; --dx: 12px;  animation-duration: 24s; animation-delay: 8s; }
-.dust i:nth-child(6) { left: 26%; --dx: -22px; animation-duration: 27s; animation-delay: 4s; }
-.dust i:nth-child(7) { left: 31%; --dx: 24px;  animation-duration: 21s; animation-delay: 9s; }
-.dust i:nth-child(8) { left: 36%; --dx: -28px; animation-duration: 30s; animation-delay: 2s; }
-.dust i:nth-child(9) { left: 42%; --dx: 16px;  animation-duration: 25s; animation-delay: 11s; }
-.dust i:nth-child(10){ left: 48%; --dx: -8px;  animation-duration: 33s; animation-delay: 14s; }
-.dust i:nth-child(11){ left: 54%; --dx: 30px;  animation-duration: 26s; animation-delay: 12s; }
-.dust i:nth-child(12){ left: 60%; --dx: -20px; animation-duration: 29s; animation-delay: 7s; }
-
-.loader-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: var(--bg);
-  transition: opacity .45s ease, visibility .45s ease;
-}
-.loader-overlay.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.loader { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
-.loader .progress {
-  width: 200px;
-  height: 5px;
-  border-radius: 3px;
-  background: var(--track);
-  box-shadow: inset 0 0 0 1px rgba(200,150,40,.22), inset 0 1px 0 rgba(255,255,255,.70);
-  overflow: hidden;
-}
-.loader .progress-bar {
-  width: 40%;
-  height: 100%;
-  border-radius: 3px;
-  background: #e0a94e;
-  animation: slide 1.3s ease-in-out infinite;
-}
-@keyframes slide {
-  0% { transform: translateX(-110%); }
-  100% { transform: translateX(360%); }
-}
-.loader-overlay.is-error .loader .progress { display: none; }
-.retry-btn {
-  display: none;
-  padding: 10px 18px;
-  border: 1px solid var(--panel-edge);
-  border-radius: 10px;
-  background: var(--panel);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 650;
-  cursor: pointer;
-  transition: background .2s ease, border-color .2s ease;
-}
-.retry-btn:hover { background: #fff; border-color: #d9d9db; }
-.loader-overlay.is-error .retry-btn { display: inline-block; }
-
-@media (max-width: 720px) {
-  body { padding: 22px 14px 50px; }
-  .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
-  .status-card { align-items: flex-start; flex-wrap: wrap; }
-  .status-left { gap: 12px; }
-  .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
-  .status-title { font-size: 20px; }
-  .status-meta { font-size: 12px; }
-  .connection { display: flex; flex-direction: column; align-items: flex-end; }
-  .timeline { height: 40px; }
-  .legend { gap: 12px; margin-top: 15px; }
-  .summary-item { padding: 15px 10px; }
-  .summary-value { font-size: 19px; }
-  .summary-label { font-size: 10px; }
-  .history-time { font-size: 14px; }
-  .history-duration { font-size: 13px; }
-  .section-title { margin-bottom: 15px; }
-  .tick:not(.major):not(.even) { display: none; }
-}
-@media (max-width: 390px) {
-  body { padding-left: 10px; padding-right: 10px; }
-  .card { padding: 16px; }
-  .summary-value { font-size: 17px; }
-  .summary-label { font-size: 9px; }
-  .legend { font-size: 10px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
+  :root{
+    --bg:#0f1220; --card:#1a1e33; --fg:#e8ecff; --muted:#8a92b2;
+    --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b; --accent:#3b82f6;
   }
-  .dust { display: none; }
-}
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg); color:var(--fg); min-height:100vh;
+    padding:16px; display:flex; justify-content:center;
+  }
+  .wrap{width:100%; max-width:720px}
+  h1{font-size:20px; margin:0 0 4px; letter-spacing:.3px}
+  .sub{color:var(--muted); font-size:12px; margin-bottom:16px}
+  .card{
+    background:var(--card); border-radius:14px; padding:18px;
+    margin-bottom:14px; box-shadow:0 4px 24px rgba(0,0,0,.25);
+  }
+  .status{display:flex; align-items:center; gap:14px}
+  .dot{
+    width:18px; height:18px; border-radius:50%;
+    background:var(--muted); flex-shrink:0;
+    box-shadow:0 0 0 0 rgba(0,0,0,.4);
+  }
+  .dot.ok  {background:var(--ok);  animation:pulse 2s infinite}
+  .dot.bad {background:var(--bad); animation:pulse 2s infinite}
+  .dot.warn{background:var(--warn)}
+  @keyframes pulse{
+    0%   {box-shadow:0 0 0 0 currentColor}
+    70%  {box-shadow:0 0 0 12px transparent}
+    100% {box-shadow:0 0 0 0 transparent}
+  }
+  .dot.ok  {color:rgba(34,197,94,.5)}
+  .dot.bad {color:rgba(239,68,68,.5)}
+  .status-text{font-size:22px; font-weight:600}
+  .status-sub{font-size:12px; color:var(--muted); margin-top:2px}
+  .row{display:flex; justify-content:space-between; padding:6px 0;
+       border-bottom:1px solid rgba(255,255,255,.06); font-size:14px}
+  .row:last-child{border-bottom:none}
+  .row .label{color:var(--muted)}
+  .row .val{font-variant-numeric:tabular-nums}
+  h2{font-size:14px; text-transform:uppercase; letter-spacing:.6px;
+     color:var(--muted); margin:0 0 10px; font-weight:600}
+  .timeline{
+    position:relative; height:38px; background:#0b0e1c;
+    border-radius:8px; overflow:hidden; margin-bottom:6px;
+  }
+  .tl-bar{
+    position:absolute; top:0; bottom:0;
+    background:linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.15));
+  }
+  .tl-out{
+    position:absolute; top:0; bottom:0;
+    background:linear-gradient(180deg, #ef4444, #b91c1c);
+    opacity:.85;
+  }
+  .tl-out.current{
+    background:linear-gradient(180deg,#f59e0b,#b45309);
+    animation:blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink{50%{opacity:.45}}
+  .tl-scale{
+    display:flex; justify-content:space-between;
+    font-size:11px; color:var(--muted); margin-top:2px;
+  }
+  .outage-list{margin-top:10px; font-size:13px}
+  .outage-list li{
+    padding:4px 0; border-bottom:1px dashed rgba(255,255,255,.06);
+    list-style:none; display:flex; justify-content:space-between; gap:10px;
+  }
+  .outage-list li:last-child{border-bottom:none}
+  .outage-list li.current{color:var(--warn); font-weight:600}
+  .empty{color:var(--muted); font-size:13px; padding:6px 0}
+  .footer{
+    text-align:center; color:var(--muted); font-size:11px;
+    margin-top:8px;
+  }
+  .refresh{
+    background:none; border:1px solid rgba(255,255,255,.15);
+    color:var(--fg); padding:6px 12px; border-radius:8px;
+    font-size:12px; cursor:pointer;
+  }
+  .refresh:hover{background:rgba(255,255,255,.06)}
+  .head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px}
 </style>
 </head>
-<body class="is-on">
+<body>
+<div class="wrap">
 
-<div class="loader-overlay" id="loaderOverlay" role="status" aria-live="polite">
-  <div class="loader">
-    <div class="progress" aria-hidden="true"><div class="progress-bar"></div></div>
-    <button class="retry-btn" id="retryBtn" type="button">Повторить</button>
+  <div class="head">
+    <div>
+      <h1>💡 СВЕТ ДОМ</h1>
+      <div class="sub">ESP32 → Google Sheets → эта страница</div>
+    </div>
+    <button class="refresh" id="refreshBtn">Обновить</button>
   </div>
-</div>
 
-<div class="beam beam-lamp"></div>
-<div class="dust" aria-hidden="true">
-  <i></i><i></i><i></i><i></i>
-  <i></i><i></i><i></i><i></i>
-  <i></i><i></i><i></i><i></i>
-</div>
-<main class="wrap">
-  <header class="card status-card status on" id="statusBox">
-    <div class="status-left">
-      <span class="status-icon" id="lightSource" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path class="si-glass"
-            d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-               L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-               C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-               C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-          <path class="si-filament"
-            d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
-            fill="none" stroke-linecap="round" />
-        </svg>
-      </span>
+  <!-- СТАТУС -->
+  <div class="card">
+    <div class="status">
+      <div class="dot" id="dot"></div>
       <div>
-        <div class="status-title" id="statusTitle">Свет есть</div>
-        <div class="status-meta" id="statusMeta">Питание стабильно</div>
+        <div class="status-text" id="statusText">Загрузка…</div>
+        <div class="status-sub" id="statusSub">—</div>
       </div>
     </div>
-    <div class="connection">
-      <div class="day-switch" role="tablist" aria-label="Выбор дня">
-        <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
-        <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
-      </div>
-      <div class="connection-label">последняя связь</div>
-      <div class="connection-time" id="connectionTime">
-        <span class="connection-dot"></span>23:18:04
-      </div>
-    </div>
-  </header>
+  </div>
 
-  <section class="card">
-    <div class="section-title">
-      <h2>ГРАФИК</h2>
-      <span id="dayLabel">сегодня, с 00 до 00</span>
+  <!-- СЕГОДНЯ -->
+  <div class="card">
+    <h2>Сегодня</h2>
+    <div class="timeline" id="tlToday"></div>
+    <div class="tl-scale">
+      <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
     </div>
-    <div class="timeline-wrap">
-      <div class="timeline" id="timeline"></div>
-      <div class="ticks" id="ticks"></div>
-    </div>
-    <div class="legend">
-      <span><i class="ok"></i>свет был</span>
-      <span><i class="off"></i>не было света</span>
-      <span><i class="future"></i>ещё не наступило</span>
-    </div>
-  </section>
+    <ul class="outage-list" id="listToday"></ul>
+  </div>
 
-  <section class="card">
-    <div class="section-title">
-      <h2 id="reportTitle">Отчёт за сегодня</h2>
+  <!-- ВЧЕРА -->
+  <div class="card">
+    <h2>Вчера</h2>
+    <div class="timeline" id="tlYesterday"></div>
+    <div class="tl-scale">
+      <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
     </div>
-    <div class="summary">
-      <div class="summary-item">
-        <div class="summary-value" id="outageCount">0</div>
-        <div class="summary-label">отключений</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-value" id="totalOutage">0 мин</div>
-        <div class="summary-label">без света</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-value" id="longestOutage">0 мин</div>
-        <div class="summary-label">самое долгое</div>
-      </div>
-    </div>
-  </section>
+    <ul class="outage-list" id="listYesterday"></ul>
+  </div>
 
-  <section class="card">
-    <div class="section-title">
-      <h2>История отключений</h2>
-      <span id="historyCount">0 событий</span>
-    </div>
-    <div class="history" id="history"></div>
-  </section>
-</main>
+  <div class="footer" id="footer">—</div>
+</div>
+
 <script>
-// ===== API =====
-// ⚠️ ВСТАВЬТЕ СЮДА ВАШ НОВЫЙ URL ИЗ РАЗВЁРТЫВАНИЯ APPS SCRIPT (заканчивается на /exec)
-const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
-const MIN = 60000;
-const pad = n => String(n).padStart(2, '0');
+/* ============ НАСТРОЙКА ============ */
+// URL вашего Apps Script (тот же, что и в ESP32)
+const API_URL = "https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec";
 
-let payload = null;
-let lastSyncAt = 0;
-let loading = false;
-let firstLoadDone = false;
-let selectedDay = 'today';
+const REFRESH_MS = 30000;   // автообновление раз в 30 сек
+const ONLINE_SEC = 90;      // должно совпадать с Apps Script
 
-// ===== Загрузочный оверлей =====
-const loaderOverlay = document.getElementById('loaderOverlay');
-const retryBtn = document.getElementById('retryBtn');
+/* ============ JSONP ============ */
+let jsonpCounter = 0;
+function jsonp(url, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    const cbName = "__jsonp_cb_" + (++jsonpCounter) + "_" + Date.now();
+    const script = document.createElement("script");
+    let done = false;
 
-function hideLoader() {
-  if (!loaderOverlay || loaderOverlay.classList.contains('is-hidden')) return;
-  loaderOverlay.classList.add('is-hidden');
-  setTimeout(() => {
-    if (loaderOverlay.parentNode) loaderOverlay.parentNode.removeChild(loaderOverlay);
-  }, 500);
-}
+    const cleanup = () => {
+      if (done) return;
+      done = true;
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
 
-function showLoaderError() {
-  if (!loaderOverlay) return;
-  loaderOverlay.classList.add('is-error');
-}
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("Таймаут запроса"));
+    }, timeoutMs);
 
-retryBtn.addEventListener('click', () => {
-  loaderOverlay.classList.remove('is-error');
-  refreshPowerData();
-});
+    window[cbName] = (data) => {
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
 
-// ===== Переключатель дня =====
-document.querySelectorAll('.day-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.dataset.day === selectedDay) return;
-    selectedDay = btn.dataset.day;
-    document.querySelectorAll('.day-btn').forEach(b =>
-      b.classList.toggle('is-active', b === btn)
-    );
-    render();
+    script.onerror = () => {
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error("Ошибка загрузки JSONP"));
+    };
+
+    const sep = url.includes("?") ? "&" : "?";
+    script.src = url + sep + "from=web&callback=" + cbName + "&_=" + Date.now();
+    document.body.appendChild(script);
   });
-});
-
-// ===== Форматирование =====
-function timeFormat(ts, seconds = false) {
-  const options = {
-    timeZone: payload?.timezone || 'Europe/Kyiv',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
-  };
-  if (seconds) options.second = '2-digit';
-  return new Intl.DateTimeFormat('ru-RU', options).format(new Date(ts));
-}
-function fmtDur(min) {
-  if (min < 1) return 'меньше минуты';
-  const rounded = Math.round(min);
-  if (rounded < 60) return rounded + ' мин';
-  const h = Math.floor(rounded / 60), m = rounded % 60;
-  return m ? h + 'ч ' + m + 'м' : h + 'ч';
-}
-function agoText(ts, now) {
-  const min = Math.max(0, Math.round((now - ts) / MIN));
-  if (min < 1) return 'только что';
-  if (min < 60) return min + ' мин назад';
-  return fmtDur(min) + ' назад';
 }
 
-// ===== Рендер =====
-function render() {
-  if (!payload) return;
-  const now = payload.now + (Date.now() - lastSyncAt);
-  const dayKey = selectedDay === 'yesterday' ? 'yesterday' : 'today';
-  const dayData = payload[dayKey] || { dayStart: 0, dayEnd: 0, outages: [] };
-  const dayStart = dayData.dayStart;
-  const dayEnd = dayData.dayEnd;
-  const windowMs = dayEnd - dayStart;
-  const lastConnection = payload.lastConnection;
-  const lightOn = payload.hasData && (now - lastConnection <= 90000);
-  const onlineStatus = payload.hasData ? lightOn : null;
-  const outages = (dayData.outages || []).map(o => ({ ...o }));
+/* ============ УТИЛИТЫ ============ */
+function pad(n){ return String(n).padStart(2,"0"); }
 
-  document.body.classList.toggle('is-on', lightOn);
-  document.body.classList.toggle('is-off', !lightOn);
+function fmtTime(ms){
+  const d = new Date(ms);
+  return pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
 
-  document.getElementById('dayLabel').textContent =
-    selectedDay === 'yesterday' ? 'вчера, с 00 до 00' : 'сегодня, с 00 до 00';
-  document.getElementById('reportTitle').textContent =
-    selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';
+function fmtDateTime(ms){
+  const d = new Date(ms);
+  return pad(d.getDate()) + "." + pad(d.getMonth()+1) + "." + d.getFullYear()
+       + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
 
-  const statusBox = document.getElementById('statusBox');
-  const statusTitle = document.getElementById('statusTitle');
-  const statusMeta = document.getElementById('statusMeta');
-  statusBox.className = 'card status-card status ' + (lightOn ? 'on' : 'off');
-  if (onlineStatus === null) {
-    statusTitle.textContent = 'Нет данных';
-    statusMeta.textContent = 'В колонке A пока нет корректных отметок времени';
-  } else if (lightOn) {
-    statusTitle.textContent = 'Свет есть';
-    if (selectedDay === 'yesterday') {
-      statusMeta.textContent = 'данные за вчера';
-    } else {
-      const lastOff = [...outages].reverse().find(o => !o.current && o.end <= now);
-      statusMeta.textContent = lastOff
-        ? 'свет уже ' + fmtDur((now - lastOff.end) / MIN) + ' подряд'
-        : 'соединение активно';
-    }
+function fmtDur(min){
+  if (min < 1) return "< 1 мин";
+  const m = Math.round(min);
+  if (m < 60) return m + " мин";
+  const h = Math.floor(m/60), mm = m % 60;
+  return h + " ч " + (mm ? mm + " мин" : "");
+}
+
+function secAgo(ms){
+  const s = Math.floor((Date.now() - ms) / 1000);
+  if (s < 60) return s + " сек назад";
+  const m = Math.floor(s/60);
+  if (m < 60) return m + " мин назад";
+  const h = Math.floor(m/60);
+  if (h < 24) return h + " ч назад";
+  return Math.floor(h/24) + " дн назад";
+}
+
+/* ============ ОТРИСОВКА ============ */
+const $ = (id) => document.getElementById(id);
+
+function renderStatus(data){
+  const dot = $("dot");
+  const txt = $("statusText");
+  const sub = $("statusSub");
+
+  if (!data.hasData || !data.lastConnection){
+    dot.className = "dot warn";
+    txt.textContent = "Нет данных";
+    sub.textContent = "ESP32 ещё не отправлял отметки";
+    return;
+  }
+
+  const ageSec = (data.now - data.lastConnection) / 1000;
+  const online = ageSec <= ONLINE_SEC;
+
+  if (online){
+    dot.className = "dot ok";
+    txt.textContent = "Свет есть";
+    sub.textContent = "Последняя отметка: " + fmtDateTime(data.lastConnection)
+                    + " (" + secAgo(data.lastConnection) + ")";
   } else {
-    statusTitle.textContent = 'Света нет';
-    if (selectedDay === 'yesterday') {
-      statusMeta.textContent = 'данные за вчера';
-    } else {
-      const current = outages.find(o => o.current);
-      statusMeta.textContent = current
-        ? 'без света уже ' + fmtDur((now - current.start) / MIN)
-        : 'нет новых отметок времени';
-    }
+    dot.className = "dot bad";
+    txt.textContent = "Света нет";
+    sub.textContent = "Последняя отметка: " + fmtDateTime(data.lastConnection)
+                    + " (" + secAgo(data.lastConnection) + ")";
+  }
+}
+
+function renderTimeline(container, day, nowMs){
+  container.innerHTML = "";
+
+  // ширина дня в мс
+  const dayStart = day.dayStart;
+  const dayEnd   = day.dayEnd;
+  const total    = dayEnd - dayStart;
+
+  // не рисуем будущее (если сегодня)
+  const visibleEnd = Math.min(dayEnd, nowMs);
+
+  // фон — зелёная полоса «свет был» до visibleEnd
+  if (visibleEnd > dayStart){
+    const bar = document.createElement("div");
+    bar.className = "tl-bar";
+    bar.style.left = "0%";
+    bar.style.width = ((visibleEnd - dayStart) / total * 100) + "%";
+    container.appendChild(bar);
   }
 
-  const connectionTime = document.getElementById('connectionTime');
-  connectionTime.innerHTML = '<span class="connection-dot"></span>' +
-    (lastConnection === null ? 'нет данных' : timeFormat(lastConnection, true));
-  statusBox.classList.toggle('no-connection', !lightOn);
-
-  const timeline = document.getElementById('timeline');
-  const ticks = document.getElementById('ticks');
-  timeline.replaceChildren();
-  ticks.replaceChildren();
-  for (let h = 0; h <= 24; h++) {
-    const el = document.createElement('div');
-    el.className = 'tick';
-    if (h % 6 === 0) el.classList.add('major');
-    if (h % 2 === 0) el.classList.add('even');
-    el.style.left = (h / 24 * 100) + '%';
-    if (h === 0) { el.classList.add('edge-start'); el.textContent = '00'; }
-    else if (h === 24) { el.classList.add('edge-end'); el.textContent = '00'; }
-    else el.textContent = pad(h);
-    ticks.appendChild(el);
-  }
-
+  // отключения
+  const outages = day.outages || [];
   outages.forEach(o => {
-    const start = Math.max(dayStart, o.start);
-    const end = Math.min(dayEnd, o.end);
-    if (end <= start) return;
+    const s = Math.max(o.start, dayStart);
+    const e = Math.min(o.end, dayEnd);
+    if (e <= s) return;
 
-    let leftPct = ((start - dayStart) / windowMs) * 100;
-    let widthPct = ((end - start) / windowMs) * 100;
+    const left  = (s - dayStart) / total * 100;
+    const width = (e - s) / total * 100;
 
-    if (leftPct < 0) { widthPct += leftPct; leftPct = 0; }
-    if (leftPct + widthPct > 100) { widthPct = 100 - leftPct; }
-    if (widthPct <= 0) return;
+    const el = document.createElement("div");
+    el.className = "tl-out" + (o.current ? " current" : "");
+    el.style.left  = left + "%";
+    el.style.width = Math.max(width, 0.3) + "%";
+    el.title = fmtTime(s) + " – " + fmtTime(e) + "  (" + fmtDur(o.dur) + ")";
+    container.appendChild(el);
+  });
+}
 
-    const seg = document.createElement('div');
-    seg.className = 'seg';
-    seg.style.left = leftPct + '%';
-    const finalWidth = Math.max(0.2, widthPct);
-    seg.style.width = Math.min(finalWidth, 100 - leftPct) + '%';
-    seg.title = timeFormat(o.start) + ' → ' + (o.current ? 'сейчас' : timeFormat(o.end)) +
-      ' · ' + fmtDur(o.dur);
-    timeline.appendChild(seg);
+function renderList(container, day, nowMs){
+  container.innerHTML = "";
+  const outages = (day.outages || []).slice().sort((a,b) => a.start - b.start);
+
+  if (!outages.length){
+    const li = document.createElement("div");
+    li.className = "empty";
+    li.textContent = "Отключений не зафиксировано";
+    container.appendChild(li);
+    return;
+  }
+
+  let totalMin = 0;
+  outages.forEach(o => {
+    totalMin += o.dur;
+    const li = document.createElement("li");
+    if (o.current) li.className = "current";
+
+    const left = document.createElement("span");
+    left.textContent = fmtTime(o.start) + " – "
+                     + (o.current ? "сейчас" : fmtTime(o.end))
+                     + (o.current ? " ⚡" : "");
+
+    const right = document.createElement("span");
+    right.textContent = fmtDur(o.dur);
+
+    li.appendChild(left);
+    li.appendChild(right);
+    container.appendChild(li);
   });
 
-  if (selectedDay === 'today') {
-    const pct = Math.min(100, Math.max(0, (now - dayStart) / windowMs * 100));
-
-    if (pct < 100) {
-      const mask = document.createElement('div');
-      mask.className = 'future-mask';
-      mask.style.left = pct + '%';
-      mask.title = 'Время ещё не наступило';
-      timeline.appendChild(mask);
-    }
-
-    if (pct >= 0 && pct <= 100) {
-      const nowLine = document.createElement('div');
-      nowLine.className = 'now-line';
-      nowLine.style.left = pct + '%';
-      timeline.appendChild(nowLine);
-    }
-  }
-
-  document.getElementById('outageCount').textContent = outages.length;
-  document.getElementById('totalOutage').textContent =
-    fmtDur(outages.reduce((total, o) => total + o.dur, 0));
-  document.getElementById('longestOutage').textContent =
-    fmtDur(outages.length ? Math.max(...outages.map(o => o.dur)) : 0);
-
-  const history = document.getElementById('history');
-  const historyCount = document.getElementById('historyCount');
-  historyCount.textContent = outages.length + ' ' +
-    (outages.length === 1 ? 'событие' : 'событий');
-  history.replaceChildren();
-  if (!outages.length) {
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.textContent = payload.hasData
-      ? (selectedDay === 'today' ? 'Сегодня отключений не было' : 'Вчера отключений не было')
-      : 'История пока недоступна';
-    history.appendChild(empty);
-  } else {
-    [...outages].reverse().forEach(o => {
-      const row = document.createElement('div');
-      row.className = 'history-row' + (o.current ? ' current' : '');
-      const left = document.createElement('div');
-      const time = document.createElement('div');
-      time.className = 'history-time';
-      time.textContent = timeFormat(o.start) + ' → ' + (o.current ? 'сейчас' : timeFormat(o.end));
-      const sub = document.createElement('div');
-      sub.className = 'history-sub';
-      sub.textContent = o.current ? 'Отключение продолжается' : agoText(o.start, now);
-      left.append(time, sub);
-      const duration = document.createElement('div');
-      duration.className = 'history-duration';
-      duration.textContent = fmtDur(o.dur);
-      row.append(left, duration);
-      history.appendChild(row);
-    });
-  }
+  // итог
+  const li = document.createElement("li");
+  li.style.marginTop = "6px";
+  li.style.fontWeight = "600";
+  const l = document.createElement("span"); l.textContent = "Всего:";
+  const r = document.createElement("span"); r.textContent = fmtDur(totalMin);
+  li.appendChild(l); li.appendChild(r);
+  container.appendChild(li);
 }
 
-// ===== Запрос данных (JSONP) =====
-let requestSerial = 0;
-
-function receivePowerData(result) {
-  if (!result || result.error) {
-    reportPowerError(new Error(result?.error || 'Пустой ответ сервера'));
-    return;
-  }
-  payload = result;
-  lastSyncAt = Date.now();
-  loading = false;
-  firstLoadDone = true;
-  render();
-  hideLoader();
+function render(data){
+  renderStatus(data);
+  renderTimeline($("tlToday"),     data.today,     data.now);
+  renderTimeline($("tlYesterday"), data.yesterday, data.now);
+  renderList($("listToday"),       data.today,     data.now);
+  renderList($("listYesterday"),   data.yesterday, data.now);
+  $("footer").textContent = "Обновлено: " + fmtDateTime(data.now)
+                          + "  •  TZ: " + data.timezone;
 }
 
-function reportPowerError(error) {
-  loading = false;
-  console.error('Ошибка загрузки отметок:', error);
+/* ============ ЗАГРУЗКА ============ */
+let loading = false;
 
-  if (!firstLoadDone) {
-    showLoaderError();
-    return;
-  }
-
-  if (!payload) {
-    document.getElementById('statusTitle').textContent = 'Ошибка подключения';
-    document.getElementById('statusMeta').textContent = error.message || String(error);
-  } else {
-    document.getElementById('statusMeta').textContent =
-      'Нет связи с сервером; показаны последние доступные данные';
-  }
-  document.getElementById('statusBox').classList.add('no-connection');
-}
-
-function refreshPowerData() {
+async function load(){
   if (loading) return;
   loading = true;
 
-  const callbackName = 'powerCallback_' + Date.now() + '_' + (++requestSerial);
-  const script = document.createElement('script');
-  let finished = false;
-  const cleanup = () => {
-    if (finished) return false;
-    finished = true;
-    clearTimeout(timeout);
-    script.remove();
-    delete window[callbackName];
-    return true;
-  };
-  const timeout = setTimeout(() => {
-    if (cleanup()) reportPowerError(new Error('Сервер не ответил за 20 секунд'));
-  }, 20000);
-  window[callbackName] = result => {
-    if (!cleanup()) return;
-    receivePowerData(result);
-  };
-  script.onerror = () => {
-    if (cleanup()) reportPowerError(new Error('Не удалось загрузить API. Проверьте доступ к развёртыванию.'));
-  };
-  script.src = POWER_API_URL + '?api=1&callback=' + callbackName + '&_=' + Date.now();
-  document.head.appendChild(script);
+  const btn = $("refreshBtn");
+  btn.disabled = true;
+  btn.textContent = "…";
+
+  try {
+    const data = await jsonp(API_URL);
+    if (data && data.error){
+      throw new Error(data.error);
+    }
+    render(data);
+  } catch (err){
+    console.error(err);
+    $("dot").className = "dot warn";
+    $("statusText").textContent = "Ошибка связи";
+    $("statusSub").textContent = err.message || String(err);
+  } finally {
+    loading = false;
+    btn.disabled = false;
+    btn.textContent = "Обновить";
+  }
 }
 
-// ===== Световой источник =====
-const lightSource = document.getElementById('lightSource');
-function updateLightOrigin() {
-  if (!lightSource) return;
-  const r = lightSource.getBoundingClientRect();
-  const root = document.documentElement.style;
-  root.setProperty('--light-x', (r.left + r.width / 2).toFixed(1) + 'px');
-  root.setProperty('--light-y', (r.top + r.height / 2).toFixed(1) + 'px');
-}
-let lightRaf = null;
-function queueLightUpdate() {
-  if (lightRaf) return;
-  lightRaf = requestAnimationFrame(() => {
-    lightRaf = null;
-    updateLightOrigin();
-  });
-}
-updateLightOrigin();
-window.addEventListener('resize', queueLightUpdate);
-window.addEventListener('scroll', queueLightUpdate, { passive: true });
-window.addEventListener('load', updateLightOrigin);
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLightOrigin);
-if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
+// первая загрузка + автообновление
+load();
+setInterval(load, REFRESH_MS);
 
-// ===== Старт =====
-refreshPowerData();
+// ручное обновление
+$("refreshBtn").addEventListener("click", load);
 
-function scheduleReloadAtNextMinute() {
-  const now = new Date();
-  const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
-  setTimeout(() => { location.reload(); }, msToNextMinute);
-}
-scheduleReloadAtNextMinute();
-
-setInterval(refreshPowerData, 30000);
-setInterval(render, 10000);
+// обновляем строку «N сек назад» каждую секунду — без запроса к API
+setInterval(() => {
+  const txt = $("statusSub");
+  if (!txt || !txt.dataset) return;
+  // ничего не делаем — просто перезапросим раз в 30 сек,
+  // а здесь можно было бы локально пересчитывать "секунд назад"
+}, 1000);
 </script>
 </body>
 </html>

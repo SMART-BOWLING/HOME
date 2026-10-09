@@ -253,6 +253,8 @@ body.is-off .future-mask::after {
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
 }
 
+.future-mask.no-data::before { display: none; }
+
 .now-line {
   position: absolute;
   top: -9px;
@@ -564,16 +566,19 @@ body.is-on .dust { opacity: 1; }
 </main>
 <script>
 // ===== API =====
-// ⚠️ ВСТАВЬТЕ СЮДА ВАШ НОВЫЙ URL ИЗ РАЗВЁРТЫВАНИЯ APPS SCRIPT (заканчивается на /exec)
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const MIN = 60000;
 const pad = n => String(n).padStart(2, '0');
+
+// Сдвиг часов браузера относительно сервера (мс).
+let serverSkew = 0;
 
 let payload = null;
 let lastSyncAt = 0;
 let loading = false;
 let firstLoadDone = false;
 let selectedDay = 'today';
+let lastError = null;
 
 // ===== Загрузочный оверлей =====
 const loaderOverlay = document.getElementById('loaderOverlay');
@@ -609,6 +614,11 @@ document.querySelectorAll('.day-btn').forEach(btn => {
   });
 });
 
+// ===== Текущее серверное время =====
+function nowMs() {
+  return Date.now() - serverSkew;
+}
+
 // ===== Форматирование =====
 function timeFormat(ts, seconds = false) {
   const options = {
@@ -635,7 +645,7 @@ function agoText(ts, now) {
 // ===== Рендер =====
 function render() {
   if (!payload) return;
-  const now = payload.now + (Date.now() - lastSyncAt);
+  const now = nowMs();
   const dayKey = selectedDay === 'yesterday' ? 'yesterday' : 'today';
   const dayData = payload[dayKey] || { dayStart: 0, dayEnd: 0, outages: [] };
   const dayStart = dayData.dayStart;
@@ -658,6 +668,7 @@ function render() {
   const statusTitle = document.getElementById('statusTitle');
   const statusMeta = document.getElementById('statusMeta');
   statusBox.className = 'card status-card status ' + (lightOn ? 'on' : 'off');
+
   if (onlineStatus === null) {
     statusTitle.textContent = 'Нет данных';
     statusMeta.textContent = 'В колонке A пока нет корректных отметок времени';
@@ -683,15 +694,21 @@ function render() {
     }
   }
 
+  if (lastError && firstLoadDone) {
+    statusMeta.textContent = statusMeta.textContent + ' · нет связи с сервером';
+  }
+
   const connectionTime = document.getElementById('connectionTime');
   connectionTime.innerHTML = '<span class="connection-dot"></span>' +
     (lastConnection === null ? 'нет данных' : timeFormat(lastConnection, true));
   statusBox.classList.toggle('no-connection', !lightOn);
 
+  // ============ ТАЙМЛАЙН ============
   const timeline = document.getElementById('timeline');
   const ticks = document.getElementById('ticks');
   timeline.replaceChildren();
   ticks.replaceChildren();
+
   for (let h = 0; h <= 24; h++) {
     const el = document.createElement('div');
     el.className = 'tick';
@@ -704,6 +721,42 @@ function render() {
     ticks.appendChild(el);
   }
 
+  // Таблица вообще пуста (ESP32 ни разу не писал) — показываем «нет данных».
+  // Если отметки есть, но за конкретный день их нет — Apps Script уже
+  // добавил «фантомное» отключение на весь день, и его отрисует
+  // общий цикл ниже (жёлтого дня не будет — он весь чёрный).
+  if (!payload.hasData) {
+    const noData = document.createElement('div');
+    noData.className = 'future-mask no-data';
+    noData.style.left = '0%';
+    noData.style.right = '0%';
+    noData.title = 'В таблице нет ни одной отметки';
+    timeline.appendChild(noData);
+
+    const label = document.createElement('div');
+    label.style.cssText =
+      'position:absolute;inset:0;display:grid;place-items:center;' +
+      'z-index:6;font-size:12px;font-weight:650;color:var(--muted);' +
+      'pointer-events:none;letter-spacing:.04em;';
+    label.textContent = 'нет данных — ESP32 ещё не отправлял отметки';
+    timeline.appendChild(label);
+
+    document.getElementById('outageCount').textContent = '—';
+    document.getElementById('totalOutage').textContent = '—';
+    document.getElementById('longestOutage').textContent = '—';
+
+    const history = document.getElementById('history');
+    const historyCount = document.getElementById('historyCount');
+    historyCount.textContent = '0 событий';
+    history.replaceChildren();
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'В таблице пока нет ни одной отметки от ESP32';
+    history.appendChild(empty);
+    return;
+  }
+
+  // ============ ОТКЛЮЧЕНИЯ ============
   outages.forEach(o => {
     const start = Math.max(dayStart, o.start);
     const end = Math.min(dayEnd, o.end);
@@ -759,9 +812,9 @@ function render() {
   if (!outages.length) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = payload.hasData
-      ? (selectedDay === 'today' ? 'Сегодня отключений не было' : 'Вчера отключений не было')
-      : 'История пока недоступна';
+    empty.textContent = selectedDay === 'today'
+      ? 'Сегодня отключений не было'
+      : 'Вчера отключений не было';
     history.appendChild(empty);
   } else {
     [...outages].reverse().forEach(o => {
@@ -794,14 +847,19 @@ function receivePowerData(result) {
   }
   payload = result;
   lastSyncAt = Date.now();
+  if (typeof result.now === 'number') {
+    serverSkew = Date.now() - result.now;
+  }
   loading = false;
   firstLoadDone = true;
+  lastError = null;
   render();
   hideLoader();
 }
 
 function reportPowerError(error) {
   loading = false;
+  lastError = error;
   console.error('Ошибка загрузки отметок:', error);
 
   if (!firstLoadDone) {
@@ -809,14 +867,7 @@ function reportPowerError(error) {
     return;
   }
 
-  if (!payload) {
-    document.getElementById('statusTitle').textContent = 'Ошибка подключения';
-    document.getElementById('statusMeta').textContent = error.message || String(error);
-  } else {
-    document.getElementById('statusMeta').textContent =
-      'Нет связи с сервером; показаны последние доступные данные';
-  }
-  document.getElementById('statusBox').classList.add('no-connection');
+  if (payload) render();
 }
 
 function refreshPowerData() {
@@ -875,15 +926,20 @@ if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document
 // ===== Старт =====
 refreshPowerData();
 
-function scheduleReloadAtNextMinute() {
-  const now = new Date();
-  const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
-  setTimeout(() => { location.reload(); }, msToNextMinute);
-}
-scheduleReloadAtNextMinute();
-
+setInterval(render, 15000);
 setInterval(refreshPowerData, 30000);
-setInterval(render, 10000);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    render();
+    refreshPowerData();
+  }
+});
+
+window.addEventListener('online', () => {
+  lastError = null;
+  refreshPowerData();
+});
 </script>
 </body>
 </html>

@@ -107,14 +107,20 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
    ВЕРХНЯЯ КАРТОЧКА — СТАТУС
-   Левая колонка: иконка + статус + пояснение
-   Правая колонка: переключатель дня + компактная строка связи
+   Строка 1: [иконка] Свет есть    ...    [Вчера][Сегодня]
+   Строка 2: без отключений X       ...    ● 23:18 · 5 мин назад
    ============================================================ */
 .status-card {
   display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.status-top {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
 }
 
 .status-left {
@@ -157,15 +163,24 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 .status.on .status-title { color: #047857; }
 .status.off .status-title { color: #8a8f98; }
 body.is-off .status.off .status-title { color: var(--bad); }
-.status-meta { margin-top: 5px; font-size: 13px; color: var(--muted); }
 
-/* правая колонка — вертикально выровнена, компактна */
-.status-right {
+/* нижняя строка — метаинфа + связь */
+.status-bottom {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--hair);
+}
+.status-meta {
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* компактная строка связи: ● 23:18:04 · 5 мин назад */
@@ -177,6 +192,7 @@ body.is-off .status.off .status-title { color: var(--bad); }
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 .connection-time {
   font-weight: 650;
@@ -221,6 +237,7 @@ body.is-off .connection-dot.is-live { animation: none; }
   background: var(--hair);
   border: 1px solid var(--panel-edge);
   transition: background .4s ease, border-color .4s ease;
+  flex: 0 0 auto;
 }
 .day-btn {
   appearance: none;
@@ -670,32 +687,15 @@ body.is-on .dust { opacity: 1; }
 .offline-btn.is-busy .offline-spinner { display: block; }
 @keyframes offlineSpin { to { transform: rotate(360deg); } }
 
-/* ===== Мобильная адаптация верхней карточки ===== */
+/* ===== Мобильная адаптация ===== */
 @media (max-width: 720px) {
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
 
-  /* Верхняя карточка: статус сверху, нижняя строка — связь слева, кнопки справа */
-  .status-card {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-  }
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
   .status-meta { font-size: 12px; }
-
-  .status-right {
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: 12px;
-    margin-top: 15px;
-    padding-top: 14px;
-    border-top: 1px solid var(--hair);
-  }
   .connection { font-size: 12px; }
 
   .timeline { height: 40px; }
@@ -715,8 +715,12 @@ body.is-on .dust { opacity: 1; }
 }
 
 @media (max-width: 420px) {
-  /* на очень узких экранах скрываем «N мин назад», чтобы всё влезало в одну строку */
+  /* на узких экранах скрываем «N мин назад», чтобы строки влезали */
   .connection-ago { display: none; }
+  .status-meta {
+    font-size: 12px;
+    max-width: 55%;
+  }
 }
 
 @media (max-width: 390px) {
@@ -725,6 +729,7 @@ body.is-on .dust { opacity: 1; }
   .summary-value { font-size: 17px; }
   .summary-label { font-size: 9px; }
   .legend { font-size: 10px; }
+  .day-btn { padding: 5px 9px; font-size: 11px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -757,31 +762,36 @@ body.is-on .dust { opacity: 1; }
 
 <main class="wrap">
   <header class="card status-card status on" id="statusBox">
-    <div class="status-left">
-      <span class="status-icon" id="lightSource" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path class="si-glass"
-            d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-               L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-               C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-               C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-          <path class="si-filament"
-            d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
-            fill="none" stroke-linecap="round" />
-        </svg>
-      </span>
-      <div class="status-text">
-        <div class="status-title" id="statusTitle">Свет есть</div>
-        <div class="status-meta" id="statusMeta">Питание стабильно</div>
+    <!-- Верхняя строка: иконка + статус слева, кнопки дня справа -->
+    <div class="status-top">
+      <div class="status-left">
+        <span class="status-icon" id="lightSource" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path class="si-glass"
+              d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
+                 L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
+                 C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
+                 C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+            <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+            <path class="si-filament"
+              d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
+              fill="none" stroke-linecap="round" />
+          </svg>
+        </span>
+        <div class="status-text">
+          <div class="status-title" id="statusTitle">Свет есть</div>
+        </div>
       </div>
-    </div>
 
-    <div class="status-right">
       <div class="day-switch" role="tablist" aria-label="Выбор дня">
         <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
         <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
       </div>
+    </div>
+
+    <!-- Нижняя строка: последнее событие слева, связь справа -->
+    <div class="status-bottom">
+      <div class="status-meta" id="statusMeta">Питание стабильно</div>
 
       <div class="connection" id="connection" title="Последняя связь с устройством">
         <span class="connection-dot is-live" id="connectionDot"></span>
@@ -1070,7 +1080,7 @@ function render() {
   document.getElementById('reportTitle').textContent =
     selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';
 
-  // ---------- СТАТУС (всегда актуальный) ----------
+  // ---------- СТАТУС ----------
   const statusBox = document.getElementById('statusBox');
   const statusTitle = document.getElementById('statusTitle');
   const statusMeta = document.getElementById('statusMeta');
@@ -1083,8 +1093,8 @@ function render() {
     statusTitle.textContent = 'Свет есть';
     const lastOff = [...todayOutages].reverse().find(o => !o.current && o.end <= now);
     statusMeta.textContent = lastOff
-      ? 'без отключений ' + fmtDur((now - lastOff.end) / MIN)
-      : 'без отключений с начала суток';
+      ? 'последнее отключение ' + agoText(lastOff.end, now)
+      : 'отключений не было';
   } else {
     statusTitle.textContent = 'Света нет';
     const current = todayOutages.find(o => o.current);
@@ -1093,7 +1103,7 @@ function render() {
       : 'нет новых отметок времени';
   }
 
-  // ---------- СВЯЗЬ (компактная строка справа) ----------
+  // ---------- СВЯЗЬ ----------
   if (lastConnection === null || lastConnection === undefined) {
     connectionTime.textContent = '—';
     connectionAgo.textContent = '';

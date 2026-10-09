@@ -301,7 +301,6 @@ body.is-off .future-mask::after {
 .history-row:first-child { border-top: none; padding-top: 0; }
 .history-row:last-child { padding-bottom: 0; }
 .history-time { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.history-sub { margin-top: 4px; font-size: 11px; color: var(--muted); }
 .history-duration { font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .history-row.current .history-duration,
 .history-row.current .history-time { color: var(--bad); }
@@ -871,12 +870,6 @@ function fmtDur(min) {
   const h = Math.floor(rounded / 60), m = rounded % 60;
   return m ? h + 'ч ' + m + 'м' : h + 'ч';
 }
-function agoText(ts, now) {
-  const min = Math.max(0, Math.round((now - ts) / MIN));
-  if (min < 1) return 'только что';
-  if (min < 60) return min + ' мин назад';
-  return fmtDur(min) + ' назад';
-}
 
 // ===== Рендер =====
 function render() {
@@ -1016,10 +1009,7 @@ function render() {
       const time = document.createElement('div');
       time.className = 'history-time';
       time.textContent = timeFormat(o.start) + ' → ' + (o.current ? 'сейчас' : timeFormat(o.end));
-      const sub = document.createElement('div');
-      sub.className = 'history-sub';
-      sub.textContent = o.current ? 'Отключение продолжается' : agoText(o.start, now);
-      left.append(time, sub);
+      left.appendChild(time);
       const duration = document.createElement('div');
       duration.className = 'history-duration';
       duration.textContent = fmtDur(o.dur);

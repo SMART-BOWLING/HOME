@@ -105,8 +105,24 @@ body.is-on::after { opacity: 1; }
 }
 body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
-.status-card { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.status-left { display: flex; align-items: center; gap: 15px; }
+/* ============================================================
+   ВЕРХНЯЯ КАРТОЧКА — СТАТУС
+   ============================================================ */
+.status-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+.status-text { min-width: 0; }
+
 .status-icon { width: 34px; height: 34px; flex: 0 0 34px; position: relative; display: grid; place-items: center; }
 .status-icon svg { width: 100%; height: 100%; position: relative; z-index: 2; overflow: visible; }
 .status-icon::before {
@@ -140,26 +156,67 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 .status.off .status-title { color: #8a8f98; }
 body.is-off .status.off .status-title { color: var(--bad); }
 .status-meta { margin-top: 5px; font-size: 13px; color: var(--muted); }
-.connection { text-align: right; flex: 0 0 auto; }
-.connection-label { font-size: 10px; text-transform: uppercase; letter-spacing: .13em; color: var(--muted); margin-bottom: 3px; }
-.connection-time { font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.connection-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ok);
-  margin-right: 5px;
-  vertical-align: middle;
-  box-shadow: 0 0 0 3px rgba(16,185,129,.10);
+
+/* правая колонка: переключатель дня + связь */
+.status-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 11px;
+  flex: 0 0 auto;
 }
-body.is-off .connection-dot { box-shadow: 0 0 0 3px rgba(120,120,120,.12); }
+
+.connection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+.connection-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .13em;
+  font-weight: 650;
+  color: var(--muted);
+}
+.connection-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.connection-ago { font-size: 11px; font-weight: 550; color: var(--muted); }
+.connection-ago::before { content: "·"; margin-right: 6px; opacity: .6; }
+
+.connection-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background .4s ease, box-shadow .4s ease;
+}
+.connection-dot.is-live {
+  background: var(--ok);
+  animation: dotPulse 2.6s ease-in-out infinite;
+}
+.connection-dot.is-stale { background: var(--bad); }
+.connection-dot.is-unknown { background: var(--muted); opacity: .45; animation: none; }
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,.35); }
+  50%      { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+}
+body.is-off .connection-dot.is-live { animation: none; }
+/* ============================================================ */
 
 .day-switch {
   display: inline-flex;
   gap: 2px;
   padding: 2px;
-  margin-bottom: 8px;
   border-radius: 9px;
   background: var(--hair);
   border: 1px solid var(--panel-edge);
@@ -614,12 +671,25 @@ body.is-on .dust { opacity: 1; }
 @media (max-width: 720px) {
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
-  .status-card { align-items: flex-start; flex-wrap: wrap; }
+
+  .status-card { flex-direction: column; align-items: stretch; gap: 0; }
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
   .status-meta { font-size: 12px; }
-  .connection { display: flex; flex-direction: column; align-items: flex-end; }
+
+  .status-side {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+    margin-top: 15px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hair);
+  }
+  .connection { align-items: flex-end; }
+
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
   .summary-item { padding: 15px 10px; }
@@ -642,6 +712,7 @@ body.is-on .dust { opacity: 1; }
   .summary-value { font-size: 17px; }
   .summary-label { font-size: 9px; }
   .legend { font-size: 10px; }
+  .connection-ago { font-size: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -652,6 +723,7 @@ body.is-on .dust { opacity: 1; }
   }
   .dust { display: none; }
   .offline-lamp::before { animation: none; opacity: .6; }
+  .connection-dot.is-live { animation: none; }
 }
 </style>
 </head>
@@ -687,19 +759,25 @@ body.is-on .dust { opacity: 1; }
             fill="none" stroke-linecap="round" />
         </svg>
       </span>
-      <div>
+      <div class="status-text">
         <div class="status-title" id="statusTitle">Свет есть</div>
         <div class="status-meta" id="statusMeta">Питание стабильно</div>
       </div>
     </div>
-    <div class="connection">
+
+    <div class="status-side">
       <div class="day-switch" role="tablist" aria-label="Выбор дня">
         <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
         <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
       </div>
-      <div class="connection-label">последняя связь</div>
-      <div class="connection-time" id="connectionTime">
-        <span class="connection-dot"></span>23:18:04
+
+      <div class="connection" id="connection">
+        <span class="connection-label">последняя связь</span>
+        <span class="connection-value">
+          <span class="connection-dot is-live" id="connectionDot"></span>
+          <span class="connection-time" id="connectionTime">23:18:04</span>
+          <span class="connection-ago" id="connectionAgo">только что</span>
+        </span>
       </div>
     </div>
   </header>
@@ -813,6 +891,12 @@ let loading = false;
 let firstLoadDone = false;
 let selectedDay = 'today';
 let lastError = null;
+
+// ===== Элементы верхней карточки =====
+const connectionEl   = document.getElementById('connection');
+const connectionDot  = document.getElementById('connectionDot');
+const connectionTime = document.getElementById('connectionTime');
+const connectionAgo  = document.getElementById('connectionAgo');
 
 // ===== OFFLINE OVERLAY =====
 const offlineOverlay = document.getElementById('offlineOverlay');
@@ -969,6 +1053,8 @@ function render() {
   const lightOn = payload.hasData && (now - lastConnection <= 90000);
   const onlineStatus = payload.hasData ? lightOn : null;
   const outages = (dayData.outages || []).map(o => ({ ...o }));
+  // Для «живого» статуса всегда берём сегодняшние события, независимо от выбранного дня
+  const todayOutages = (payload.today?.outages || []).map(o => ({ ...o }));
 
   document.body.classList.toggle('is-on', lightOn);
   document.body.classList.toggle('is-off', !lightOn);
@@ -978,6 +1064,7 @@ function render() {
   document.getElementById('reportTitle').textContent =
     selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';
 
+  // ---------- СТАТУС (всегда актуальный, не зависит от выбранного дня) ----------
   const statusBox = document.getElementById('statusBox');
   const statusTitle = document.getElementById('statusTitle');
   const statusMeta = document.getElementById('statusMeta');
@@ -985,33 +1072,37 @@ function render() {
 
   if (onlineStatus === null) {
     statusTitle.textContent = 'Нет данных';
-    statusMeta.textContent = 'В колонке A пока нет корректных отметок времени';
+    statusMeta.textContent = 'ESP32 ещё не отправлял отметки времени';
   } else if (lightOn) {
     statusTitle.textContent = 'Свет есть';
-    if (selectedDay === 'yesterday') {
-      statusMeta.textContent = 'данные за вчера';
-    } else {
-      const lastOff = [...outages].reverse().find(o => !o.current && o.end <= now);
-      statusMeta.textContent = lastOff
-        ? 'свет уже ' + fmtDur((now - lastOff.end) / MIN) + ' подряд'
-        : 'соединение активно';
-    }
+    const lastOff = [...todayOutages].reverse().find(o => !o.current && o.end <= now);
+    statusMeta.textContent = lastOff
+      ? 'без отключений ' + fmtDur((now - lastOff.end) / MIN)
+      : 'без отключений с начала суток';
   } else {
     statusTitle.textContent = 'Света нет';
-    if (selectedDay === 'yesterday') {
-      statusMeta.textContent = 'данные за вчера';
-    } else {
-      const current = outages.find(o => o.current);
-      statusMeta.textContent = current
-        ? 'без света уже ' + fmtDur((now - current.start) / MIN)
-        : 'нет новых отметок времени';
-    }
+    const current = todayOutages.find(o => o.current);
+    statusMeta.textContent = current
+      ? 'без света ' + fmtDur((now - current.start) / MIN)
+      : 'нет новых отметок времени';
   }
 
-  const connectionTime = document.getElementById('connectionTime');
-  connectionTime.innerHTML = '<span class="connection-dot"></span>' +
-    (lastConnection === null ? 'нет данных' : timeFormat(lastConnection, true));
-  statusBox.classList.toggle('no-connection', !lightOn);
+  // ---------- СВЯЗЬ ----------
+  if (lastConnection === null || lastConnection === undefined) {
+    connectionTime.textContent = '—';
+    connectionAgo.textContent = 'нет данных';
+    connectionAgo.style.display = 'none';
+    connectionDot.className = 'connection-dot is-unknown';
+    connectionEl.title = 'Отметок времени ещё не было';
+  } else {
+    connectionAgo.style.display = '';
+    connectionTime.textContent = timeFormat(lastConnection, true);
+    connectionAgo.textContent = agoText(lastConnection, now);
+    connectionDot.className = 'connection-dot ' + (lightOn ? 'is-live' : 'is-stale');
+    connectionEl.title = lightOn
+      ? 'Связь с устройством активна'
+      : 'Давно не было новых отметок времени';
+  }
 
   // ============ ТАЙМЛАЙН ============
   const timeline = document.getElementById('timeline');

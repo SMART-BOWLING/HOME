@@ -200,7 +200,8 @@ body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
   border-radius: 8px;
   overflow: hidden;
   isolation: isolate;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.70);
+  /* ослабленная подсветка — верхняя кромка жёлтой полосы больше не «сливается» с фоном */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
   transition: background .5s ease, box-shadow .5s ease;
   clip-path: inset(0 round 8px);
   -webkit-clip-path: inset(0 round 8px);
@@ -212,11 +213,13 @@ body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
   bottom: 0;
   min-width: 2px;
   max-width: 100%;
-  background: #4d515c;              /* мягкий графит вместо чёрного */
+  background: #4d515c;
+  /* такая же мягкая подсветка сверху, как у трека — верхние кромки совпадают */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
   cursor: pointer;
   transition: filter .15s ease;
   height: 100%;
-  will-change: left, width;
+  /* will-change убран: анимаций left/width нет, лишний слой давал артефакты по краю */
 }
 .seg:hover { filter: brightness(1.25); }
 
@@ -258,7 +261,7 @@ body.is-off .future-mask::after {
   white-space: nowrap;
 }
 .tick.major { color: var(--text); font-weight: 750; }
-/* Крайние «00» теперь тоже центрируются по своему часу — как и все остальные */
+/* Крайние «00» центрируются по своему часу — как и все остальные */
 .tick.edge-start { transform: translateX(-50%); }
 .tick.edge-end   { transform: translateX(-50%); }
 
@@ -266,7 +269,7 @@ body.is-off .future-mask::after {
 .legend span { display: flex; align-items: center; gap: 7px; }
 .legend i { width: 14px; height: 5px; border-radius: 3px; display: inline-block; }
 .legend .ok { background: var(--track); }
-.legend .off { background: #4d515c; }    /* синхронизировано с .seg */
+.legend .off { background: #4d515c; }
 .legend .future {
   background: repeating-linear-gradient(-45deg, rgba(120,120,130,.35) 0 1px, transparent 1px 5px), var(--bg);
   box-shadow: inset 0 0 0 1px rgba(120,120,130,.25);

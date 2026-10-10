@@ -425,7 +425,7 @@ body.is-on .dust { opacity: 1; }
 .loader-overlay.is-error .retry-btn { display: inline-block; }
 
 /* ============================================================
-   КРУГЛАЯ КНОПКА ВКЛ/ВЫКЛ (справа внизу)
+   КРУГЛАЯ КНОПКА ВКЛ/ВЫКЛ (справа внизу) — ЛАМПОЧКА
    ============================================================ */
 .ctrl-fab {
   position: fixed;
@@ -448,15 +448,34 @@ body.is-on .dust { opacity: 1; }
               border-color .35s ease, box-shadow .35s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.ctrl-fab svg { width: 26px; height: 26px; display: block; }
-.ctrl-fab:hover { color: var(--text); }
+.ctrl-fab svg { width: 28px; height: 28px; display: block; overflow: visible; }
 .ctrl-fab:active { transform: scale(.93); }
-.ctrl-fab.is-active {
+
+/* Базовые цвета лампочки внутри кнопки (когда ВЫКЛ) */
+.ctrl-fab .si-glass {
+  fill: rgba(120,125,135,.08);
+  stroke: #8a8d93;
+  stroke-width: 1.1;
+}
+.ctrl-fab .si-cap { fill: #8a8d93; }
+.ctrl-fab .si-filament { stroke: #6a6d73; stroke-width: 1.2; }
+
+/* Кнопка светится, когда лампа включена */
+.ctrl-fab.is-lit {
   background: linear-gradient(180deg, #ffd489, #ffc164);
   border-color: #e9a83f;
   color: #4a3208;
   box-shadow: 0 8px 26px rgba(255,180,70,.50), 0 1px 0 rgba(255,255,255,.75) inset;
   transform: scale(1.04);
+}
+.ctrl-fab.is-lit .si-glass { fill: rgba(255,210,124,.42); stroke: #e0a94e; }
+.ctrl-fab.is-lit .si-cap { fill: #bb8a3d; }
+.ctrl-fab.is-lit .si-filament {
+  stroke: #ff9d1f;
+  filter: drop-shadow(0 0 3px rgba(255,170,50,1));
+}
+.ctrl-fab.is-lit svg {
+  filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
 }
 
 /* ============================================================
@@ -788,7 +807,7 @@ body.is-on .dust { opacity: 1; }
   .tick:not(.major):not(.even) { display: none; }
 
   .ctrl-fab { width: 54px; height: 54px; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
-  .ctrl-fab svg { width: 24px; height: 24px; }
+  .ctrl-fab svg { width: 26px; height: 26px; }
   .ctrl-panel { padding: 20px 18px 22px; border-radius: 22px; }
 
   .offline-card { padding: 30px 20px 24px; }
@@ -905,13 +924,18 @@ body.is-on .dust { opacity: 1; }
   </section>
 </main>
 
-<!-- ============ КРУГЛАЯ КНОПКА ВКЛ/ВЫКЛ ============ -->
-<button class="ctrl-fab" id="ctrlFab" type="button" aria-label="Настройки света" aria-pressed="false">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-    <path d="M4 7h16M4 12h16M4 17h16"/>
-    <circle cx="9.5" cy="7" r="2.4" fill="currentColor" stroke="none"/>
-    <circle cx="15" cy="12" r="2.4" fill="currentColor" stroke="none"/>
-    <circle cx="8" cy="17" r="2.4" fill="currentColor" stroke="none"/>
+<!-- ============ КРУГЛАЯ КНОПКА ВКЛ/ВЫКЛ — ЛАМПОЧКА ============ -->
+<button class="ctrl-fab" id="ctrlFab" type="button" aria-label="Включить свет" aria-pressed="false">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path class="si-glass"
+      d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
+         L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
+         C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
+         C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+    <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+    <path class="si-filament"
+      d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
+      fill="none" stroke-linecap="round" />
   </svg>
 </button>
 
@@ -1132,7 +1156,6 @@ function timeFormat(ts, seconds = false) {
   return new Intl.DateTimeFormat('ru-RU', options).format(new Date(ts));
 }
 function fmtDur(min) {
-  // Точный ноль — «0ч 0м»
   if (min <= 0) return '0ч 0м';
   const rounded = Math.round(min);
   if (rounded === 0) return 'меньше минуты';
@@ -1383,7 +1406,11 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLigh
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
 
 // ============================================================
-// КНОПКА ВКЛ/ВЫКЛ + ПАНЕЛЬ ПОЛЗУНКОВ (заглушка)
+// КНОПКА-ЛАМПОЧКА + ПАНЕЛЬ ПОЛЗУНКОВ
+// Логика:
+//   • Выключено → нажатие: включаем лампу + открываем меню
+//   • Включено  → нажатие: выключаем лампу, меню не открываем
+//   • Крестик / клик по фону / Esc: закрывают меню, лампа горит
 // ============================================================
 const ctrlFab       = document.getElementById('ctrlFab');
 const ctrlOverlay   = document.getElementById('ctrlOverlay');
@@ -1393,27 +1420,48 @@ const tempEl        = document.getElementById('temp');
 const brightnessVal = document.getElementById('brightnessVal');
 const tempVal       = document.getElementById('tempVal');
 
-function setCtrlOpen(open) {
+let lightOn = false;   // состояние лампы
+let menuOpen = false;  // состояние меню
+
+function updateFabVisual() {
+  ctrlFab.classList.toggle('is-lit', lightOn);
+  ctrlFab.setAttribute('aria-pressed', lightOn ? 'true' : 'false');
+  ctrlFab.setAttribute('aria-label', lightOn ? 'Выключить свет' : 'Включить свет');
+}
+
+function setMenuOpen(open) {
+  menuOpen = open;
   ctrlOverlay.classList.toggle('is-open', open);
-  ctrlFab.classList.toggle('is-active', open);
-  ctrlFab.setAttribute('aria-pressed', open ? 'true' : 'false');
   document.body.classList.toggle('ctrl-open', open);
 }
 
+// Нажатие на кнопку-лампочку
 ctrlFab.addEventListener('click', () => {
-  setCtrlOpen(!ctrlOverlay.classList.contains('is-open'));
+  if (lightOn) {
+    // Лампа горит → выключаем, меню НЕ открываем
+    lightOn = false;
+    setMenuOpen(false);
+  } else {
+    // Лампа выключена → включаем и открываем меню
+    lightOn = true;
+    setMenuOpen(true);
+  }
+  updateFabVisual();
 });
 
-ctrlClose.addEventListener('click', () => setCtrlOpen(false));
+// Крестик: закрывает меню, лампа продолжает гореть
+ctrlClose.addEventListener('click', () => {
+  setMenuOpen(false);
+});
 
-// клик по размытому фону — закрыть
+// Клик по размытому фону — то же, что и крестик
 ctrlOverlay.addEventListener('click', e => {
-  if (e.target === ctrlOverlay) setCtrlOpen(false);
+  if (e.target === ctrlOverlay) setMenuOpen(false);
 });
 
-// Esc — закрыть
+// Esc — закрыть меню (лампа остаётся включённой)
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && ctrlOverlay.classList.contains('is-open')) setCtrlOpen(false);
+  if (e.key === 'Escape' && menuOpen) setMenuOpen(false);
 });
 
 // --- Ползунок яркости (заглушка) ---
@@ -1434,6 +1482,7 @@ tempEl.addEventListener('input', updateTempLabel);
 
 updateBrightnessLabel();
 updateTempLabel();
+updateFabVisual();
 
 // ===== Старт =====
 refreshPowerData();

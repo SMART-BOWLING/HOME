@@ -39,7 +39,7 @@ body {
   --bad: #e11d48;
   --warn: #f59e0b;
   min-height: 100vh;
-  padding: 40px max(16px, calc((100vw - 760px) / 2)) 70px;
+  padding: 40px max(16px, calc((100vw - 760px) / 2)) 110px;
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -49,6 +49,8 @@ body {
   overflow-x: hidden;
   transition: background .6s ease, color .6s ease;
 }
+
+body.ctrl-open { overflow: hidden; }
 
 body.is-off {
   --bg: #f1f0ee;
@@ -422,6 +424,196 @@ body.is-on .dust { opacity: 1; }
 .retry-btn:hover { background: #fff; border-color: #d9d9db; }
 .loader-overlay.is-error .retry-btn { display: inline-block; }
 
+/* ============================================================
+   КРУГЛАЯ КНОПКА ВКЛ/ВЫКЛ (справа внизу)
+   ============================================================ */
+.ctrl-fab {
+  position: fixed;
+  right: max(18px, calc((100vw - 760px) / 2 - 78px));
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-edge);
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 96;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12), 0 1px 0 rgba(255,255,255,.85) inset;
+  transition: transform .18s ease, background .35s ease, color .35s ease,
+              border-color .35s ease, box-shadow .35s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ctrl-fab svg { width: 26px; height: 26px; display: block; }
+.ctrl-fab:hover { color: var(--text); }
+.ctrl-fab:active { transform: scale(.93); }
+.ctrl-fab.is-active {
+  background: linear-gradient(180deg, #ffd489, #ffc164);
+  border-color: #e9a83f;
+  color: #4a3208;
+  box-shadow: 0 8px 26px rgba(255,180,70,.50), 0 1px 0 rgba(255,255,255,.75) inset;
+  transform: scale(1.04);
+}
+
+/* ============================================================
+   ПАНЕЛЬ С ПОЛЗУНКАМИ (размытый фон по центру)
+   ============================================================ */
+.ctrl-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(251, 250, 246, .38);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .32s ease, visibility .32s ease;
+}
+.ctrl-overlay.is-open { opacity: 1; visibility: visible; }
+
+.ctrl-panel {
+  width: 100%;
+  max-width: 380px;
+  background: rgba(255,255,255,.74);
+  border: 1px solid var(--panel-edge);
+  border-radius: 24px;
+  padding: 24px 22px 26px;
+  box-shadow: 0 26px 60px rgba(0,0,0,.13), 0 1px 0 rgba(255,255,255,.9) inset;
+  transform: translateY(16px) scale(.96);
+  opacity: 0;
+  transition: transform .36s cubic-bezier(.2,.9,.3,1.18), opacity .3s ease;
+}
+.ctrl-overlay.is-open .ctrl-panel { transform: none; opacity: 1; }
+
+.ctrl-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.ctrl-title { font-size: 17px; font-weight: 750; letter-spacing: -.4px; }
+.ctrl-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+.ctrl-close {
+  width: 32px; height: 32px; flex: 0 0 32px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--panel-edge);
+  background: rgba(255,255,255,.6);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, transform .12s ease;
+}
+.ctrl-close svg { width: 15px; height: 15px; display: block; }
+.ctrl-close:hover { background: #fff; color: var(--text); }
+.ctrl-close:active { transform: scale(.92); }
+
+.ctrl-row { margin-top: 22px; }
+.ctrl-row:first-of-type { margin-top: 0; }
+
+.ctrl-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ctrl-row-val {
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ctrl-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: .78;
+}
+
+/* --- Слайдеры --- */
+.ctrl-range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 26px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.ctrl-range:focus { outline: none; }
+.ctrl-range:focus-visible { outline: 2px solid #e0a94e; outline-offset: 3px; border-radius: 999px; }
+
+.ctrl-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), inset 0 1px 2px rgba(0,0,0,.05);
+}
+.ctrl-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px; height: 22px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 2px 7px rgba(0,0,0,.20), 0 1px 0 rgba(255,255,255,.9) inset;
+  transition: transform .15s ease;
+}
+.ctrl-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+
+.ctrl-range::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.ctrl-range::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 2px 7px rgba(0,0,0,.20);
+}
+
+/* Яркость: тёмный → яркий */
+.range-bright::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #33343a 0%, #6f7077 38%, #ffd07a 78%, #ffe6ab 100%);
+}
+.range-bright::-moz-range-track {
+  background: linear-gradient(90deg, #33343a 0%, #6f7077 38%, #ffd07a 78%, #ffe6ab 100%);
+}
+
+/* Температура: холодный → нейтральный → тёплый */
+.range-temp::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #7fb4ff 0%, #bcd6ff 26%, #f2efe9 50%, #ffc98a 74%, #ff9f43 100%);
+}
+.range-temp::-moz-range-track {
+  background: linear-gradient(90deg, #7fb4ff 0%, #bcd6ff 26%, #f2efe9 50%, #ffc98a 74%, #ff9f43 100%);
+}
+
 /* ============ OFFLINE OVERLAY ============ */
 .offline-overlay {
   position: fixed;
@@ -576,7 +768,7 @@ body.is-on .dust { opacity: 1; }
 
 /* ===== Мобильная адаптация ===== */
 @media (max-width: 720px) {
-  body { padding: 22px 14px 50px; }
+  body { padding: 22px 14px 100px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
 
   .status-card { gap: 12px; }
@@ -594,7 +786,11 @@ body.is-on .dust { opacity: 1; }
   .history-duration { font-size: 13px; }
   .section-title { margin-bottom: 15px; }
   .tick:not(.major):not(.even) { display: none; }
-  
+
+  .ctrl-fab { width: 54px; height: 54px; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .ctrl-fab svg { width: 24px; height: 24px; }
+  .ctrl-panel { padding: 20px 18px 22px; border-radius: 22px; }
+
   .offline-card { padding: 30px 20px 24px; }
   .offline-lamp { width: 48px; height: 48px; margin-bottom: 18px; }
   .offline-title { font-size: 18px; }
@@ -610,6 +806,8 @@ body.is-on .dust { opacity: 1; }
   .legend { font-size: 10px; }
   .day-btn { padding: 5px 9px; font-size: 11px; }
   .status-title { font-size: 18px; }
+  .ctrl-row-head { font-size: 10px; }
+  .ctrl-row-val { font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -707,7 +905,58 @@ body.is-on .dust { opacity: 1; }
   </section>
 </main>
 
-<!-- ============ OFFLINE OVERLAY (без «Причина» и «Попыток») ============ -->
+<!-- ============ КРУГЛАЯ КНОПКА ВКЛ/ВЫКЛ ============ -->
+<button class="ctrl-fab" id="ctrlFab" type="button" aria-label="Настройки света" aria-pressed="false">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+    <path d="M4 7h16M4 12h16M4 17h16"/>
+    <circle cx="9.5" cy="7" r="2.4" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="12" r="2.4" fill="currentColor" stroke="none"/>
+    <circle cx="8" cy="17" r="2.4" fill="currentColor" stroke="none"/>
+  </svg>
+</button>
+
+<!-- ============ ПАНЕЛЬ ПОЛЗУНКОВ НА РАЗМЫТОМ ФОНЕ ============ -->
+<div class="ctrl-overlay" id="ctrlOverlay" role="dialog" aria-modal="true" aria-label="Настройки света">
+  <div class="ctrl-panel" id="ctrlPanel">
+    <div class="ctrl-head">
+      <div>
+        <div class="ctrl-title">Настройки света</div>
+        <div class="ctrl-sub">Яркость и температура</div>
+      </div>
+      <button class="ctrl-close" id="ctrlClose" type="button" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="ctrl-row">
+      <div class="ctrl-row-head">
+        <span>Яркость</span>
+        <span class="ctrl-row-val" id="brightnessVal">70%</span>
+      </div>
+      <input class="ctrl-range range-bright" id="brightness" type="range"
+             min="0" max="100" step="1" value="70"
+             aria-label="Яркость">
+    </div>
+
+    <div class="ctrl-row">
+      <div class="ctrl-row-head">
+        <span>Температура</span>
+        <span class="ctrl-row-val" id="tempVal">Нейтральный</span>
+      </div>
+      <input class="ctrl-range range-temp" id="temp" type="range"
+             min="0" max="100" step="1" value="50"
+             aria-label="Температура света">
+      <div class="ctrl-scale">
+        <span>Холодный</span>
+        <span>Тёплый</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OFFLINE OVERLAY ============ -->
 <div class="offline-overlay" id="offlineOverlay">
   <div class="offline-card">
     <span class="offline-lamp" aria-hidden="true">
@@ -1132,6 +1381,59 @@ window.addEventListener('scroll', queueLightUpdate, { passive: true });
 window.addEventListener('load', updateLightOrigin);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLightOrigin);
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
+
+// ============================================================
+// КНОПКА ВКЛ/ВЫКЛ + ПАНЕЛЬ ПОЛЗУНКОВ (заглушка)
+// ============================================================
+const ctrlFab       = document.getElementById('ctrlFab');
+const ctrlOverlay   = document.getElementById('ctrlOverlay');
+const ctrlClose     = document.getElementById('ctrlClose');
+const brightnessEl  = document.getElementById('brightness');
+const tempEl        = document.getElementById('temp');
+const brightnessVal = document.getElementById('brightnessVal');
+const tempVal       = document.getElementById('tempVal');
+
+function setCtrlOpen(open) {
+  ctrlOverlay.classList.toggle('is-open', open);
+  ctrlFab.classList.toggle('is-active', open);
+  ctrlFab.setAttribute('aria-pressed', open ? 'true' : 'false');
+  document.body.classList.toggle('ctrl-open', open);
+}
+
+ctrlFab.addEventListener('click', () => {
+  setCtrlOpen(!ctrlOverlay.classList.contains('is-open'));
+});
+
+ctrlClose.addEventListener('click', () => setCtrlOpen(false));
+
+// клик по размытому фону — закрыть
+ctrlOverlay.addEventListener('click', e => {
+  if (e.target === ctrlOverlay) setCtrlOpen(false);
+});
+
+// Esc — закрыть
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && ctrlOverlay.classList.contains('is-open')) setCtrlOpen(false);
+});
+
+// --- Ползунок яркости (заглушка) ---
+function updateBrightnessLabel() {
+  brightnessVal.textContent = brightnessEl.value + '%';
+}
+brightnessEl.addEventListener('input', updateBrightnessLabel);
+
+// --- Ползунок температуры (заглушка) ---
+function updateTempLabel() {
+  const v = +tempEl.value;
+  let word = 'Нейтральный';
+  if (v < 40) word = 'Холодный';
+  else if (v > 60) word = 'Тёплый';
+  tempVal.textContent = word + ' · ' + v + '%';
+}
+tempEl.addEventListener('input', updateTempLabel);
+
+updateBrightnessLabel();
+updateTempLabel();
 
 // ===== Старт =====
 refreshPowerData();

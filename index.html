@@ -258,8 +258,9 @@ body.is-off .future-mask::after {
   white-space: nowrap;
 }
 .tick.major { color: var(--text); font-weight: 750; }
-.tick.edge-start { transform: translateX(0); }
-.tick.edge-end { transform: translateX(-100%); }
+/* Крайние «00» теперь тоже центрируются по своему часу — как и все остальные */
+.tick.edge-start { transform: translateX(-50%); }
+.tick.edge-end   { transform: translateX(-50%); }
 
 .legend { display: flex; flex-wrap: wrap; gap: 17px; margin-top: 18px; color: var(--muted); font-size: 11px; }
 .legend span { display: flex; align-items: center; gap: 7px; }

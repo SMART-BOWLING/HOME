@@ -519,7 +519,6 @@ body.is-on .dust { opacity: 1; }
   margin-bottom: 24px;
 }
 .ctrl-title { font-size: 17px; font-weight: 750; letter-spacing: -.4px; }
-.ctrl-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
 .ctrl-close {
   width: 32px; height: 32px; flex: 0 0 32px;
@@ -541,7 +540,7 @@ body.is-on .dust { opacity: 1; }
 .ctrl-row-head {
   display: flex;
   align-items: baseline;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
   font-size: 11px;
@@ -825,6 +824,7 @@ body.is-on .dust { opacity: 1; }
   .legend { font-size: 10px; }
   .day-btn { padding: 5px 9px; font-size: 11px; }
   .status-title { font-size: 18px; }
+  .ctrl-row-head { font-size: 10px; }
   .ctrl-row-val { font-size: 12px; }
 }
 
@@ -944,7 +944,6 @@ body.is-on .dust { opacity: 1; }
     <div class="ctrl-head">
       <div>
         <div class="ctrl-title">Настройки света</div>
-        <div class="ctrl-sub">Яркость и температура</div>
       </div>
       <button class="ctrl-close" id="ctrlClose" type="button" aria-label="Закрыть">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
@@ -955,6 +954,7 @@ body.is-on .dust { opacity: 1; }
 
     <div class="ctrl-row">
       <div class="ctrl-row-head">
+        <span>Яркость</span>
         <span class="ctrl-row-val" id="brightnessVal">70%</span>
       </div>
       <input class="ctrl-range range-bright" id="brightness" type="range"
@@ -964,6 +964,7 @@ body.is-on .dust { opacity: 1; }
 
     <div class="ctrl-row">
       <div class="ctrl-row-head">
+        <span>Температура</span>
         <span class="ctrl-row-val" id="tempVal">Нейтральный</span>
       </div>
       <input class="ctrl-range range-temp" id="temp" type="range"

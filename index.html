@@ -447,8 +447,11 @@ body.is-on .dust { opacity: 1; }
   transition: transform .18s ease, background .35s ease, color .35s ease,
               border-color .35s ease, box-shadow .35s ease;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.ctrl-fab svg { width: 28px; height: 28px; display: block; overflow: visible; }
+.ctrl-fab svg { width: 28px; height: 28px; display: block; overflow: visible; pointer-events: none; }
 .ctrl-fab:active { transform: scale(.93); }
 
 /* Базовые цвета лампочки внутри кнопки (когда ВЫКЛ) */
@@ -476,6 +479,22 @@ body.is-on .dust { opacity: 1; }
 }
 .ctrl-fab.is-lit svg {
   filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
+}
+
+/* Индикатор удержания — тонкое кольцо вокруг кнопки */
+.ctrl-fab.is-pressing::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(224, 169, 78, .9);
+  animation: pressRing .55s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes pressRing {
+  0%   { transform: scale(.85); opacity: 0; }
+  30%  { opacity: .9; }
+  100% { transform: scale(1.25); opacity: 0; }
 }
 
 /* ============================================================
@@ -1405,10 +1424,11 @@ if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document
 
 // ============================================================
 // КНОПКА-ЛАМПОЧКА + ПАНЕЛЬ ПОЛЗУНКОВ
-// Логика:
-//   • Выключено → нажатие: включаем лампу + открываем меню
-//   • Включено  → нажатие: выключаем лампу, меню не открываем
-//   • Крестик / клик по фону / Esc: закрывают меню, лампа горит
+//
+// Новая логика:
+//   • Короткий тап  → включить/выключить свет (меню НЕ открывается)
+//   • Долгое нажатие (≥ 500 мс) → открыть меню настроек
+//   • Крестик / клик по фону / Esc → закрыть меню (лампа остаётся как была)
 // ============================================================
 const ctrlFab       = document.getElementById('ctrlFab');
 const ctrlOverlay   = document.getElementById('ctrlOverlay');
@@ -1418,8 +1438,16 @@ const tempEl        = document.getElementById('temp');
 const brightnessVal = document.getElementById('brightnessVal');
 const tempVal       = document.getElementById('tempVal');
 
+const LONG_PRESS_MS = 500;   // длительность удержания
+const MOVE_TOLERANCE = 12;   // пикселей, после которых отменяем удержание
+
 let lightOn = false;
 let menuOpen = false;
+
+let pressTimer = null;
+let pressActive = false;
+let longPressFired = false;
+let startX = 0, startY = 0;
 
 function updateFabVisual() {
   ctrlFab.classList.toggle('is-lit', lightOn);
@@ -1433,17 +1461,82 @@ function setMenuOpen(open) {
   document.body.classList.toggle('ctrl-open', open);
 }
 
-// Нажатие на кнопку-лампочку
-ctrlFab.addEventListener('click', () => {
-  if (lightOn) {
-    lightOn = false;
-    setMenuOpen(false);
-  } else {
-    lightOn = true;
-    setMenuOpen(true);
+function cancelPressTimer() {
+  if (pressTimer) {
+    clearTimeout(pressTimer);
+    pressTimer = null;
   }
+  ctrlFab.classList.remove('is-pressing');
+}
+
+function startPress(x, y) {
+  cancelPressTimer();
+  pressActive = true;
+  longPressFired = false;
+  startX = x;
+  startY = y;
+  ctrlFab.classList.add('is-pressing');
+
+  pressTimer = setTimeout(() => {
+    pressTimer = null;
+    longPressFired = true;
+    ctrlFab.classList.remove('is-pressing');
+    // виброотклик, если поддерживается
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
+    // включаем свет и открываем меню
+    if (!lightOn) {
+      lightOn = true;
+      updateFabVisual();
+    }
+    setMenuOpen(true);
+  }, LONG_PRESS_MS);
+}
+
+function endPress() {
+  const wasActive = pressActive;
+  pressActive = false;
+  cancelPressTimer();
+
+  if (!wasActive) return;
+  if (longPressFired) return;  // долгое нажатие уже отработало
+
+  // Короткий тап — просто переключаем свет
+  lightOn = !lightOn;
   updateFabVisual();
+  if (!lightOn && menuOpen) setMenuOpen(false);
+}
+
+ctrlFab.addEventListener('pointerdown', e => {
+  // игнорируем нажатия правой кнопкой / средней
+  if (e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  try { ctrlFab.setPointerCapture(e.pointerId); } catch (err) {}
+  startPress(e.clientX, e.clientY);
 });
+
+ctrlFab.addEventListener('pointerup', e => {
+  endPress();
+});
+
+ctrlFab.addEventListener('pointercancel', () => {
+  pressActive = false;
+  cancelPressTimer();
+});
+
+ctrlFab.addEventListener('pointermove', e => {
+  if (!pressActive) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  if (Math.hypot(dx, dy) > MOVE_TOLERANCE) {
+    // пользователь, видимо, скроллит — отменяем и тап, и удержание
+    pressActive = false;
+    longPressFired = true; // чтобы pointerup не сработал как тап
+    cancelPressTimer();
+  }
+});
+
+// запрещаем контекстное меню (долгое нажатие на мобильных / правый клик)
+ctrlFab.addEventListener('contextmenu', e => e.preventDefault());
 
 // Крестик: закрывает меню, лампа продолжает гореть
 ctrlClose.addEventListener('click', () => {

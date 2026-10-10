@@ -541,7 +541,7 @@ body.is-on .dust { opacity: 1; }
 .ctrl-row-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   margin-bottom: 10px;
   font-size: 11px;
@@ -825,7 +825,6 @@ body.is-on .dust { opacity: 1; }
   .legend { font-size: 10px; }
   .day-btn { padding: 5px 9px; font-size: 11px; }
   .status-title { font-size: 18px; }
-  .ctrl-row-head { font-size: 10px; }
   .ctrl-row-val { font-size: 12px; }
 }
 
@@ -956,7 +955,6 @@ body.is-on .dust { opacity: 1; }
 
     <div class="ctrl-row">
       <div class="ctrl-row-head">
-        <span>Яркость</span>
         <span class="ctrl-row-val" id="brightnessVal">70%</span>
       </div>
       <input class="ctrl-range range-bright" id="brightness" type="range"
@@ -966,7 +964,6 @@ body.is-on .dust { opacity: 1; }
 
     <div class="ctrl-row">
       <div class="ctrl-row-head">
-        <span>Температура</span>
         <span class="ctrl-row-val" id="tempVal">Нейтральный</span>
       </div>
       <input class="ctrl-range range-temp" id="temp" type="range"
@@ -1420,8 +1417,8 @@ const tempEl        = document.getElementById('temp');
 const brightnessVal = document.getElementById('brightnessVal');
 const tempVal       = document.getElementById('tempVal');
 
-let lightOn = false;   // состояние лампы
-let menuOpen = false;  // состояние меню
+let lightOn = false;
+let menuOpen = false;
 
 function updateFabVisual() {
   ctrlFab.classList.toggle('is-lit', lightOn);
@@ -1438,11 +1435,9 @@ function setMenuOpen(open) {
 // Нажатие на кнопку-лампочку
 ctrlFab.addEventListener('click', () => {
   if (lightOn) {
-    // Лампа горит → выключаем, меню НЕ открываем
     lightOn = false;
     setMenuOpen(false);
   } else {
-    // Лампа выключена → включаем и открываем меню
     lightOn = true;
     setMenuOpen(true);
   }

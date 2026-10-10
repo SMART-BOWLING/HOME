@@ -392,23 +392,11 @@ body.is-off .future-mask::after {
 .light-slider-row {
   display: flex;
   align-items: center;
-  gap: 12px;
 }
 
 .light-slider-row .ctrl-range {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-.light-slider-val {
-  flex: 0 0 auto;
-  min-width: 64px;
-  text-align: right;
-  font-size: 12px;
-  font-weight: 750;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 /* --- Слайдеры --- */
@@ -749,7 +737,6 @@ body.is-on .dust { opacity: 1; }
   .light-row { gap: 14px; }
   .light-toggle { width: 56px; height: 56px; }
   .light-toggle svg { width: 28px; height: 28px; }
-  .light-slider-val { min-width: 56px; font-size: 11px; }
 
   .offline-card { padding: 30px 20px 24px; }
   .offline-lamp { width: 48px; height: 48px; margin-bottom: 18px; }
@@ -770,7 +757,6 @@ body.is-on .dust { opacity: 1; }
   .light-row { gap: 10px; }
   .light-toggle { width: 50px; height: 50px; }
   .light-toggle svg { width: 26px; height: 26px; }
-  .light-slider-val { min-width: 48px; font-size: 10.5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -882,13 +868,11 @@ body.is-on .dust { opacity: 1; }
           <input class="ctrl-range range-bright" id="brightness" type="range"
                  min="0" max="100" step="1" value="70"
                  aria-label="Яркость">
-          <span class="light-slider-val" id="brightnessVal">70%</span>
         </div>
         <div class="light-slider-row">
           <input class="ctrl-range range-temp" id="temp" type="range"
                  min="0" max="100" step="1" value="50"
                  aria-label="Температура света">
-          <span class="light-slider-val" id="tempVal">Нейтральный</span>
         </div>
       </div>
     </div>
@@ -1330,13 +1314,9 @@ if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document
 // ============================================================
 // ВСТРОЕННАЯ КАРТОЧКА УПРАВЛЕНИЯ СВЕТОМ
 //   • Тап по лампочке → включить / выключить
-//   • Ползунки — заглушки (обновляют только подписи)
+//   • Ползунки — заглушки, без подписей, до края
 // ============================================================
-const lightToggle   = document.getElementById('lightToggle');
-const brightnessEl  = document.getElementById('brightness');
-const tempEl        = document.getElementById('temp');
-const brightnessVal = document.getElementById('brightnessVal');
-const tempVal       = document.getElementById('tempVal');
+const lightToggle = document.getElementById('lightToggle');
 
 let lightOn = false;
 
@@ -1351,24 +1331,6 @@ lightToggle.addEventListener('click', () => {
   updateToggleVisual();
 });
 
-// --- Ползунок яркости (заглушка) ---
-function updateBrightnessLabel() {
-  brightnessVal.textContent = brightnessEl.value + '%';
-}
-brightnessEl.addEventListener('input', updateBrightnessLabel);
-
-// --- Ползунок температуры (заглушка) ---
-function updateTempLabel() {
-  const v = +tempEl.value;
-  let word = 'Нейтральный';
-  if (v < 40) word = 'Холодный';
-  else if (v > 60) word = 'Тёплый';
-  tempVal.textContent = word;
-}
-tempEl.addEventListener('input', updateTempLabel);
-
-updateBrightnessLabel();
-updateTempLabel();
 updateToggleVisual();
 
 // ===== Старт =====

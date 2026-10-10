@@ -464,6 +464,69 @@ body.is-off .future-mask::after {
   background: linear-gradient(90deg, #7fb4ff 0%, #bcd6ff 26%, #f2efe9 50%, #ffc98a 74%, #ff9f43 100%);
 }
 
+/* ============================================================
+   УРОВЕНЬ ЗАРЯДА АКБ (заглушка)
+   ============================================================ */
+.battery-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hair);
+  transition: border-color .4s ease;
+}
+.battery-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.battery-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
+  letter-spacing: .01em;
+}
+.battery-icon {
+  width: 22px;
+  height: 12px;
+  flex: 0 0 22px;
+  color: var(--muted);
+  overflow: visible;
+}
+.battery-icon .b-shell {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+.battery-icon .b-tip { fill: currentColor; }
+.battery-icon .b-fill { fill: currentColor; }
+.battery-value {
+  font-size: 14px;
+  font-weight: 750;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.3px;
+}
+.battery-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--hair);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.04), inset 0 1px 2px rgba(0,0,0,.04);
+  transition: background .4s ease;
+}
+.battery-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7ee0a4, #10b981);
+  transition: width .6s ease, background .4s ease;
+}
+
 .beam { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .7s ease; }
 .beam-lamp {
   background:
@@ -742,6 +805,9 @@ body.is-on .dust { opacity: 1; }
   .light-toggle { width: 56px; height: 56px; }
   .light-toggle svg { width: 28px; height: 28px; }
 
+  .battery-block { margin-top: 14px; padding-top: 13px; }
+  .battery-value { font-size: 13px; }
+
   .offline-card { padding: 30px 20px 24px; }
   .offline-lamp { width: 48px; height: 48px; margin-bottom: 18px; }
   .offline-title { font-size: 18px; }
@@ -878,6 +944,24 @@ body.is-on .dust { opacity: 1; }
                  min="0" max="100" step="1" value="50"
                  aria-label="Температура света">
         </div>
+      </div>
+    </div>
+
+    <!-- ===== УРОВЕНЬ ЗАРЯДА АКБ ===== -->
+    <div class="battery-block">
+      <div class="battery-head">
+        <span class="battery-label">
+          <svg class="battery-icon" viewBox="0 0 26 14" aria-hidden="true">
+            <rect class="b-shell" x="0.6" y="0.6" width="21" height="12.8" rx="2.4"/>
+            <rect class="b-tip" x="23.2" y="4.5" width="2.4" height="5" rx="1"/>
+            <rect class="b-fill" id="batteryFillIcon" x="2.4" y="2.4" width="14" height="9.2" rx="1.4"/>
+          </svg>
+          Уровень заряда АКБ
+        </span>
+        <span class="battery-value" id="batteryValue">—%</span>
+      </div>
+      <div class="battery-track">
+        <div class="battery-fill" id="batteryFill"></div>
       </div>
     </div>
   </section>
@@ -1336,6 +1420,40 @@ lightToggle.addEventListener('click', () => {
 });
 
 updateToggleVisual();
+
+// ============================================================
+// УРОВЕНЬ ЗАРЯДА АКБ — заглушка
+//   later: заменить batteryLevel на реальное значение с сервера
+// ============================================================
+const batteryFill = document.getElementById('batteryFill');
+const batteryFillIcon = document.getElementById('batteryFillIcon');
+const batteryValue = document.getElementById('batteryValue');
+
+let batteryLevel = 87; // % — заглушка
+
+function renderBattery(level) {
+  const lvl = Math.max(0, Math.min(100, Math.round(level)));
+  batteryValue.textContent = lvl + '%';
+  batteryFill.style.width = lvl + '%';
+
+  // цвет заливки: низкий / средний / нормальный
+  let c1, c2, cIcon;
+  if (lvl <= 15)      { c1 = '#fca5a5'; c2 = '#e11d48'; cIcon = '#e11d48'; }
+  else if (lvl <= 35) { c1 = '#fcd34d'; c2 = '#f59e0b'; cIcon = '#e0a94e'; }
+  else                { c1 = '#7ee0a4'; c2 = '#10b981'; cIcon = '#10b981'; }
+
+  batteryFill.style.background = `linear-gradient(90deg, ${c1}, ${c2})`;
+
+  // иконка в шапке: заливка пропорционально уровню
+  const trackW = 21;                // ширина корпуса в системе viewBox
+  const pad = 1.8;                  // отступ от стенок
+  const maxW = trackW - pad * 2;    // максимальная ширина заливки
+  const w = Math.max(0.8, (lvl / 100) * maxW);
+  batteryFillIcon.setAttribute('width', w.toFixed(2));
+  batteryFillIcon.setAttribute('fill', cIcon);
+}
+
+renderBattery(batteryLevel);
 
 // ===== Старт =====
 refreshPowerData();

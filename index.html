@@ -347,6 +347,7 @@ body.is-off .future-mask::after {
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  overflow: visible;
 }
 .light-toggle svg { width: 32px; height: 32px; display: block; overflow: visible; pointer-events: none; }
 .light-toggle:active { transform: scale(.94); }
@@ -372,6 +373,30 @@ body.is-off .future-mask::after {
 }
 .light-toggle.is-lit svg {
   filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
+}
+
+/* ===== Точка-индикатор связи с Wemos в левом верхнем углу кнопки ===== */
+.conn-dot {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #c9c9cd;
+  border: 2px solid var(--panel);
+  box-shadow: 0 0 0 1px var(--panel-edge);
+  transition: background .3s ease, box-shadow .3s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+.conn-dot.ok {
+  background: #10b981;
+  box-shadow: 0 0 0 1px var(--panel-edge), 0 0 8px rgba(16,185,129,.9);
+}
+.conn-dot.err {
+  background: #e11d48;
+  box-shadow: 0 0 0 1px var(--panel-edge), 0 0 8px rgba(225,29,72,.9);
 }
 
 .light-sliders {
@@ -508,33 +533,6 @@ body.is-off .future-mask::after {
   background: linear-gradient(90deg, #7ee0a4, #10b981);
   transition: width .6s ease, background .4s ease;
 }
-
-/* ============================================================
-   ИНДИКАТОР СВЯЗИ С WEMOS (во второй карточке)
-   ============================================================ */
-.link-status {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--hair);
-  font-size: 11px;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: .02em;
-}
-.link-status .dot {
-  display: inline-block;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #c9c9cd;
-  margin-right: 7px;
-  vertical-align: middle;
-  transition: background .3s ease, box-shadow .3s ease;
-}
-.link-status.ok .dot { background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,.7); }
-.link-status.err .dot { background: #e11d48; box-shadow: 0 0 6px rgba(225,29,72,.7); }
 
 .beam { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .7s ease; }
 .beam-lamp {
@@ -808,6 +806,7 @@ body.is-on .dust { opacity: 1; }
   .light-row { gap: 14px; }
   .light-toggle { width: 56px; height: 56px; }
   .light-toggle svg { width: 28px; height: 28px; }
+  .conn-dot { width: 11px; height: 11px; top: -3px; left: -3px; }
 
   .battery-block { margin-top: 14px; padding-top: 13px; }
   .battery-value { font-size: 13px; }
@@ -831,6 +830,7 @@ body.is-on .dust { opacity: 1; }
   .light-row { gap: 10px; }
   .light-toggle { width: 50px; height: 50px; }
   .light-toggle svg { width: 26px; height: 26px; }
+  .conn-dot { width: 10px; height: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -920,7 +920,7 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) — как была, без Wemos ============ -->
+  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) — как была ============ -->
   <section class="card light-card" aria-label="Управление светом">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -974,6 +974,7 @@ body.is-on .dust { opacity: 1; }
   <section class="card light-card" aria-label="Управление светом через Wemos">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle2" type="button" aria-label="Включить свет" aria-pressed="false">
+        <span class="conn-dot" id="connDot" aria-hidden="true"></span>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path class="si-glass"
             d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
@@ -994,12 +995,6 @@ body.is-on .dust { opacity: 1; }
                  aria-label="Яркость">
         </div>
       </div>
-    </div>
-
-    <!-- Индикатор связи с Wemos -->
-    <div class="link-status" id="linkStatus">
-      <span><span class="dot"></span><span id="linkText">Проверка связи с Wemos…</span></span>
-      <span id="linkPercent">70%</span>
     </div>
   </section>
 
@@ -1487,13 +1482,11 @@ renderBattery(batteryLevel);
 // ============================================================
 const lightToggle2 = document.getElementById('lightToggle2');
 const brightnessSlider = document.getElementById('brightness2');
-const linkStatus = document.getElementById('linkStatus');
-const linkText = document.getElementById('linkText');
-const linkPercent = document.getElementById('linkPercent');
+const connDot = document.getElementById('connDot');
 
 let currentBrightness = parseInt(localStorage.getItem('wemos_brightness') || '70', 10);
 let lastNonZeroBrightness = currentBrightness > 0 ? currentBrightness : 70;
-let wemosOnline = false;
+let wemosOnline = null; // null — неизвестно, true/false — статус
 
 brightnessSlider.value = currentBrightness;
 
@@ -1502,7 +1495,12 @@ function updateToggleVisual2() {
   lightToggle2.classList.toggle('is-lit', on);
   lightToggle2.setAttribute('aria-pressed', on ? 'true' : 'false');
   lightToggle2.setAttribute('aria-label', on ? 'Выключить свет' : 'Включить свет');
-  linkPercent.textContent = currentBrightness + '%';
+}
+
+function updateLinkStatus() {
+  connDot.classList.remove('ok', 'err');
+  if (wemosOnline === true)  connDot.classList.add('ok');
+  if (wemosOnline === false) connDot.classList.add('err');
 }
 
 // ---- Отправка команды на Wemos ----
@@ -1512,29 +1510,21 @@ function sendToWemos(percent) {
 
   // «Слепая» отправка через <img> — работает и при HTTPS-странице
   const img = new Image();
-  img.onload = img.onerror = () => {
-    wemosOnline = true;
-    updateLinkStatus();
-  };
+  let completed = false;
+  const markOk = () => { if (!completed) { completed = true; wemosOnline = true; updateLinkStatus(); } };
+  const markErr = () => { if (!completed) { completed = true; wemosOnline = false; updateLinkStatus(); } };
+  img.onload = markOk;
+  img.onerror = markErr;
+  // если Wemos недоступен, браузер довольно быстро вызовет onerror;
+  // но на всякий случай подстрахуемся таймаутом
+  setTimeout(() => { if (!completed) markErr(); }, 3000);
   img.src = url;
 
-  // Если страница открыта по HTTP — можно ещё проверить fetch'ем
+  // Если страница открыта по HTTP — можно проверить ещё и fetch'ем
   if (location.protocol === 'http:') {
     fetch(url, { mode: 'no-cors', cache: 'no-store' })
       .then(() => { wemosOnline = true; updateLinkStatus(); })
       .catch(() => { wemosOnline = false; updateLinkStatus(); });
-  }
-}
-
-function updateLinkStatus() {
-  if (wemosOnline) {
-    linkStatus.classList.add('ok');
-    linkStatus.classList.remove('err');
-    linkText.textContent = 'Wemos на связи';
-  } else {
-    linkStatus.classList.add('err');
-    linkStatus.classList.remove('ok');
-    linkText.textContent = 'Wemos недоступен';
   }
 }
 

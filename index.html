@@ -106,7 +106,7 @@ body.is-on::after { opacity: 1; }
 body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
-   ВЕРХНЯЯ КАРТОЧКА — СТАТУС (одна строка)
+   ВЕРХНЯЯ КАРТОЧКА — СТАТУС
    ============================================================ */
 .status-card {
   display: flex;
@@ -154,7 +154,6 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 .status.on .status-title { color: #047857; }
 .status.off .status-title { color: #8a8f98; }
 body.is-off .status.off .status-title { color: var(--bad); }
-/* ============================================================ */
 
 .day-switch {
   display: inline-flex;
@@ -243,7 +242,6 @@ body.is-off .future-mask { background: rgba(241, 240, 238, 0.66); }
 body.is-off .future-mask::after {
   background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
 }
-
 .future-mask.no-data::before { display: none; }
 .future-mask::before { display: none; }
 
@@ -322,7 +320,7 @@ body.is-off .future-mask::after {
 .empty { text-align: center; padding: 20px 0; color: var(--muted); font-size: 13px; }
 
 /* ============================================================
-   КАРТОЧКА УПРАВЛЕНИЯ СВЕТОМ
+   КАРТОЧКИ УПРАВЛЕНИЯ СВЕТОМ
    ============================================================ */
 .light-card { padding: 20px 22px; }
 
@@ -510,6 +508,33 @@ body.is-off .future-mask::after {
   background: linear-gradient(90deg, #7ee0a4, #10b981);
   transition: width .6s ease, background .4s ease;
 }
+
+/* ============================================================
+   ИНДИКАТОР СВЯЗИ С WEMOS (во второй карточке)
+   ============================================================ */
+.link-status {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: .02em;
+}
+.link-status .dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #c9c9cd;
+  margin-right: 7px;
+  vertical-align: middle;
+  transition: background .3s ease, box-shadow .3s ease;
+}
+.link-status.ok .dot { background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,.7); }
+.link-status.err .dot { background: #e11d48; box-shadow: 0 0 6px rgba(225,29,72,.7); }
 
 .beam { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .7s ease; }
 .beam-lamp {
@@ -895,7 +920,7 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА УПРАВЛЕНИЯ СВЕТОМ №1 (с температурой + АКБ) ============ -->
+  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) — как была, без Wemos ============ -->
   <section class="card light-card" aria-label="Управление светом">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -926,6 +951,7 @@ body.is-on .dust { opacity: 1; }
       </div>
     </div>
 
+    <!-- ===== УРОВЕНЬ ЗАРЯДА АКБ ===== -->
     <div class="battery-block">
       <div class="battery-head">
         <span class="battery-label">
@@ -944,8 +970,8 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА УПРАВЛЕНИЯ СВЕТОМ №2 (только яркость) ============ -->
-  <section class="card light-card" aria-label="Управление вторым светом">
+  <!-- ============ КАРТОЧКА №2 (только яркость) — подключена к Wemos D1 mini ============ -->
+  <section class="card light-card" aria-label="Управление светом через Wemos">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle2" type="button" aria-label="Включить свет" aria-pressed="false">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -968,6 +994,12 @@ body.is-on .dust { opacity: 1; }
                  aria-label="Яркость">
         </div>
       </div>
+    </div>
+
+    <!-- Индикатор связи с Wemos -->
+    <div class="link-status" id="linkStatus">
+      <span><span class="dot"></span><span id="linkText">Проверка связи с Wemos…</span></span>
+      <span id="linkPercent">70%</span>
     </div>
   </section>
 
@@ -1017,7 +1049,14 @@ body.is-on .dust { opacity: 1; }
 </div>
 
 <script>
-// ===== API =====
+// ============================================================
+//  НАСТРОЙКА WEMOS
+//  Впишите сюда IP-адрес платы Wemos D1 mini (из Serial-монитора)
+//  Например: 'http://192.168.1.42'
+// ============================================================
+const WEMOS_HOST = 'http://192.168.1.42';
+
+// ===== API (дашборд) =====
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const MIN = 60000;
 const pad = n => String(n).padStart(2, '0');
@@ -1376,7 +1415,7 @@ function refreshPowerData() {
   document.head.appendChild(script);
 }
 
-// ===== Световой источник =====
+// ===== Световой источник (для подсветки страницы) =====
 const lightSource = document.getElementById('lightSource');
 function updateLightOrigin() {
   if (!lightSource) return;
@@ -1401,33 +1440,26 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLigh
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
 
 // ============================================================
-// УПРАВЛЕНИЕ СВЕТОМ — универсальная привязка тумблера
+//  КАРТОЧКА №1 — визуальная заглушка (без Wemos)
 // ============================================================
-function bindLightToggle(toggleEl) {
-  let on = false;
-  const update = () => {
-    toggleEl.classList.toggle('is-lit', on);
-    toggleEl.setAttribute('aria-pressed', on ? 'true' : 'false');
-    toggleEl.setAttribute('aria-label', on ? 'Выключить свет' : 'Включить свет');
+(function() {
+  const t1 = document.getElementById('lightToggle');
+  let on1 = false;
+  const update1 = () => {
+    t1.classList.toggle('is-lit', on1);
+    t1.setAttribute('aria-pressed', on1 ? 'true' : 'false');
+    t1.setAttribute('aria-label', on1 ? 'Выключить свет' : 'Включить свет');
   };
-  toggleEl.addEventListener('click', () => {
-    on = !on;
-    update();
-  });
-  update();
-}
+  t1.addEventListener('click', () => { on1 = !on1; update1(); });
+  update1();
+})();
 
-bindLightToggle(document.getElementById('lightToggle'));   // №1 (с температурой и АКБ)
-bindLightToggle(document.getElementById('lightToggle2'));  // №2 (только яркость)
-
-// ============================================================
-// УРОВЕНЬ ЗАРЯДА АКБ — заглушка
-// ============================================================
+// ===== АКБ — заглушка =====
 const batteryFill = document.getElementById('batteryFill');
 const batteryFillIcon = document.getElementById('batteryFillIcon');
 const batteryValue = document.getElementById('batteryValue');
 
-let batteryLevel = 87; // % — заглушка
+let batteryLevel = 87;
 
 function renderBattery(level) {
   const lvl = Math.max(0, Math.min(100, Math.round(level)));
@@ -1448,10 +1480,121 @@ function renderBattery(level) {
   batteryFillIcon.setAttribute('width', w.toFixed(2));
   batteryFillIcon.setAttribute('fill', cIcon);
 }
-
 renderBattery(batteryLevel);
 
-// ===== Старт =====
+// ============================================================
+//  КАРТОЧКА №2 — управление яркостью через Wemos D1 mini
+// ============================================================
+const lightToggle2 = document.getElementById('lightToggle2');
+const brightnessSlider = document.getElementById('brightness2');
+const linkStatus = document.getElementById('linkStatus');
+const linkText = document.getElementById('linkText');
+const linkPercent = document.getElementById('linkPercent');
+
+let currentBrightness = parseInt(localStorage.getItem('wemos_brightness') || '70', 10);
+let lastNonZeroBrightness = currentBrightness > 0 ? currentBrightness : 70;
+let wemosOnline = false;
+
+brightnessSlider.value = currentBrightness;
+
+function updateToggleVisual2() {
+  const on = currentBrightness > 0;
+  lightToggle2.classList.toggle('is-lit', on);
+  lightToggle2.setAttribute('aria-pressed', on ? 'true' : 'false');
+  lightToggle2.setAttribute('aria-label', on ? 'Выключить свет' : 'Включить свет');
+  linkPercent.textContent = currentBrightness + '%';
+}
+
+// ---- Отправка команды на Wemos ----
+function sendToWemos(percent) {
+  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+  const url = WEMOS_HOST + '/set?val=' + clamped + '&_=' + Date.now();
+
+  // «Слепая» отправка через <img> — работает и при HTTPS-странице
+  const img = new Image();
+  img.onload = img.onerror = () => {
+    wemosOnline = true;
+    updateLinkStatus();
+  };
+  img.src = url;
+
+  // Если страница открыта по HTTP — можно ещё проверить fetch'ем
+  if (location.protocol === 'http:') {
+    fetch(url, { mode: 'no-cors', cache: 'no-store' })
+      .then(() => { wemosOnline = true; updateLinkStatus(); })
+      .catch(() => { wemosOnline = false; updateLinkStatus(); });
+  }
+}
+
+function updateLinkStatus() {
+  if (wemosOnline) {
+    linkStatus.classList.add('ok');
+    linkStatus.classList.remove('err');
+    linkText.textContent = 'Wemos на связи';
+  } else {
+    linkStatus.classList.add('err');
+    linkStatus.classList.remove('ok');
+    linkText.textContent = 'Wemos недоступен';
+  }
+}
+
+// ---- Троттлинг отправки ----
+let sendTimer = null;
+let pendingValue = null;
+function queueSend(percent, immediate = false) {
+  pendingValue = percent;
+  if (immediate) {
+    if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
+    const v = pendingValue;
+    pendingValue = null;
+    sendToWemos(v);
+    return;
+  }
+  if (sendTimer) return;
+  sendTimer = setTimeout(() => {
+    sendTimer = null;
+    const v = pendingValue;
+    pendingValue = null;
+    if (v != null) sendToWemos(v);
+  }, 80);
+}
+
+// ---- Ползунок ----
+brightnessSlider.addEventListener('input', () => {
+  currentBrightness = parseInt(brightnessSlider.value, 10);
+  if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
+  updateToggleVisual2();
+  queueSend(currentBrightness);
+});
+
+brightnessSlider.addEventListener('change', () => {
+  currentBrightness = parseInt(brightnessSlider.value, 10);
+  if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
+  localStorage.setItem('wemos_brightness', String(currentBrightness));
+  updateToggleVisual2();
+  queueSend(currentBrightness, true);
+});
+
+// ---- Тумблер ----
+lightToggle2.addEventListener('click', () => {
+  if (currentBrightness > 0) {
+    lastNonZeroBrightness = currentBrightness;
+    currentBrightness = 0;
+  } else {
+    currentBrightness = lastNonZeroBrightness || 70;
+  }
+  brightnessSlider.value = currentBrightness;
+  localStorage.setItem('wemos_brightness', String(currentBrightness));
+  updateToggleVisual2();
+  queueSend(currentBrightness, true);
+});
+
+// ---- Первичная синхронизация ----
+updateToggleVisual2();
+updateLinkStatus();
+queueSend(currentBrightness, true);
+
+// ===== Старт дашборда =====
 refreshPowerData();
 
 setInterval(render, 15000);

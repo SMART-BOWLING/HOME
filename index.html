@@ -11,8 +11,7 @@
 <link rel="apple-touch-icon" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ГРАФИК">
 
 <style>
@@ -23,6 +22,10 @@
 :root {
   --light-x: 46px;
   --light-y: 240px;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
 }
 
 body {
@@ -39,7 +42,10 @@ body {
   --bad: #e11d48;
   --warn: #f59e0b;
   min-height: 100vh;
-  padding: 40px max(16px, calc((100vw - 760px) / 2)) 70px;
+  padding-top: calc(40px + var(--sat));
+  padding-right: calc(max(16px, (100vw - 760px) / 2) + var(--sar));
+  padding-bottom: calc(70px + var(--sab));
+  padding-left: calc(max(16px, (100vw - 760px) / 2) + var(--sal));
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -375,7 +381,7 @@ body.is-off .future-mask::after {
   filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
 }
 
-/* ===== Точка-индикатор связи с Wemos в левом верхнем углу кнопки ===== */
+/* ===== Точка-индикатор связи с Wemos ===== */
 .conn-dot {
   position: absolute;
   top: -7px;
@@ -390,12 +396,8 @@ body.is-off .future-mask::after {
   z-index: 5;
   pointer-events: none;
 }
-.conn-dot.ok {
-  background: #10b981;
-}
-.conn-dot.err {
-  background: #e11d48;
-}
+.conn-dot.ok { background: #10b981; }
+.conn-dot.err { background: #e11d48; }
 
 .light-sliders {
   flex: 1 1 auto;
@@ -405,15 +407,8 @@ body.is-off .future-mask::after {
   gap: 10px;
 }
 
-.light-slider-row {
-  display: flex;
-  align-items: center;
-}
-
-.light-slider-row .ctrl-range {
-  flex: 1 1 auto;
-  min-width: 0;
-}
+.light-slider-row { display: flex; align-items: center; }
+.light-slider-row .ctrl-range { flex: 1 1 auto; min-width: 0; }
 
 .ctrl-range {
   -webkit-appearance: none;
@@ -781,7 +776,12 @@ body.is-on .dust { opacity: 1; }
 @keyframes offlineSpin { to { transform: rotate(360deg); } }
 
 @media (max-width: 720px) {
-  body { padding: 22px 14px 50px; }
+  body {
+    padding-top: calc(22px + var(--sat));
+    padding-right: calc(14px + var(--sar));
+    padding-bottom: calc(50px + var(--sab));
+    padding-left: calc(14px + var(--sal));
+  }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
 
   .status-card { gap: 12px; }
@@ -816,7 +816,10 @@ body.is-on .dust { opacity: 1; }
 }
 
 @media (max-width: 390px) {
-  body { padding-left: 10px; padding-right: 10px; }
+  body {
+    padding-right: calc(10px + var(--sar));
+    padding-left: calc(10px + var(--sal));
+  }
   .card { padding: 16px; }
   .summary { gap: 6px; }
   .summary-value { font-size: 19px; }
@@ -918,7 +921,6 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) — как была ============ -->
   <section class="card light-card" aria-label="Управление светом">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -949,7 +951,6 @@ body.is-on .dust { opacity: 1; }
       </div>
     </div>
 
-    <!-- ===== УРОВЕНЬ ЗАРЯДА АКБ ===== -->
     <div class="battery-block">
       <div class="battery-head">
         <span class="battery-label">
@@ -968,7 +969,6 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №2 (только яркость) — подключена к Wemos D1 mini ============ -->
   <section class="card light-card" aria-label="Управление светом через Wemos">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle2" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -1044,8 +1044,6 @@ body.is-on .dust { opacity: 1; }
 <script>
 // ============================================================
 //  НАСТРОЙКА WEMOS
-//  Впишите сюда IP-адрес платы Wemos D1 mini (из Serial-монитора)
-//  Например: 'http://192.168.1.42'
 // ============================================================
 const WEMOS_HOST = 'http://192.168.1.42';
 
@@ -1062,6 +1060,18 @@ let loading = false;
 let firstLoadDone = false;
 let selectedDay = 'today';
 let lastError = null;
+
+// ===== Синхронизация цвета статус-бара Safari с темой страницы =====
+const themeMeta = document.querySelector('meta[name="theme-color"]');
+const THEME_ON  = '#fbfaf6';
+const THEME_OFF = '#f1f0ee';
+
+function syncThemeColor() {
+  if (!themeMeta) return;
+  const off = document.body.classList.contains('is-off');
+  themeMeta.setAttribute('content', off ? THEME_OFF : THEME_ON);
+}
+syncThemeColor();
 
 // ===== OFFLINE OVERLAY =====
 const offlineOverlay = document.getElementById('offlineOverlay');
@@ -1210,6 +1220,7 @@ function render() {
 
   document.body.classList.toggle('is-on', lightOn);
   document.body.classList.toggle('is-off', !lightOn);
+  syncThemeColor();
 
   document.getElementById('reportTitle').textContent =
     selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';

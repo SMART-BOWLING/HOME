@@ -10,8 +10,7 @@
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
 <link rel="apple-touch-icon" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D;
-0%B0%D0%BD%D0%B 8%D0 font%B5%22-fe%2C%22start_url%22%ature3A%22-s.%22%2C%22displayettings%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ГРАФИК">
@@ -44,7 +43,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  line-height: 1.45: "tnum" 1;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums "tnum" 1;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   transition: background .6s ease, color .6s ease;
@@ -408,10 +408,10 @@ body.is-off .future-mask::after {
 
 .conn-dot {
   position: absolute;
-  top: -7px;
-  left: -7px;
-  width: 10px;
-  height: 10px;
+  top: -6px;
+  left: -6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #c9c9cd;
   border: none;
@@ -632,7 +632,7 @@ body.is-on .dust { opacity: 1; }
   .light-row { gap: 14px; }
   .light-toggle { width: 56px; height: 56px; }
   .light-toggle svg { width: 28px; height: 28px; }
-  .conn-dot { width: 9px; height: 9px; top: -6px; left: -6px; }
+  .conn-dot { width: 7px; height: 7px; top: -5px; left: -5px; }
 
   .battery-block { margin-top: 14px; padding-top: 13px; }
   .battery-value { font-size: 13px; }
@@ -651,7 +651,7 @@ body.is-on .dust { opacity: 1; }
   .light-row { gap: 10px; }
   .light-toggle { width: 50px; height: 50px; }
   .light-toggle svg { width: 26px; height: 26px; }
-  .conn-dot { width: 8px; height: 8px; top: -5px; left: -5px; }
+  .conn-dot { width: 6px; height: 6px; top: -4px; left: -4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

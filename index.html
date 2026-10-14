@@ -381,7 +381,6 @@ body.is-off .future-mask::after {
   filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
 }
 
-/* ===== Точка-индикатор связи с Wemos ===== */
 .conn-dot {
   position: absolute;
   top: -7px;
@@ -1061,10 +1060,10 @@ let firstLoadDone = false;
 let selectedDay = 'today';
 let lastError = null;
 
-// ===== Синхронизация цвета статус-бара Safari с темой страницы =====
+// ===== Синхронизация цвета верхней полосы с фоном страницы =====
 const themeMeta = document.querySelector('meta[name="theme-color"]');
-const THEME_ON  = '#fbfaf6';
-const THEME_OFF = '#f1f0ee';
+const THEME_ON  = '#fbfaf6';   // свет есть — цвет = --bg
+const THEME_OFF = '#f1f0ee';   // света нет — цвет = --bg
 
 function syncThemeColor() {
   if (!themeMeta) return;

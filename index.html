@@ -106,9 +106,9 @@ body.is-on::after { opacity: 1; }
 body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
-   ЗАБЛЮРЕННЫЕ ДАННЫЕ ИЗ GOOGLE APPS SCRIPT
-   Пока данные не пришли — карточки размыты + мягкий шиммер.
-   Как только данные получены — блюр снимается.
+   БЛЮР ДАННЫХ ИЗ GOOGLE APPS SCRIPT
+   Пока данные не пришли ИЛИ связь потеряна — карточки размыты.
+   Как только свежие данные получены — блюр снимается.
    ============================================================ */
 .dash-card { position: relative; }
 
@@ -417,7 +417,6 @@ body.is-off .future-mask::after {
   filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
 }
 
-/* ===== Точка-индикатор связи с Wemos в левом верхнем углу кнопки ===== */
 .conn-dot {
   position: absolute;
   top: -7px;
@@ -432,12 +431,8 @@ body.is-off .future-mask::after {
   z-index: 5;
   pointer-events: none;
 }
-.conn-dot.ok {
-  background: #10b981;
-}
-.conn-dot.err {
-  background: #e11d48;
-}
+.conn-dot.ok { background: #10b981; }
+.conn-dot.err { background: #e11d48; }
 
 .light-sliders {
   flex: 1 1 auto;
@@ -848,12 +843,17 @@ const WEMOS_HOST = 'http://192.168.1.42';
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const pad = n => String(n).padStart(2, '0');
 
+// Порог «свежести»: если данные старше — включаем блюр
+const DATA_STALE_MS = 45000;   // 45 секунд
+
 let serverSkew = 0;
 
 let payload = null;
 let loading = false;
-let hasEverLoaded = false;
 let selectedDay = 'today';
+
+let lastSyncAt = 0;            // когда успешно получили данные
+let lastRequestFailed = false; // последний запрос упал?
 
 // ===== Элементы =====
 const mainWrap = document.getElementById('mainWrap');
@@ -861,7 +861,7 @@ const mainWrap = document.getElementById('mainWrap');
 let inlineRetryTimer = null;
 let inlineRetryDelay = 3000;
 
-// Тихий авторетрай: без плашек и надписей, просто пробуем снова
+// Тихий авторетрай
 function scheduleInlineRetry() {
   clearTimeout(inlineRetryTimer);
   inlineRetryTimer = setTimeout(() => {
@@ -870,6 +870,18 @@ function scheduleInlineRetry() {
     refreshPowerData();
   }, inlineRetryDelay);
   inlineRetryDelay = Math.min(Math.round(inlineRetryDelay * 1.6), 30000);
+}
+
+// ===== Единая функция состояния блюра =====
+function dataIsStale() {
+  if (!payload) return true;
+  if (lastRequestFailed) return true;
+  return (Date.now() - lastSyncAt) > DATA_STALE_MS;
+}
+
+function updateBlurState() {
+  const stale = dataIsStale();
+  mainWrap.classList.toggle('is-loading', stale);
 }
 
 // ===== Переключатель дня =====
@@ -910,7 +922,12 @@ function fmtDur(min) {
 // ===== Рендер =====
 function render() {
   if (!payload) return;
-  const now = nowMs();
+
+  // Если данные устарели/нет связи — «замораживаем» время на моменте последней
+  // успешной синхронизации, чтобы статус не переключался в «Света нет» сам по себе.
+  const stale = dataIsStale();
+  const now = stale ? (lastSyncAt - serverSkew) : nowMs();
+
   const dayKey = selectedDay === 'yesterday' ? 'yesterday' : 'today';
   const dayData = payload[dayKey] || { dayStart: 0, dayEnd: 0, outages: [] };
   const dayStart = dayData.dayStart;
@@ -1061,27 +1078,30 @@ function receivePowerData(result) {
     return;
   }
   payload = result;
+  lastSyncAt = Date.now();
+  lastRequestFailed = false;
   if (typeof result.now === 'number') {
     serverSkew = Date.now() - result.now;
   }
   loading = false;
-  hasEverLoaded = true;
 
+  // Свежие данные — снимаем блюр и плавно показываем
+  updateBlurState();
   render();
-
-  // Данные пришли — снимаем блюр
-  mainWrap.classList.remove('is-loading');
 }
 
 function reportPowerError(error) {
   loading = false;
+  lastRequestFailed = true;
   console.error('Ошибка загрузки отметок:', error);
 
-  // Никаких плашек и оверлеев — просто продолжаем попытки в фоне.
-  // Пока данных нет — карточки остаются заблюренными.
-  if (!hasEverLoaded) {
-    mainWrap.classList.add('is-loading');
-  }
+  // Сразу блюрим — свежих данных нет
+  updateBlurState();
+
+  // Если данные уже были — перерисовываем с замороженным временем,
+  // чтобы статус не «протухал» в «Света нет» пока нет связи.
+  if (payload) render();
+
   scheduleInlineRetry();
 }
 
@@ -1184,7 +1204,6 @@ renderBattery(batteryLevel);
 
 // ============================================================
 //  КАРТОЧКА №2 — управление яркостью через Wemos D1 mini
-//  Работает СРАЗУ, независимо от загрузки данных
 // ============================================================
 const lightToggle2 = document.getElementById('lightToggle2');
 const brightnessSlider = document.getElementById('brightness2');
@@ -1281,11 +1300,18 @@ updateToggleVisual2();
 updateLinkStatus();
 queueSend(currentBrightness, true);
 
-// ===== Старт дашборда (в фоне) =====
+// ===== Старт дашборда =====
 refreshPowerData();
 
+// Перерисовка (пересчёт статуса, графика)
 setInterval(render, 15000);
+
+// Периодический опрос Google Apps Script
 setInterval(refreshPowerData, 30000);
+
+// Отдельная частая проверка «свежести» данных — каждые 5 секунд.
+// Даже если очередной запрос подвесился или упал, блюр включится вовремя.
+setInterval(updateBlurState, 5000);
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {

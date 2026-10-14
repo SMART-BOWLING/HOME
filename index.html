@@ -145,7 +145,7 @@ main.is-loading .dash-card::after { opacity: 1; }
   100% { background-position: -65% 0; }
 }
 
-/* Тонкая полоска прогресса сверху — вместо блокирующего лоадера */
+/* Тонкая полоска прогресса сверху */
 .top-progress {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -172,17 +172,16 @@ main.is-loading .dash-card::after { opacity: 1; }
   100% { transform: translateX(330%); }
 }
 
-/* Инлайн-плашка «нет связи» — не блокирует интерфейс */
+/* Мягкая инлайн-плашка «идёт загрузка» — не блокирует интерфейс */
 .dash-notice {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 12px;
-  padding: 11px 14px;
+  padding: 10px 14px;
   border-radius: 13px;
   border: 1px solid #f0d9a8;
-  background: rgba(255, 240, 205, .78);
+  background: rgba(255, 240, 205, .72);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   font-size: 12.5px;
@@ -197,23 +196,19 @@ main.is-loading .dash-card::after { opacity: 1; }
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: none; }
 }
-.dash-notice-btn {
+.dash-notice-dot {
   flex: 0 0 auto;
-  appearance: none;
-  border: 1px solid #e6c98a;
-  background: rgba(255,255,255,.78);
-  color: #8a6417;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 13px;
-  border-radius: 9px;
-  cursor: pointer;
-  transition: background .2s ease, transform .12s ease, opacity .2s ease;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e0a94e;
+  box-shadow: 0 0 0 0 rgba(224,169,78,.55);
+  animation: noticePulse 1.5s ease-out infinite;
 }
-.dash-notice-btn:hover { background: #fff; }
-.dash-notice-btn:active { transform: scale(.96); }
-.dash-notice-btn[disabled] { opacity: .55; cursor: default; }
+@keyframes noticePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(224,169,78,.55); }
+  100% { box-shadow: 0 0 0 9px rgba(224,169,78,0); }
+}
 
 /* ============================================================
    ВЕРХНЯЯ КАРТОЧКА — СТАТУС
@@ -695,157 +690,6 @@ body.is-on .dust { opacity: 1; }
 .dust i:nth-child(11){ left: 54%; --dx: 30px;  animation-duration: 26s; animation-delay: 12s; }
 .dust i:nth-child(12){ left: 60%; --dx: -20px; animation-duration: 29s; animation-delay: 7s; }
 
-/* ============================================================
-   ОФФЛАЙН-ОВЕРЛЕЙ (показывается только если данные уже были)
-   ============================================================ */
-.offline-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: rgba(241, 240, 238, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .45s ease, visibility .45s ease;
-}
-.offline-overlay.is-visible { opacity: 1; visibility: visible; }
-
-.offline-card {
-  background: var(--panel);
-  border: 1px solid var(--panel-edge);
-  border-radius: 22px;
-  padding: 38px 28px 30px;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 20px 40px rgba(0,0,0,.06);
-}
-
-.offline-lamp {
-  position: relative;
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 22px;
-  display: grid;
-  place-items: center;
-}
-.offline-lamp::before {
-  content: "";
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(140,140,150,.18), transparent 70%);
-  animation: offlineBreathe 3.6s ease-in-out infinite;
-}
-@keyframes offlineBreathe {
-  0%, 100% { transform: scale(.86); opacity: .45; }
-  50%      { transform: scale(1.10); opacity: .95; }
-}
-.offline-lamp svg { width: 100%; height: 100%; position: relative; z-index: 2; }
-
-.offline-title {
-  font-size: 20px;
-  font-weight: 750;
-  letter-spacing: -.5px;
-  line-height: 1.15;
-  color: #b3123a;
-}
-
-.offline-text {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--muted);
-  max-width: 38ch;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.offline-retry {
-  margin-top: 22px;
-  padding-top: 16px;
-  border-top: 1px solid var(--hair);
-}
-.offline-retry-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 9px;
-  font-size: 11px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 700;
-}
-.offline-retry-head span:last-child {
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
-.offline-retry-track {
-  height: 4px;
-  border-radius: 3px;
-  background: var(--hair);
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
-}
-.offline-retry-fill {
-  width: 0%;
-  height: 100%;
-  border-radius: 3px;
-  background: #e0a94e;
-  opacity: .75;
-  transition: width .2s linear, opacity .3s ease;
-}
-.offline-retry-fill.is-loading {
-  width: 40% !important;
-  animation: offlineSlide 1.2s ease-in-out infinite;
-}
-@keyframes offlineSlide {
-  0%   { transform: translateX(-110%); }
-  100% { transform: translateX(360%); }
-}
-
-.offline-btn {
-  margin-top: 22px;
-  width: 100%;
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  padding: 12px 24px;
-  border: 1px solid var(--panel-edge);
-  border-radius: 12px;
-  background: var(--panel);
-  color: var(--text);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 650;
-  cursor: pointer;
-  box-shadow: 0 1px 0 rgba(255,255,255,.85) inset, 0 1px 3px rgba(0,0,0,.05);
-  transition: background .2s ease, border-color .2s ease, transform .12s ease, opacity .2s ease;
-}
-.offline-btn:hover:not([disabled]) { background: #fff; border-color: #cfcfd2; }
-.offline-btn:active:not([disabled]) { transform: scale(.975); }
-.offline-btn[disabled] { opacity: .6; cursor: default; }
-
-.offline-spinner {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid rgba(120,120,130,.22);
-  border-top-color: var(--muted);
-  animation: offlineSpin .8s linear infinite;
-  display: none;
-}
-.offline-btn.is-busy .offline-spinner { display: block; }
-@keyframes offlineSpin { to { transform: rotate(360deg); } }
-
 @media (max-width: 720px) {
   body { padding: 22px 14px 50px; }
   .card { padding: 18px; border-radius: 15px; margin-bottom: 11px; }
@@ -875,12 +719,7 @@ body.is-on .dust { opacity: 1; }
   .battery-block { margin-top: 14px; padding-top: 13px; }
   .battery-value { font-size: 13px; }
 
-  .offline-card { padding: 30px 20px 24px; }
-  .offline-lamp { width: 48px; height: 48px; margin-bottom: 18px; }
-  .offline-title { font-size: 18px; }
-  .offline-text { font-size: 12px; }
-
-  .dash-notice { font-size: 11.5px; padding: 10px 12px; }
+  .dash-notice { font-size: 11.5px; padding: 9px 12px; }
 }
 
 @media (max-width: 390px) {
@@ -906,9 +745,9 @@ body.is-on .dust { opacity: 1; }
     scroll-behavior: auto !important;
   }
   .dust { display: none; }
-  .offline-lamp::before { animation: none; opacity: .6; }
   .top-progress::after { animation: none; width: 100%; }
   .dash-card::after { animation: none; }
+  .dash-notice-dot { animation: none; }
 }
 </style>
 </head>
@@ -925,8 +764,8 @@ body.is-on .dust { opacity: 1; }
 
 <main class="wrap is-loading" id="mainWrap">
   <div class="dash-notice" id="dashNotice" hidden>
-    <span id="dashNoticeText">Нет связи с сервером — данные подгрузятся автоматически</span>
-    <button class="dash-notice-btn" id="dashRetryBtn" type="button">Повторить</button>
+    <span class="dash-notice-dot" aria-hidden="true"></span>
+    <span id="dashNoticeText">Данные загружаются…</span>
   </div>
 
   <header class="card status-card status on dash-card" id="statusBox">
@@ -1074,43 +913,6 @@ body.is-on .dust { opacity: 1; }
   </section>
 </main>
 
-<div class="offline-overlay" id="offlineOverlay">
-  <div class="offline-card">
-    <span class="offline-lamp" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path class="si-glass"
-          d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-             L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-             C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-             C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-        <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-        <path class="si-filament" d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10" />
-      </svg>
-    </span>
-
-    <h2 class="offline-title">Нет связи с сервером</h2>
-    <p class="offline-text">
-      Не удаётся получить данные об электроснабжении. Проверьте подключение
-      к интернету — страница восстановит связь автоматически.
-    </p>
-
-    <div class="offline-retry">
-      <div class="offline-retry-head">
-        <span>Автоповтор</span>
-        <span id="offlineRetryText">ожидание</span>
-      </div>
-      <div class="offline-retry-track">
-        <div class="offline-retry-fill" id="offlineRetryFill"></div>
-      </div>
-    </div>
-
-    <button class="offline-btn" id="offlineRetryBtn" type="button">
-      <span class="offline-spinner" aria-hidden="true"></span>
-      <span>Повторить</span>
-    </button>
-  </div>
-</div>
-
 <script>
 // ============================================================
 //  НАСТРОЙКА WEMOS
@@ -1129,8 +931,7 @@ let serverSkew = 0;
 let payload = null;
 let lastSyncAt = 0;
 let loading = false;
-let firstLoadDone = false;
-let hasEverLoaded = false;     // были ли хоть раз успешные данные
+let hasEverLoaded = false;   // были ли хоть раз успешные данные
 let selectedDay = 'today';
 let lastError = null;
 
@@ -1139,10 +940,9 @@ const mainWrap      = document.getElementById('mainWrap');
 const topProgress   = document.getElementById('topProgress');
 const dashNotice    = document.getElementById('dashNotice');
 const dashNoticeText= document.getElementById('dashNoticeText');
-const dashRetryBtn  = document.getElementById('dashRetryBtn');
 
 let inlineRetryTimer = null;
-let inlineRetryDelay = 3000;
+let inlineRetryDelay = 3000;   // 3s → 5s → 8s → … → 30s
 
 function setTopLoading(on) {
   topProgress.classList.toggle('is-active', on);
@@ -1153,106 +953,23 @@ function hideNotice() {
   clearTimeout(inlineRetryTimer);
   inlineRetryTimer = null;
   inlineRetryDelay = 3000;
-  dashRetryBtn.disabled = false;
 }
 
 function showNotice(text) {
-  dashNoticeText.textContent = text;
+  dashNoticeText.textContent = text || 'Данные загружаются…';
   dashNotice.hidden = false;
-  dashRetryBtn.disabled = false;
-  scheduleInlineRetry();
 }
 
+// Постоянные попытки: сначала быстро, потом всё реже, но без остановки
 function scheduleInlineRetry() {
   clearTimeout(inlineRetryTimer);
   inlineRetryTimer = setTimeout(() => {
+    inlineRetryTimer = null;
     if (loading) { scheduleInlineRetry(); return; }
     refreshPowerData();
   }, inlineRetryDelay);
   inlineRetryDelay = Math.min(Math.round(inlineRetryDelay * 1.6), 30000);
 }
-
-dashRetryBtn.addEventListener('click', () => {
-  if (loading) return;
-  clearTimeout(inlineRetryTimer);
-  inlineRetryTimer = null;
-  dashRetryBtn.disabled = true;
-  refreshPowerData();
-});
-
-// ===== OFFLINE OVERLAY (только когда данные уже были) =====
-const offlineOverlay   = document.getElementById('offlineOverlay');
-const offlineRetryBtn  = document.getElementById('offlineRetryBtn');
-const offlineRetryText = document.getElementById('offlineRetryText');
-const offlineRetryFill = document.getElementById('offlineRetryFill');
-
-let offlineAttemptsCount = 0;
-let offlineNextRetryAt = 0;
-let offlineRecovered = false;
-
-function showOffline(reason) {
-  if (!firstLoadDone) return;
-  offlineOverlay.classList.add('is-visible');
-  offlineNextRetryAt = Date.now() + 30000;
-  offlineRecovered = false;
-  offlineRetryBtn.disabled = false;
-  offlineRetryBtn.classList.remove('is-busy');
-}
-
-function hideOffline() {
-  offlineOverlay.classList.remove('is-visible');
-  offlineNextRetryAt = 0;
-  offlineRecovered = true;
-}
-
-function updateOfflineTimer() {
-  if (!offlineOverlay.classList.contains('is-visible') || offlineRecovered) return;
-
-  if (offlineRetryBtn.classList.contains('is-busy')) {
-    offlineRetryText.textContent = 'проверяем…';
-    offlineRetryFill.classList.add('is-loading');
-    return;
-  }
-
-  offlineRetryFill.classList.remove('is-loading');
-
-  const left = Math.max(0, offlineNextRetryAt - Date.now());
-
-  if (!offlineNextRetryAt) {
-    offlineRetryText.textContent = 'ожидание';
-    offlineRetryFill.style.width = '0%';
-    return;
-  }
-
-  offlineRetryText.textContent = left > 0
-    ? 'через ' + Math.ceil(left / 1000) + ' с'
-    : 'сейчас…';
-
-  offlineRetryFill.style.width =
-    Math.min(100, Math.max(0, (1 - left / 30000) * 100)) + '%';
-
-  if (left <= 0) {
-    probeOffline();
-  }
-}
-
-function probeOffline() {
-  if (offlineRetryBtn.classList.contains('is-busy') || offlineRecovered) return;
-
-  offlineRetryBtn.disabled = true;
-  offlineRetryBtn.classList.add('is-busy');
-  offlineAttemptsCount++;
-  offlineNextRetryAt = 0;
-  offlineRetryText.textContent = 'проверяем…';
-  offlineRetryFill.classList.add('is-loading');
-
-  refreshPowerData();
-}
-
-offlineRetryBtn.addEventListener('click', () => {
-  if (offlineRecovered) return;
-  probeOffline();
-});
 
 // ===== Переключатель дня =====
 document.querySelectorAll('.day-btn').forEach(btn => {
@@ -1448,17 +1165,15 @@ function receivePowerData(result) {
     serverSkew = Date.now() - result.now;
   }
   loading = false;
-  firstLoadDone = true;
   hasEverLoaded = true;
   lastError = null;
 
   render();
 
-  // снимаем блюр/скелетон, убираем плашку и прогресс
+  // Данные есть — снимаем блюр, убираем плашку и прогресс
   mainWrap.classList.remove('is-loading');
   setTopLoading(false);
   hideNotice();
-  hideOffline();
 }
 
 function reportPowerError(error) {
@@ -1467,19 +1182,20 @@ function reportPowerError(error) {
   console.error('Ошибка загрузки отметок:', error);
   setTopLoading(false);
 
-  // Первичная загрузка ещё не удалась — интерфейс НЕ блокируем,
-  // дашборд остаётся заблюренным, светом уже можно пользоваться.
+  // Никогда не блокируем интерфейс.
+  // Пока данных нет — держим блюр и продолжаем попытки.
   if (!hasEverLoaded) {
     mainWrap.classList.add('is-loading');
-    showNotice('Нет связи с сервером — данные подгрузятся автоматически');
+    showNotice('Данные загружаются…');
+    scheduleInlineRetry();
     return;
   }
 
+  // Данные уже были — показываем старые, тихо обновляем в фоне
   if (payload) {
     render();
-    showOffline(error.message || 'Сервер не ответил');
-    offlineRetryBtn.disabled = false;
-    offlineRetryBtn.classList.remove('is-busy');
+    showNotice('Обновляем данные…');
+    scheduleInlineRetry();
   }
 }
 
@@ -1508,7 +1224,7 @@ function refreshPowerData() {
     receivePowerData(result);
   };
   script.onerror = () => {
-    if (cleanup()) reportPowerError(new Error('Не удалось загрузить API. Проверьте доступ к развёртыванию.'));
+    if (cleanup()) reportPowerError(new Error('Не удалось загрузить API'));
   };
   script.src = POWER_API_URL + '?api=1&callback=' + callbackName + '&_=' + Date.now();
   document.head.appendChild(script);
@@ -1691,24 +1407,16 @@ refreshPowerData();
 setInterval(render, 15000);
 setInterval(refreshPowerData, 30000);
 
-setInterval(updateOfflineTimer, 100);
-
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     render();
-    if (!offlineOverlay.classList.contains('is-visible') || offlineRecovered) {
-      refreshPowerData();
-    }
+    refreshPowerData();
   }
 });
 
 window.addEventListener('online', () => {
   lastError = null;
-  if (!offlineOverlay.classList.contains('is-visible')) {
-    refreshPowerData();
-  } else {
-    probeOffline();
-  }
+  refreshPowerData();
 });
 </script>
 </body>

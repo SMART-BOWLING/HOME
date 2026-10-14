@@ -10,7 +10,8 @@
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
 <link rel="apple-touch-icon" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D;
+0%B0%D0%BD%D0%B 8%D0 font%B5%22-fe%2C%22start_url%22%ature3A%22-s.%22%2C%22displayettings%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ГРАФИК">
@@ -43,8 +44,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  line-height: 1.45;
-  font-feature-settings: "tnum" 1;
+  line-height: 1.45: "tnum" 1;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   transition: background .6s ease, color .6s ease;
@@ -105,11 +105,6 @@ body.is-on::after { opacity: 1; }
 }
 body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
-/* ============================================================
-   БЛЮР ДАННЫХ ИЗ GOOGLE APPS SCRIPT
-   Пока данные не пришли ИЛИ связь потеряна — карточки размыты.
-   Как только свежие данные получены — блюр снимается.
-   ============================================================ */
 .dash-card { position: relative; }
 
 .dash-card > * {
@@ -147,9 +142,6 @@ main.is-loading .dash-card::after { opacity: 1; }
   100% { background-position: -65% 0; }
 }
 
-/* ============================================================
-   ВЕРХНЯЯ КАРТОЧКА — СТАТУС
-   ============================================================ */
 .status-card {
   display: flex;
   align-items: center;
@@ -361,9 +353,6 @@ body.is-off .future-mask::after {
 .history-row.current .history-time { color: var(--bad); }
 .empty { text-align: center; padding: 20px 0; color: var(--muted); font-size: 13px; }
 
-/* ============================================================
-   КАРТОЧКИ УПРАВЛЕНИЯ СВЕТОМ
-   ============================================================ */
 .light-card { padding: 20px 22px; }
 
 .light-row {
@@ -510,9 +499,6 @@ body.is-off .future-mask::after {
   background: linear-gradient(90deg, #7fb4ff 0%, #bcd6ff 26%, #f2efe9 50%, #ffc98a 74%, #ff9f43 100%);
 }
 
-/* ============================================================
-   УРОВЕНЬ ЗАРЯДА АКБ
-   ============================================================ */
 .battery-block {
   margin-top: 18px;
   padding-top: 16px;
@@ -714,9 +700,7 @@ body.is-on .dust { opacity: 1; }
   </header>
 
   <section class="card dash-card">
-    <div class="section-title">
-      <h2>ГРАФИК</h2>
-    </div>
+    <div class="section-title"><h2>ГРАФИК</h2></div>
     <div class="timeline-wrap">
       <div class="timeline" id="timeline"></div>
       <div class="ticks" id="ticks"></div>
@@ -729,9 +713,7 @@ body.is-on .dust { opacity: 1; }
   </section>
 
   <section class="card report-card dash-card">
-    <div class="section-title">
-      <h2 id="reportTitle">Отчёт за сегодня</h2>
-    </div>
+    <div class="section-title"><h2 id="reportTitle">Отчёт за сегодня</h2></div>
     <div class="summary">
       <div class="summary-item">
         <div class="summary-value" id="outageCount">0</div>
@@ -748,7 +730,6 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) ============ -->
   <section class="card light-card" aria-label="Управление светом">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -768,13 +749,11 @@ body.is-on .dust { opacity: 1; }
       <div class="light-sliders">
         <div class="light-slider-row">
           <input class="ctrl-range range-bright" id="brightness" type="range"
-                 min="0" max="100" step="1" value="70"
-                 aria-label="Яркость">
+                 min="0" max="100" step="1" value="70" aria-label="Яркость">
         </div>
         <div class="light-slider-row">
           <input class="ctrl-range range-temp" id="temp" type="range"
-                 min="0" max="100" step="1" value="50"
-                 aria-label="Температура света">
+                 min="0" max="100" step="1" value="50" aria-label="Температура света">
         </div>
       </div>
     </div>
@@ -797,7 +776,6 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №2 (Wemos D1 mini) ============ -->
   <section class="card light-card" aria-label="Управление светом через Wemos">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle2" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -818,17 +796,14 @@ body.is-on .dust { opacity: 1; }
       <div class="light-sliders">
         <div class="light-slider-row">
           <input class="ctrl-range range-bright" id="brightness2" type="range"
-                 min="0" max="100" step="1" value="70"
-                 aria-label="Яркость">
+                 min="0" max="100" step="1" value="70" aria-label="Яркость">
         </div>
       </div>
     </div>
   </section>
 
   <section class="card dash-card">
-    <div class="section-title">
-      <h2>История отключений</h2>
-    </div>
+    <div class="section-title"><h2>История отключений</h2></div>
     <div class="history" id="history"></div>
   </section>
 </main>
@@ -843,36 +818,87 @@ const WEMOS_HOST = 'http://192.168.1.42';
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const pad = n => String(n).padStart(2, '0');
 
-// Порог «свежести»: если данные старше — включаем блюр
-const DATA_STALE_MS = 45000;   // 45 секунд
+// Порог «свежести» данных
+const DATA_STALE_MS = 45000;
+
+// Обычный опрос, когда всё в порядке
+const NORMAL_POLL_INTERVAL = 30000;
+
+// === Адаптивный быстрый опрос (щадящий к квотам Apps Script) ===
+// Первые 30 секунд — 2 сек. Дальше интервал растёт по этой таблице.
+const FAST_PROBE_STEPS = [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
+                          2000, 2000, 2000, 2000, 2000, 2000, 2000,
+                          3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000,
+                          5000, 5000, 5000, 5000, 5000, 5000,
+                          8000, 8000, 8000, 8000,
+                          15000, 15000, 15000,
+                          30000, 30000,
+                          60000, 60000, 60000, 60000];
 
 let serverSkew = 0;
-
 let payload = null;
 let loading = false;
 let selectedDay = 'today';
 
-let lastSyncAt = 0;            // когда успешно получили данные
-let lastRequestFailed = false; // последний запрос упал?
+let lastSyncAt = 0;
+let lastRequestFailed = false;
 
 // ===== Элементы =====
 const mainWrap = document.getElementById('mainWrap');
 
-let inlineRetryTimer = null;
-let inlineRetryDelay = 3000;
+// ============================================================
+//  АДАПТИВНОЕ ЗОНДИРОВАНИЕ
+//  Работает, пока данных нет / они устарели.
+//  Интервал ступенчато растёт от 2 секунд до 60 секунд.
+//  При событии online / возврате на вкладку — сбрасывается на 2 секунды.
+// ============================================================
+let fastProbeActive = false;
+let fastProbeTimer = null;
+let fastProbeStep = 0;   // индекс в таблице FAST_PROBE_STEPS
 
-// Тихий авторетрай
-function scheduleInlineRetry() {
-  clearTimeout(inlineRetryTimer);
-  inlineRetryTimer = setTimeout(() => {
-    inlineRetryTimer = null;
-    if (loading) { scheduleInlineRetry(); return; }
-    refreshPowerData();
-  }, inlineRetryDelay);
-  inlineRetryDelay = Math.min(Math.round(inlineRetryDelay * 1.6), 30000);
+function startFastProbe(reset = false) {
+  if (reset) fastProbeStep = 0;
+  if (fastProbeActive) return;
+  fastProbeActive = true;
+  runFastProbe();
 }
 
-// ===== Единая функция состояния блюра =====
+function stopFastProbe() {
+  fastProbeActive = false;
+  fastProbeStep = 0;
+  if (fastProbeTimer) {
+    clearTimeout(fastProbeTimer);
+    fastProbeTimer = null;
+  }
+}
+
+function nextFastProbeDelay() {
+  const i = Math.min(fastProbeStep, FAST_PROBE_STEPS.length - 1);
+  const delay = FAST_PROBE_STEPS[i];
+  if (fastProbeStep < FAST_PROBE_STEPS.length - 1) fastProbeStep++;
+  return delay;
+}
+
+function runFastProbe() {
+  if (!fastProbeActive) return;
+
+  if (loading) {
+    // предыдущий запрос ещё висит — подождём немного
+    fastProbeTimer = setTimeout(runFastProbe, 400);
+    return;
+  }
+
+  refreshPowerData();
+
+  if (fastProbeActive) {
+    const delay = nextFastProbeDelay();
+    fastProbeTimer = setTimeout(runFastProbe, delay);
+  }
+}
+
+// ============================================================
+//  СОСТОЯНИЕ БЛЮРА
+// ============================================================
 function dataIsStale() {
   if (!payload) return true;
   if (lastRequestFailed) return true;
@@ -882,6 +908,28 @@ function dataIsStale() {
 function updateBlurState() {
   const stale = dataIsStale();
   mainWrap.classList.toggle('is-loading', stale);
+}
+
+// ============================================================
+//  РЕАКЦИЯ НА ОТКЛЮЧЕНИЕ / ПОЯВЛЕНИЕ ИНТЕРНЕТА
+// ============================================================
+window.addEventListener('offline', () => {
+  lastRequestFailed = true;
+  updateBlurState();
+  if (payload) render();
+  startFastProbe(true);   // сброс счётчика — начинаем с 2 секунд
+});
+
+window.addEventListener('online', () => {
+  // Связь вернулась — сразу один запрос и заново быстрая серия
+  refreshPowerData();
+  startFastProbe(true);
+});
+
+if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+  lastRequestFailed = true;
+  updateBlurState();
+  startFastProbe(true);
 }
 
 // ===== Переключатель дня =====
@@ -923,8 +971,6 @@ function fmtDur(min) {
 function render() {
   if (!payload) return;
 
-  // Если данные устарели/нет связи — «замораживаем» время на моменте последней
-  // успешной синхронизации, чтобы статус не переключался в «Света нет» сам по себе.
   const stale = dataIsStale();
   const now = stale ? (lastSyncAt - serverSkew) : nowMs();
 
@@ -978,7 +1024,6 @@ function render() {
     noData.className = 'future-mask no-data';
     noData.style.left = '0%';
     noData.style.right = '0%';
-    noData.title = 'В таблице нет ни одной отметки';
     timeline.appendChild(noData);
 
     const label = document.createElement('div');
@@ -1026,12 +1071,10 @@ function render() {
 
   if (selectedDay === 'today') {
     const pct = Math.min(100, Math.max(0, (now - dayStart) / windowMs * 100));
-
     if (pct < 100) {
       const mask = document.createElement('div');
       mask.className = 'future-mask';
       mask.style.left = pct + '%';
-      mask.title = 'Время ещё не наступило';
       timeline.appendChild(mask);
     }
   }
@@ -1085,9 +1128,9 @@ function receivePowerData(result) {
   }
   loading = false;
 
-  // Свежие данные — снимаем блюр и плавно показываем
   updateBlurState();
   render();
+  stopFastProbe();   // данные пришли — быстрое зондирование больше не нужно
 }
 
 function reportPowerError(error) {
@@ -1095,14 +1138,9 @@ function reportPowerError(error) {
   lastRequestFailed = true;
   console.error('Ошибка загрузки отметок:', error);
 
-  // Сразу блюрим — свежих данных нет
   updateBlurState();
-
-  // Если данные уже были — перерисовываем с замороженным временем,
-  // чтобы статус не «протухал» в «Света нет» пока нет связи.
   if (payload) render();
-
-  scheduleInlineRetry();
+  startFastProbe();   // без сброса — продолжаем по возрастающей
 }
 
 function refreshPowerData() {
@@ -1122,8 +1160,8 @@ function refreshPowerData() {
     return true;
   };
   const timeout = setTimeout(() => {
-    if (cleanup()) reportPowerError(new Error('Сервер не ответил за 20 секунд'));
-  }, 20000);
+    if (cleanup()) reportPowerError(new Error('Сервер не ответил за 15 секунд'));
+  }, 15000);
   window[callbackName] = result => {
     if (!cleanup()) return;
     receivePowerData(result);
@@ -1135,7 +1173,7 @@ function refreshPowerData() {
   document.head.appendChild(script);
 }
 
-// ===== Световой источник (для подсветки страницы) =====
+// ===== Световой источник =====
 const lightSource = document.getElementById('lightSource');
 function updateLightOrigin() {
   if (!lightSource) return;
@@ -1203,7 +1241,7 @@ function renderBattery(level) {
 renderBattery(batteryLevel);
 
 // ============================================================
-//  КАРТОЧКА №2 — управление яркостью через Wemos D1 mini
+//  КАРТОЧКА №2 — Wemos D1 mini
 // ============================================================
 const lightToggle2 = document.getElementById('lightToggle2');
 const brightnessSlider = document.getElementById('brightness2');
@@ -1300,28 +1338,28 @@ updateToggleVisual2();
 updateLinkStatus();
 queueSend(currentBrightness, true);
 
-// ===== Старт дашборда =====
+// ===== Старт =====
 refreshPowerData();
 
-// Перерисовка (пересчёт статуса, графика)
+// Периодическая перерисовка (пересчёт статуса)
 setInterval(render, 15000);
 
-// Периодический опрос Google Apps Script
-setInterval(refreshPowerData, 30000);
+// Обычный опрос — работает, только когда быстрое зондирование выключено
+setInterval(() => {
+  if (fastProbeActive) return;
+  refreshPowerData();
+}, NORMAL_POLL_INTERVAL);
 
-// Отдельная частая проверка «свежести» данных — каждые 5 секунд.
-// Даже если очередной запрос подвесился или упал, блюр включится вовремя.
+// Страховка: проверка «свежести» каждые 5 секунд
 setInterval(updateBlurState, 5000);
 
+// Возврат на вкладку — сразу обновляем и сбрасываем быстрое зондирование
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     render();
     refreshPowerData();
+    startFastProbe(true);
   }
-});
-
-window.addEventListener('online', () => {
-  refreshPowerData();
 });
 </script>
 </body>

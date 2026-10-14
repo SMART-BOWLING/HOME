@@ -106,7 +106,9 @@ body.is-on::after { opacity: 1; }
 body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 
 /* ============================================================
-   МГНОВЕННЫЙ СТАРТ — скелетон дашборда (блюр + шиммер)
+   ЗАБЛЮРЕННЫЕ ДАННЫЕ ИЗ GOOGLE APPS SCRIPT
+   Пока данные не пришли — карточки размыты + мягкий шиммер.
+   Как только данные получены — блюр снимается.
    ============================================================ */
 .dash-card { position: relative; }
 
@@ -115,8 +117,8 @@ body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
 }
 
 main.is-loading .dash-card > * {
-  filter: blur(6px) saturate(.9);
-  opacity: .42;
+  filter: blur(7px) saturate(.85);
+  opacity: .5;
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
@@ -130,84 +132,19 @@ main.is-loading .dash-card > * {
   pointer-events: none;
   z-index: 6;
   opacity: 0;
-  transition: opacity .35s ease;
+  transition: opacity .4s ease;
   background: linear-gradient(100deg,
     rgba(255,255,255,0) 35%,
-    rgba(255,255,255,.62) 50%,
+    rgba(255,255,255,.55) 50%,
     rgba(255,255,255,0) 65%);
   background-size: 240% 100%;
-  animation: dashShimmer 1.7s linear infinite;
+  animation: dashShimmer 1.9s linear infinite;
 }
 main.is-loading .dash-card::after { opacity: 1; }
 
 @keyframes dashShimmer {
   0%   { background-position: 165% 0; }
   100% { background-position: -65% 0; }
-}
-
-/* Тонкая полоска прогресса сверху */
-.top-progress {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  z-index: 300;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .3s ease;
-  overflow: hidden;
-}
-.top-progress.is-active { opacity: 1; }
-.top-progress::after {
-  content: "";
-  position: absolute;
-  top: 0; bottom: 0;
-  left: 0;
-  width: 34%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #e0a94e 45%, #ffd489 55%, transparent);
-  animation: topSlide 1.15s ease-in-out infinite;
-}
-@keyframes topSlide {
-  0%   { transform: translateX(-120%); }
-  100% { transform: translateX(330%); }
-}
-
-/* Мягкая инлайн-плашка «идёт загрузка» — не блокирует интерфейс */
-.dash-notice {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  border-radius: 13px;
-  border: 1px solid #f0d9a8;
-  background: rgba(255, 240, 205, .72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: #8a6417;
-  box-shadow: 0 1px 0 rgba(255,255,255,.7) inset;
-  animation: noticeIn .3s ease;
-}
-.dash-notice[hidden] { display: none; }
-@keyframes noticeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: none; }
-}
-.dash-notice-dot {
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #e0a94e;
-  box-shadow: 0 0 0 0 rgba(224,169,78,.55);
-  animation: noticePulse 1.5s ease-out infinite;
-}
-@keyframes noticePulse {
-  0%   { box-shadow: 0 0 0 0 rgba(224,169,78,.55); }
-  100% { box-shadow: 0 0 0 9px rgba(224,169,78,0); }
 }
 
 /* ============================================================
@@ -718,8 +655,6 @@ body.is-on .dust { opacity: 1; }
 
   .battery-block { margin-top: 14px; padding-top: 13px; }
   .battery-value { font-size: 13px; }
-
-  .dash-notice { font-size: 11.5px; padding: 9px 12px; }
 }
 
 @media (max-width: 390px) {
@@ -745,15 +680,11 @@ body.is-on .dust { opacity: 1; }
     scroll-behavior: auto !important;
   }
   .dust { display: none; }
-  .top-progress::after { animation: none; width: 100%; }
   .dash-card::after { animation: none; }
-  .dash-notice-dot { animation: none; }
 }
 </style>
 </head>
 <body class="is-on">
-
-<div class="top-progress is-active" id="topProgress" aria-hidden="true"></div>
 
 <div class="beam beam-lamp"></div>
 <div class="dust" aria-hidden="true">
@@ -763,11 +694,6 @@ body.is-on .dust { opacity: 1; }
 </div>
 
 <main class="wrap is-loading" id="mainWrap">
-  <div class="dash-notice" id="dashNotice" hidden>
-    <span class="dash-notice-dot" aria-hidden="true"></span>
-    <span id="dashNoticeText">Данные загружаются…</span>
-  </div>
-
   <header class="card status-card status on dash-card" id="statusBox">
     <div class="status-left">
       <span class="status-icon" id="lightSource" aria-hidden="true">
@@ -783,7 +709,7 @@ body.is-on .dust { opacity: 1; }
             fill="none" stroke-linecap="round" />
         </svg>
       </span>
-      <div class="status-title" id="statusTitle">Загрузка…</div>
+      <div class="status-title" id="statusTitle">Свет есть</div>
     </div>
 
     <div class="day-switch" role="tablist" aria-label="Выбор дня">
@@ -827,7 +753,7 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) — как была ============ -->
+  <!-- ============ КАРТОЧКА №1 (яркость + температура + АКБ) ============ -->
   <section class="card light-card" aria-label="Управление светом">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -858,7 +784,6 @@ body.is-on .dust { opacity: 1; }
       </div>
     </div>
 
-    <!-- ===== УРОВЕНЬ ЗАРЯДА АКБ ===== -->
     <div class="battery-block">
       <div class="battery-head">
         <span class="battery-label">
@@ -877,7 +802,7 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <!-- ============ КАРТОЧКА №2 (только яркость) — подключена к Wemos D1 mini ============ -->
+  <!-- ============ КАРТОЧКА №2 (Wemos D1 mini) ============ -->
   <section class="card light-card" aria-label="Управление светом через Wemos">
     <div class="light-row">
       <button class="light-toggle" id="lightToggle2" type="button" aria-label="Включить свет" aria-pressed="false">
@@ -916,51 +841,27 @@ body.is-on .dust { opacity: 1; }
 <script>
 // ============================================================
 //  НАСТРОЙКА WEMOS
-//  Впишите сюда IP-адрес платы Wemos D1 mini (из Serial-монитора)
-//  Например: 'http://192.168.1.42'
 // ============================================================
 const WEMOS_HOST = 'http://192.168.1.42';
 
 // ===== API (дашборд) =====
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
-const MIN = 60000;
 const pad = n => String(n).padStart(2, '0');
 
 let serverSkew = 0;
 
 let payload = null;
-let lastSyncAt = 0;
 let loading = false;
-let hasEverLoaded = false;   // были ли хоть раз успешные данные
+let hasEverLoaded = false;
 let selectedDay = 'today';
-let lastError = null;
 
-// ===== Элементы «мгновенного старта» =====
-const mainWrap      = document.getElementById('mainWrap');
-const topProgress   = document.getElementById('topProgress');
-const dashNotice    = document.getElementById('dashNotice');
-const dashNoticeText= document.getElementById('dashNoticeText');
+// ===== Элементы =====
+const mainWrap = document.getElementById('mainWrap');
 
 let inlineRetryTimer = null;
-let inlineRetryDelay = 3000;   // 3s → 5s → 8s → … → 30s
+let inlineRetryDelay = 3000;
 
-function setTopLoading(on) {
-  topProgress.classList.toggle('is-active', on);
-}
-
-function hideNotice() {
-  if (!dashNotice.hidden) dashNotice.hidden = true;
-  clearTimeout(inlineRetryTimer);
-  inlineRetryTimer = null;
-  inlineRetryDelay = 3000;
-}
-
-function showNotice(text) {
-  dashNoticeText.textContent = text || 'Данные загружаются…';
-  dashNotice.hidden = false;
-}
-
-// Постоянные попытки: сначала быстро, потом всё реже, но без остановки
+// Тихий авторетрай: без плашек и надписей, просто пробуем снова
 function scheduleInlineRetry() {
   clearTimeout(inlineRetryTimer);
   inlineRetryTimer = setTimeout(() => {
@@ -1160,49 +1061,33 @@ function receivePowerData(result) {
     return;
   }
   payload = result;
-  lastSyncAt = Date.now();
   if (typeof result.now === 'number') {
     serverSkew = Date.now() - result.now;
   }
   loading = false;
   hasEverLoaded = true;
-  lastError = null;
 
   render();
 
-  // Данные есть — снимаем блюр, убираем плашку и прогресс
+  // Данные пришли — снимаем блюр
   mainWrap.classList.remove('is-loading');
-  setTopLoading(false);
-  hideNotice();
 }
 
 function reportPowerError(error) {
   loading = false;
-  lastError = error;
   console.error('Ошибка загрузки отметок:', error);
-  setTopLoading(false);
 
-  // Никогда не блокируем интерфейс.
-  // Пока данных нет — держим блюр и продолжаем попытки.
+  // Никаких плашек и оверлеев — просто продолжаем попытки в фоне.
+  // Пока данных нет — карточки остаются заблюренными.
   if (!hasEverLoaded) {
     mainWrap.classList.add('is-loading');
-    showNotice('Данные загружаются…');
-    scheduleInlineRetry();
-    return;
   }
-
-  // Данные уже были — показываем старые, тихо обновляем в фоне
-  if (payload) {
-    render();
-    showNotice('Обновляем данные…');
-    scheduleInlineRetry();
-  }
+  scheduleInlineRetry();
 }
 
 function refreshPowerData() {
   if (loading) return;
   loading = true;
-  setTopLoading(true);
 
   const callbackName = 'powerCallback_' + Date.now() + '_' + (++requestSerial);
   const script = document.createElement('script');
@@ -1255,7 +1140,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLigh
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
 
 // ============================================================
-//  КАРТОЧКА №1 — визуальная заглушка (без Wemos)
+//  КАРТОЧКА №1 — визуальная заглушка
 // ============================================================
 (function() {
   const t1 = document.getElementById('lightToggle');
@@ -1299,7 +1184,7 @@ renderBattery(batteryLevel);
 
 // ============================================================
 //  КАРТОЧКА №2 — управление яркостью через Wemos D1 mini
-//  Работает СРАЗУ, независимо от загрузки данных дашборда
+//  Работает СРАЗУ, независимо от загрузки данных
 // ============================================================
 const lightToggle2 = document.getElementById('lightToggle2');
 const brightnessSlider = document.getElementById('brightness2');
@@ -1324,7 +1209,6 @@ function updateLinkStatus() {
   if (wemosOnline === false) connDot.classList.add('err');
 }
 
-// ---- Отправка команды на Wemos ----
 function sendToWemos(percent) {
   const clamped = Math.max(0, Math.min(100, Math.round(percent)));
   const url = WEMOS_HOST + '/set?val=' + clamped + '&_=' + Date.now();
@@ -1345,7 +1229,6 @@ function sendToWemos(percent) {
   }
 }
 
-// ---- Троттлинг отправки ----
 let sendTimer = null;
 let pendingValue = null;
 function queueSend(percent, immediate = false) {
@@ -1366,7 +1249,6 @@ function queueSend(percent, immediate = false) {
   }, 80);
 }
 
-// ---- Ползунок ----
 brightnessSlider.addEventListener('input', () => {
   currentBrightness = parseInt(brightnessSlider.value, 10);
   if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
@@ -1382,7 +1264,6 @@ brightnessSlider.addEventListener('change', () => {
   queueSend(currentBrightness, true);
 });
 
-// ---- Тумблер ----
 lightToggle2.addEventListener('click', () => {
   if (currentBrightness > 0) {
     lastNonZeroBrightness = currentBrightness;
@@ -1396,12 +1277,11 @@ lightToggle2.addEventListener('click', () => {
   queueSend(currentBrightness, true);
 });
 
-// ---- Первичная синхронизация (мгновенно, не ждём Google) ----
 updateToggleVisual2();
 updateLinkStatus();
 queueSend(currentBrightness, true);
 
-// ===== Старт дашборда (в фоне, интерфейс уже доступен) =====
+// ===== Старт дашборда (в фоне) =====
 refreshPowerData();
 
 setInterval(render, 15000);
@@ -1415,7 +1295,6 @@ document.addEventListener('visibilitychange', () => {
 });
 
 window.addEventListener('online', () => {
-  lastError = null;
   refreshPowerData();
 });
 </script>

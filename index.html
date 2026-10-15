@@ -4,377 +4,392 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#fbfaf6">
-<meta name="mobile-web-app-capable" content="yes">
 <title>СВЕТ ДОМ</title>
-
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="apple-touch-icon" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1791547180/ohoyvxksr5jrytrqorox.png">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22short_name%22%3A%22%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%BE%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23fbfaf6%22%2C%22theme_color%22%3A%22%23fbfaf6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fres.cloudinary.com%2Fdplmdnxvk%2Fimage%2Fupload%2Fv1791545206%2Fdw1e1rktpt66vd8rsgzl.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="ГРАФИК">
-
 <style>
-*,
-*::before,
-*::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --light-x: 46px;
-  --light-y: 240px;
-}
-
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   --bg: #fbfaf6;
   --text: #16181d;
   --muted: #7a7d85;
-  --line: #e8e5dc;
   --hair: #eeece5;
   --panel: rgba(255,255,255,.64);
   --panel-edge: #e9e6dd;
   --track: #ffe4a8;
-  --off: #1b1e25;
-  --ok: #10b981;
-  --bad: #e11d48;
-  --warn: #f59e0b;
   min-height: 100vh;
   padding: 40px max(16px, calc((100vw - 760px) / 2)) 70px;
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   line-height: 1.45;
-  font-variant-numeric: tabular-nums "tnum" 1;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  transition: background .6s ease, color .6s ease;
 }
-
 body.is-off {
   --bg: #f1f0ee;
   --text: #45454a;
   --muted: #8f8f94;
-  --line: #dcdcde;
   --hair: #e4e4e6;
   --panel: rgba(255,255,255,.68);
   --panel-edge: #d9d9db;
-  --off: #4a4a4f;
-  --ok: #8f8f94;
-  --bad: #4a4a4f;
-  --warn: #8f8f94;
+  --track: #d8d8d8;
 }
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(ellipse 145% 115% at var(--light-x) var(--light-y),
-    rgba(255,201,109,.34) 0%, rgba(255,221,158,.16) 26%,
-    rgba(255,238,208,.05) 52%, transparent 78%);
-  opacity: 0;
-  transition: opacity .8s ease;
-}
-body.is-on::before { opacity: 1; }
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(ellipse 130% 110% at var(--light-x) var(--light-y),
-    transparent 42%, rgba(80,60,20,.07) 100%);
-  opacity: 0;
-  transition: opacity .8s ease;
-}
-body.is-on::after { opacity: 1; }
-
-.wrap { width: 100%; max-width: 760px; margin: 0 auto; position: relative; z-index: 10; }
-
+.wrap { width: 100%; max-width: 760px; margin: 0 auto; }
 .card {
   background: var(--panel);
   border: 1px solid var(--panel-edge);
   border-radius: 18px;
   padding: 22px 24px;
   margin-bottom: 14px;
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(9px);
-  transition: background .5s ease, border-color .5s ease, box-shadow .5s ease;
 }
-body.is-on .card { box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
-
-.dash-card { position: relative; }
-
-.dash-card > * {
-  transition: filter .55s ease, opacity .55s ease;
-}
-
-main.is-loading .dash-card > * {
-  filter: blur(7px) saturate(.85);
-  opacity: .5;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.dash-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 6;
-  opacity: 0;
-  transition: opacity .4s ease;
-  background: linear-gradient(100deg,
-    rgba(255,255,255,0) 35%,
-    rgba(255,255,255,.55) 50%,
-    rgba(255,255,255,0) 65%);
-  background-size: 240% 100%;
-  animation: dashShimmer 1.9s linear infinite;
-}
-main.is-loading .dash-card::after { opacity: 1; }
-
-@keyframes dashShimmer {
-  0%   { background-position: 165% 0; }
-  100% { background-position: -65% 0; }
-}
-
-.status-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.status-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  min-width: 0;
-}
-
-.status-icon { width: 34px; height: 34px; flex: 0 0 34px; position: relative; display: grid; place-items: center; }
-.status-icon svg { width: 100%; height: 100%; position: relative; z-index: 2; overflow: visible; }
-.status-icon::before {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--glow, transparent), transparent 70%);
-  opacity: 0;
-}
-.status.on { --glow: rgba(255,186,74,.60); }
-.status.on .status-icon::before { opacity: 1; animation: statusPulse 2.5s ease-out infinite; }
-@keyframes statusPulse {
-  0% { transform: scale(.55); opacity: .7; }
-  100% { transform: scale(1.9); opacity: 0; }
-}
-.si-glass { fill: rgba(120,118,110,.12); stroke: var(--muted); stroke-width: 1.1; transition: fill .4s ease, stroke .4s ease; }
-.si-cap { fill: #9a8558; transition: fill .4s ease; }
-.si-filament { stroke: var(--muted); stroke-width: 1.2; transition: stroke .4s ease; }
-.status.on .si-glass { fill: rgba(255,210,124,.32); stroke: #e0a94e; }
-.status.on .si-cap { fill: #bb8a3d; }
-.status.on .si-filament { stroke: #ff9d1f; filter: drop-shadow(0 0 3px rgba(255,170,50,1)); }
-.status.on .status-icon svg { filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 18px rgba(255,186,74,.55)); }
-.status.off .si-glass { fill: rgba(120,125,135,.08); stroke: #8a8d93; }
-.status.off .si-cap { fill: #8a8d93; }
-.status.off .si-filament { stroke: #6a6d73; }
-.status.off .status-icon svg { filter: none; }
-
-.status-title { font-size: 23px; font-weight: 750; letter-spacing: -.6px; line-height: 1.1; }
-.status.on .status-title { color: #047857; }
-.status.off .status-title { color: #8a8f98; }
-body.is-off .status.off .status-title { color: var(--bad); }
-
-.day-switch {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  border-radius: 9px;
-  background: var(--hair);
-  border: 1px solid var(--panel-edge);
-  transition: background .4s ease, border-color .4s ease;
-  flex: 0 0 auto;
-}
-.day-btn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: .01em;
-  padding: 5px 11px;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: background .25s ease, color .25s ease, box-shadow .25s ease;
-  white-space: nowrap;
-}
-.day-btn:hover { color: var(--text); }
-.day-btn.is-active {
-  background: var(--panel);
-  color: var(--text);
-  box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 0 0 1px var(--panel-edge) inset;
-}
-body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
-
 .section-title { margin-bottom: 18px; }
 .section-title h2 { font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 
+.status-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.status-left { display: flex; align-items: center; gap: 15px; }
+.status-icon { width: 34px; height: 34px; flex: 0 0 34px; }
+.status-icon svg { width: 100%; height: 100%; }
+.si-glass { fill: rgba(120,118,110,.12); stroke: var(--muted); stroke-width: 1.1; }
+.si-cap { fill: #9a8558; }
+.si-filament { stroke: var(--muted); stroke-width: 1.2; }
+.status.on .si-glass { fill: rgba(255,210,124,.32); stroke: #e0a94e; }
+.status.on .si-cap { fill: #bb8a3d; }
+.status.on .si-filament { stroke: #ff9d1f; }
+.status.on .status-title { color: #047857; }
+.status.off .status-title { color: #8a8f98; }
+.status-title { font-size: 23px; font-weight: 750; letter-spacing: -.6px; }
+
+.day-switch { display: inline-flex; gap: 2px; padding: 2px; border-radius: 9px; background: var(--hair); border: 1px solid var(--panel-edge); }
+.day-btn { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12px; font-weight: 650; padding: 5px 11px; border-radius: 7px; cursor: pointer; }
+.day-btn.is-active { background: var(--panel); color: var(--text); }
+
 .timeline-wrap { position: relative; }
-.timeline {
-  position: relative;
-  height: 44px;
-  background: var(--track);
-  border-radius: 8px;
-  overflow: hidden;
-  isolation: isolate;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
-  transition: background .5s ease, box-shadow .5s ease;
-  clip-path: inset(0 round 8px);
-  -webkit-clip-path: inset(0 round 8px);
-  contain: paint;
-}
-.seg {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  min-width: 2px;
-  max-width: 100%;
-  background: #4d515c;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
-  cursor: pointer;
-  transition: filter .15s ease;
-  height: 100%;
-}
-.seg:hover { filter: brightness(1.25); }
-
-.future-mask {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  pointer-events: none;
-  z-index: 4;
-  background: rgba(251, 250, 246, 0.62);
-  backdrop-filter: saturate(0.35) brightness(1.02);
-  -webkit-backdrop-filter: saturate(0.35) brightness(1.02);
-  transition: opacity .3s ease;
-}
-.future-mask::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.16) 0 1px, transparent 1px 7px);
-  opacity: .9;
-}
-body.is-off .future-mask { background: rgba(241, 240, 238, 0.66); }
-body.is-off .future-mask::after {
-  background-image: repeating-linear-gradient(-45deg, rgba(120,120,130,0.14) 0 1px, transparent 1px 7px);
-}
-.future-mask.no-data::before { display: none; }
-.future-mask::before { display: none; }
-
+.timeline { position: relative; height: 44px; background: var(--track); border-radius: 8px; overflow: hidden; }
+.seg { position: absolute; top: 0; bottom: 0; background: #4d515c; height: 100%; }
+.future-mask { position: absolute; top: 0; bottom: 0; right: 0; background: rgba(251,250,246,.62); }
 .ticks { position: relative; height: 19px; margin-top: 9px; }
-.tick {
-  position: absolute;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 550;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+.tick { position: absolute; transform: translateX(-50%); font-size: 10px; color: var(--muted); }
 .tick.major { color: var(--text); font-weight: 750; }
-.tick.edge-start { transform: translateX(-50%); }
-.tick.edge-end   { transform: translateX(-50%); }
 
 .legend { display: flex; flex-wrap: wrap; gap: 17px; margin-top: 18px; color: var(--muted); font-size: 11px; }
 .legend span { display: flex; align-items: center; gap: 7px; }
 .legend i { width: 14px; height: 5px; border-radius: 3px; display: inline-block; }
 .legend .ok { background: var(--track); }
 .legend .off { background: #4d515c; }
-.legend .future {
-  background: repeating-linear-gradient(-45deg, rgba(120,120,130,.35) 0 1px, transparent 1px 5px), var(--bg);
-  box-shadow: inset 0 0 0 1px rgba(120,120,130,.25);
-}
 
-.report-card .section-title { margin-bottom: 14px; }
-
-.summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  background: transparent;
-  border-radius: 0;
-  overflow: visible;
-  margin-top: 0;
-  text-align: center;
-}
-.summary-item {
-  background: transparent;
-  padding: 4px 2px 2px;
-  min-width: 0;
-  text-align: center;
-}
-.summary-value {
-  font-size: 26px;
-  font-weight: 750;
-  letter-spacing: -.8px;
-  line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-}
-.summary-label {
-  margin-top: 7px;
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: .01em;
-  line-height: 1.3;
-}
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: center; }
+.summary-value { font-size: 26px; font-weight: 750; letter-spacing: -.8px; }
+.summary-label { margin-top: 7px; font-size: 11px; color: var(--muted); }
 
 .history { display: flex; flex-direction: column; }
-.history-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px;
-  align-items: center;
-  padding: 15px 0;
-  border-top: 1px solid var(--hair);
-}
+.history-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 15px 0; border-top: 1px solid var(--hair); }
 .history-row:first-child { border-top: none; padding-top: 0; }
-.history-row:last-child { padding-bottom: 0; }
-.history-time { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.history-duration { font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.history-row.current .history-duration,
-.history-row.current .history-time { color: var(--bad); }
+.history-time { font-size: 15px; font-weight: 650; }
+.history-duration { font-size: 14px; font-weight: 750; }
 .empty { text-align: center; padding: 20px 0; color: var(--muted); font-size: 13px; }
 
 .light-card { padding: 20px 22px; }
+.light-row { display: flex; align-items: center; gap: 18px; }
+.light-toggle {
+  flex: 0 0 auto; width: 62px; height: 62px; border-radius: 50%;
+  border: 1px solid var(--panel-edge); background: var(--hair);
+  display: grid; place-items: center; cursor: pointer; position: relative;
+  transition: background .35s ease, transform .15s ease;
+}
+.light-toggle:active { transform: scale(.94); }
+.light-toggle svg { width: 32px; height: 32px; }
+.light-toggle .si-glass { fill: rgba(120,125,135,.08); stroke: #8a8d93; }
+.light-toggle .si-cap { fill: #8a8d93; }
+.light-toggle .si-filament { stroke: #6a6d73; }
+.light-toggle.is-lit { background: linear-gradient(180deg, #ffd489, #ffc164); border-color: #e9a83f; }
+.light-toggle.is-lit .si-glass { fill: rgba(255,210,124,.42); stroke: #e0a94e; }
+.light-toggle.is-lit .si-cap { fill: #bb8a3d; }
+.light-toggle.is-lit .si-filament { stroke: #ff9d1f; }
 
-.light-row {
-  display: flex;
-  align-items: center;
-  gap: 18px;
+.conn-dot { position: absolute; top: -6px; left: -6px; width: 8px; height: 8px; border-radius: 50%; background: #c9c9cd; }
+.conn-dot.ok { background: #10b981; }
+.conn-dot.err { background: #e11d48; }
+
+.light-sliders { flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; }
+.ctrl-range { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 22px; background: transparent; cursor: pointer; }
+.ctrl-range::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #33343a 0%, #6f7077 38%, #ffd07a 78%, #ffe6ab 100%); }
+.ctrl-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -6px; border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,.10); }
+.ctrl-range::-moz-range-track { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #33343a 0%, #6f7077 38%, #ffd07a 78%, #ffe6ab 100%); }
+.ctrl-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,.10); }
+
+.battery-block { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--hair); }
+.battery-head { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.battery-label { font-size: 12px; font-weight: 650; color: var(--muted); }
+.battery-value { font-size: 14px; font-weight: 750; }
+.battery-track { position: relative; height: 8px; border-radius: 999px; background: var(--hair); overflow: hidden; }
+.battery-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #7ee0a4, #10b981); transition: width .6s ease; }
+</style>
+</head>
+<body class="is-on">
+<main class="wrap" id="mainWrap">
+  <header class="card status-card status on" id="statusBox">
+    <div class="status-left">
+      <span class="status-icon">
+        <svg viewBox="0 0 24 24">
+          <path class="si-glass" d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6 L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4 C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6 C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+          <path class="si-filament" d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10" fill="none" stroke-linecap="round" />
+        </svg>
+      </span>
+      <div class="status-title" id="statusTitle">Свет есть</div>
+    </div>
+    <div class="day-switch">
+      <button class="day-btn" data-day="yesterday" type="button">Вчера</button>
+      <button class="day-btn is-active" data-day="today" type="button">Сегодня</button>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="section-title"><h2>ГРАФИК</h2></div>
+    <div class="timeline-wrap">
+      <div class="timeline" id="timeline"></div>
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="legend">
+      <span><i class="ok"></i>свет был</span>
+      <span><i class="off"></i>не было света</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title"><h2 id="reportTitle">Отчёт за сегодня</h2></div>
+    <div class="summary">
+      <div><div class="summary-value" id="outageCount">0</div><div class="summary-label">отключений</div></div>
+      <div><div class="summary-value" id="totalOutage">0ч 0м</div><div class="summary-label">без света</div></div>
+      <div><div class="summary-value" id="longestOutage">0ч 0м</div><div class="summary-label">самое долгое</div></div>
+    </div>
+  </section>
+
+  <section class="card light-card">
+    <div class="section-title"><h2>УПРАВЛЕНИЕ СВЕТОМ (WEMOS)</h2></div>
+    <div class="light-row">
+      <button class="light-toggle" id="lightToggle2" type="button">
+        <span class="conn-dot" id="connDot"></span>
+        <svg viewBox="0 0 24 24">
+          <path class="si-glass" d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6 L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4 C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6 C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+          <path class="si-filament" d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10" fill="none" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="light-sliders">
+        <input class="ctrl-range" id="brightness2" type="range" min="0" max="100" step="1" value="70" aria-label="Яркость">
+      </div>
+    </div>
+  </section>
+
+  <section class="card light-card">
+    <div class="section-title"><h2>УПРАВЛЕНИЕ (ЗАГЛУШКА)</h2></div>
+    <div class="light-row">
+      <button class="light-toggle" id="lightToggle" type="button">
+        <svg viewBox="0 0 24 24">
+          <path class="si-glass" d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6 L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4 C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6 C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
+          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
+          <path class="si-filament" d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10" fill="none" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="light-sliders">
+        <input class="ctrl-range" id="brightness" type="range" min="0" max="100" step="1" value="70" aria-label="Яркость">
+      </div>
+    </div>
+    <div class="battery-block">
+      <div class="battery-head">
+        <span class="battery-label">Уровень заряда АКБ</span>
+        <span class="battery-value" id="batteryValue">—%</span>
+      </div>
+      <div class="battery-track">
+        <div class="battery-fill" id="batteryFill"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title"><h2>История отключений</h2></div>
+    <div class="history" id="history"></div>
+  </section>
+</main>
+
+<script>
+console.log('[DASH] ===== ДАШБОРД ЗАГРУЖЕН =====');
+console.log('[DASH] protocol =', location.protocol);
+console.log('[DASH] href =', location.href);
+
+const WEMOS_LOCAL_URL = 'http://192.168.1.106/';
+const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
+
+const lightToggle2 = document.getElementById('lightToggle2');
+const brightnessSlider = document.getElementById('brightness2');
+const connDot = document.getElementById('connDot');
+
+console.log('[DASH] lightToggle2 =', typeof lightToggle2);
+console.log('[DASH] brightness2  =', typeof brightnessSlider);
+console.log('[DASH] connDot      =', typeof connDot);
+
+const pageIsHttps = location.protocol === 'https:';
+console.log('[DASH] pageIsHttps =', pageIsHttps);
+
+if (pageIsHttps) {
+  console.log('[DASH] Режим HTTPS — прячем ползунок, кнопка открывает пульт');
+  brightnessSlider.style.display = 'none';
+  brightnessSlider.disabled = true;
+
+  lightToggle2.addEventListener('click', () => {
+    console.log('[DASH] Клик по лампе → открываю', WEMOS_LOCAL_URL);
+    window.open(WEMOS_LOCAL_URL, '_blank');
+  });
+  lightToggle2.classList.add('is-lit');
+  connDot.style.background = '#f59e0b';
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:11px;color:var(--muted);margin-top:6px;text-align:center;width:100%;';
+  hint.textContent = 'На iPhone/ПК тапните по лампе — откроется пульт Wemos по HTTP';
+  lightToggle2.parentElement.parentElement.appendChild(hint);
+  console.log('[DASH] Инициализация HTTPS завершена');
+} else {
+  console.log('[DASH] Режим HTTP/file — работаем напрямую с Wemos');
+  let currentBrightness = parseInt(localStorage.getItem('wemos_brightness') || '70', 10);
+  let lastNonZeroBrightness = currentBrightness > 0 ? currentBrightness : 70;
+  let wemosOnline = null;
+  console.log('[DASH] currentBrightness =', currentBrightness);
+  brightnessSlider.value = currentBrightness;
+
+  function updateToggleVisual2() {
+    const on = currentBrightness > 0;
+    lightToggle2.classList.toggle('is-lit', on);
+  }
+  function updateLinkStatus() {
+    connDot.classList.remove('ok', 'err');
+    if (wemosOnline === true)  connDot.classList.add('ok');
+    if (wemosOnline === false) connDot.classList.add('err');
+  }
+  function sendToWemos(percent) {
+    const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+    const url = WEMOS_LOCAL_URL + 'set?val=' + clamped + '&_=' + Date.now();
+    console.log('[DASH] → Wemos:', url);
+    const img = new Image();
+    let completed = false;
+    const markOk  = () => { if (!completed) { completed = true; wemosOnline = true;  updateLinkStatus(); console.log('[DASH] ✓ Wemos ответил'); } };
+    const markErr = () => { if (!completed) { completed = true; wemosOnline = false; updateLinkStatus(); console.warn('[DASH] ✗ Wemos не ответил'); } };
+    img.onload = markOk;
+    img.onerror = markErr;
+    setTimeout(() => { if (!completed) markErr(); }, 3000);
+    img.src = url;
+  }
+  let sendTimer = null, pendingValue = null;
+  function queueSend(percent, immediate = false) {
+    pendingValue = percent;
+    if (immediate) {
+      if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
+      const v = pendingValue; pendingValue = null;
+      sendToWemos(v); return;
+    }
+    if (sendTimer) return;
+    sendTimer = setTimeout(() => {
+      sendTimer = null;
+      const v = pendingValue; pendingValue = null;
+      if (v != null) sendToWemos(v);
+    }, 80);
+  }
+  brightnessSlider.addEventListener('input', () => {
+    currentBrightness = parseInt(brightnessSlider.value, 10);
+    if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
+    console.log('[DASH] input:', currentBrightness);
+    updateToggleVisual2();
+    queueSend(currentBrightness);
+  });
+  brightnessSlider.addEventListener('change', () => {
+    currentBrightness = parseInt(brightnessSlider.value, 10);
+    if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
+    localStorage.setItem('wemos_brightness', String(currentBrightness));
+    console.log('[DASH] change:', currentBrightness);
+    updateToggleVisual2();
+    queueSend(currentBrightness, true);
+  });
+  lightToggle2.addEventListener('click', () => {
+    if (currentBrightness > 0) { lastNonZeroBrightness = currentBrightness; currentBrightness = 0; }
+    else { currentBrightness = lastNonZeroBrightness || 70; }
+    brightnessSlider.value = currentBrightness;
+    localStorage.setItem('wemos_brightness', String(currentBrightness));
+    console.log('[DASH] toggle:', currentBrightness);
+    updateToggleVisual2();
+    queueSend(currentBrightness, true);
+  });
+  updateToggleVisual2();
+  updateLinkStatus();
+  queueSend(currentBrightness, true);
+  console.log('[DASH] Инициализация HTTP завершена');
 }
 
-.light-toggle {
-  flex: 0 0 auto;
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  border: 1px solid var(--panel-edge);
-  background: var(--hair);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  position: relative;
-  transition: background .35s ease, border-color .35s ease,
-              box-shadow .35s ease, transform .15s ease;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select:
+// ===== Заглушка для верхнего пульта =====
+(function() {
+  const t1 = document.getElementById('lightToggle');
+  if (!t1) return;
+  let on1 = false;
+  const update1 = () => { t1.classList.toggle('is-lit', on1); };
+  t1.addEventListener('click', () => { on1 = !on1; update1(); });
+})();
+
+// ===== АКБ — заглушка =====
+const batteryFill = document.getElementById('batteryFill');
+const batteryValue = document.getElementById('batteryValue');
+if (batteryFill && batteryValue) {
+  const lvl = 87;
+  batteryValue.textContent = lvl + '%';
+  batteryFill.style.width = lvl + '%';
+}
+
+// ===== Загрузка данных от Google =====
+let payload = null, serverSkew = 0, loading = false, selectedDay = 'today';
+let requestSerial = 0;
+
+function receivePowerData(result) {
+  console.log('[DASH] Данные получены от Google');
+  if (!result || result.error) { loading = false; return; }
+  payload = result;
+  lastSyncAt = Date.now();
+  if (typeof result.now === 'number') serverSkew = Date.now() - result.now;
+  loading = false;
+  render();
+}
+
+function render() {
+  if (!payload) return;
+  const dayKey = selectedDay;
+  const dayData = payload[dayKey] || { outages: [] };
+  const outages = (dayData.outages || []);
+  document.getElementById('outageCount').textContent = outages.length;
+  const total = outages.reduce((s, o) => s + (o.dur || 0), 0);
+  document.getElementById('totalOutage').textContent = Math.round(total) + ' мин';
+  const max = outages.length ? Math.max(...outages.map(o => o.dur || 0)) : 0;
+  document.getElementById('longestOutage').textContent = Math.round(max) + ' мин';
+  console.log('[DASH] render: отключений', outages.length);
+}
+
+function refreshPowerData() {
+  if (loading) return;
+  loading = true;
+  const cb = 'pc_' + Date.now() + '_' + (++requestSerial);
+  const s = document.createElement('script');
+  const cleanup = () => { try { delete window[cb]; } catch(e){} s.remove(); };
+  const to = setTimeout(() => { cleanup(); loading = false; console.warn('[DASH] Google timeout'); }, 15000);
+  window[cb] = r => { clearTimeout(to); cleanup(); receivePowerData(r); };
+  s.onerror = () => { clearTimeout(to); cleanup(); loading = false; console.warn('[DASH] Google error'); };
+  s.src = POWER_API_URL + '?api=1&callback=' + cb + '&_=' + Date.now();
+  document.head.appendChild(s);
+}
+
+document.querySelectorAll('.day-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedDay = btn.dataset.day;
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('is-active', b === btn));
+    render();
+  });
+});
+
+refreshPowerData();
+setInterval(render, 15000);
+console.log('[DASH] ===== ИНИЦИАЛИЗАЦИЯ ЗАВЕРШЕНА =====');
+</script>
+</body>
+</html>

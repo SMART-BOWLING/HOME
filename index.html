@@ -812,7 +812,7 @@ body.is-on .dust { opacity: 1; }
 // ============================================================
 //  НАСТРОЙКА WEMOS
 // ============================================================
-const WEMOS_HOST = 'http://192.168.1.106';
+const WEMOS_LOCAL_URL = 'http://192.168.1.106/';
 
 // ===== API (дашборд) =====
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
@@ -824,8 +824,7 @@ const DATA_STALE_MS = 45000;
 // Обычный опрос, когда всё в порядке
 const NORMAL_POLL_INTERVAL = 30000;
 
-// === Адаптивный быстрый опрос (щадящий к квотам Apps Script) ===
-// Первые 30 секунд — 2 сек. Дальше интервал растёт по этой таблице.
+// === Адаптивный быстрый опрос ===
 const FAST_PROBE_STEPS = [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
                           2000, 2000, 2000, 2000, 2000, 2000, 2000,
                           3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000,
@@ -848,13 +847,10 @@ const mainWrap = document.getElementById('mainWrap');
 
 // ============================================================
 //  АДАПТИВНОЕ ЗОНДИРОВАНИЕ
-//  Работает, пока данных нет / они устарели.
-//  Интервал ступенчато растёт от 2 секунд до 60 секунд.
-//  При событии online / возврате на вкладку — сбрасывается на 2 секунды.
 // ============================================================
 let fastProbeActive = false;
 let fastProbeTimer = null;
-let fastProbeStep = 0;   // индекс в таблице FAST_PROBE_STEPS
+let fastProbeStep = 0;
 
 function startFastProbe(reset = false) {
   if (reset) fastProbeStep = 0;
@@ -883,7 +879,6 @@ function runFastProbe() {
   if (!fastProbeActive) return;
 
   if (loading) {
-    // предыдущий запрос ещё висит — подождём немного
     fastProbeTimer = setTimeout(runFastProbe, 400);
     return;
   }
@@ -917,11 +912,10 @@ window.addEventListener('offline', () => {
   lastRequestFailed = true;
   updateBlurState();
   if (payload) render();
-  startFastProbe(true);   // сброс счётчика — начинаем с 2 секунд
+  startFastProbe(true);
 });
 
 window.addEventListener('online', () => {
-  // Связь вернулась — сразу один запрос и заново быстрая серия
   refreshPowerData();
   startFastProbe(true);
 });
@@ -1130,7 +1124,7 @@ function receivePowerData(result) {
 
   updateBlurState();
   render();
-  stopFastProbe();   // данные пришли — быстрое зондирование больше не нужно
+  stopFastProbe();
 }
 
 function reportPowerError(error) {
@@ -1140,7 +1134,7 @@ function reportPowerError(error) {
 
   updateBlurState();
   if (payload) render();
-  startFastProbe();   // без сброса — продолжаем по возрастающей
+  startFastProbe();
 }
 
 function refreshPowerData() {
@@ -1242,118 +1236,137 @@ renderBattery(batteryLevel);
 
 // ============================================================
 //  КАРТОЧКА №2 — Wemos D1 mini
+//  Логика:
+//   - На HTTP/file:// — ползунок шлёт команды напрямую на Wemos.
+//   - На HTTPS (GitHub Pages) — Safari блокирует mixed content,
+//     поэтому кнопка открывает локальный пульт Wemos по HTTP.
 // ============================================================
 const lightToggle2 = document.getElementById('lightToggle2');
 const brightnessSlider = document.getElementById('brightness2');
 const connDot = document.getElementById('connDot');
 
-let currentBrightness = parseInt(localStorage.getItem('wemos_brightness') || '70', 10);
-let lastNonZeroBrightness = currentBrightness > 0 ? currentBrightness : 70;
-let wemosOnline = null;
+const pageIsHttps = location.protocol === 'https:';
 
-brightnessSlider.value = currentBrightness;
+if (pageIsHttps) {
+  // ---- HTTPS: превращаем кнопку в ссылку на локальный пульт ----
+  brightnessSlider.style.display = 'none';
+  brightnessSlider.disabled = true;
 
-function updateToggleVisual2() {
-  const on = currentBrightness > 0;
-  lightToggle2.classList.toggle('is-lit', on);
-  lightToggle2.setAttribute('aria-pressed', on ? 'true' : 'false');
-  lightToggle2.setAttribute('aria-label', on ? 'Выключить свет' : 'Включить свет');
-}
+  lightToggle2.addEventListener('click', () => {
+    window.open(WEMOS_LOCAL_URL, '_blank');
+  });
+  lightToggle2.setAttribute('aria-label', 'Открыть пульт Wemos');
+  lightToggle2.classList.add('is-lit');
 
-function updateLinkStatus() {
-  connDot.classList.remove('ok', 'err');
-  if (wemosOnline === true)  connDot.classList.add('ok');
-  if (wemosOnline === false) connDot.classList.add('err');
-}
+  connDot.classList.remove('err', 'ok');
+  connDot.style.background = '#f59e0b';
 
-function sendToWemos(percent) {
-  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-  const url = WEMOS_HOST + '/set?val=' + clamped + '&_=' + Date.now();
+  const hint = document.createElement('div');
+  hint.style.cssText =
+    'font-size:11px;color:var(--muted);margin-top:6px;text-align:center;line-height:1.35;';
+  hint.textContent = 'Нажмите на лампу — откроется локальный пульт Wemos';
+  lightToggle2.parentElement.appendChild(hint);
 
-  const img = new Image();
-  let completed = false;
-  const markOk = () => { if (!completed) { completed = true; wemosOnline = true; updateLinkStatus(); } };
-  const markErr = () => { if (!completed) { completed = true; wemosOnline = false; updateLinkStatus(); } };
-  img.onload = markOk;
-  img.onerror = markErr;
-  setTimeout(() => { if (!completed) markErr(); }, 3000);
-  img.src = url;
+} else {
+  // ---- HTTP / file:// — работаем напрямую ----
+  let currentBrightness = parseInt(localStorage.getItem('wemos_brightness') || '70', 10);
+  let lastNonZeroBrightness = currentBrightness > 0 ? currentBrightness : 70;
+  let wemosOnline = null;
 
-  if (location.protocol === 'http:') {
-    fetch(url, { mode: 'no-cors', cache: 'no-store' })
-      .then(() => { wemosOnline = true; updateLinkStatus(); })
-      .catch(() => { wemosOnline = false; updateLinkStatus(); });
-  }
-}
-
-let sendTimer = null;
-let pendingValue = null;
-function queueSend(percent, immediate = false) {
-  pendingValue = percent;
-  if (immediate) {
-    if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
-    const v = pendingValue;
-    pendingValue = null;
-    sendToWemos(v);
-    return;
-  }
-  if (sendTimer) return;
-  sendTimer = setTimeout(() => {
-    sendTimer = null;
-    const v = pendingValue;
-    pendingValue = null;
-    if (v != null) sendToWemos(v);
-  }, 80);
-}
-
-brightnessSlider.addEventListener('input', () => {
-  currentBrightness = parseInt(brightnessSlider.value, 10);
-  if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
-  updateToggleVisual2();
-  queueSend(currentBrightness);
-});
-
-brightnessSlider.addEventListener('change', () => {
-  currentBrightness = parseInt(brightnessSlider.value, 10);
-  if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
-  localStorage.setItem('wemos_brightness', String(currentBrightness));
-  updateToggleVisual2();
-  queueSend(currentBrightness, true);
-});
-
-lightToggle2.addEventListener('click', () => {
-  if (currentBrightness > 0) {
-    lastNonZeroBrightness = currentBrightness;
-    currentBrightness = 0;
-  } else {
-    currentBrightness = lastNonZeroBrightness || 70;
-  }
   brightnessSlider.value = currentBrightness;
-  localStorage.setItem('wemos_brightness', String(currentBrightness));
-  updateToggleVisual2();
-  queueSend(currentBrightness, true);
-});
 
-updateToggleVisual2();
-updateLinkStatus();
-queueSend(currentBrightness, true);
+  function updateToggleVisual2() {
+    const on = currentBrightness > 0;
+    lightToggle2.classList.toggle('is-lit', on);
+    lightToggle2.setAttribute('aria-pressed', on ? 'true' : 'false');
+    lightToggle2.setAttribute('aria-label', on ? 'Выключить свет' : 'Включить свет');
+  }
+
+  function updateLinkStatus() {
+    connDot.classList.remove('ok', 'err');
+    if (wemosOnline === true)  connDot.classList.add('ok');
+    if (wemosOnline === false) connDot.classList.add('err');
+  }
+
+  function sendToWemos(percent) {
+    const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+    const url = WEMOS_LOCAL_URL + 'set?val=' + clamped + '&_=' + Date.now();
+
+    const img = new Image();
+    let completed = false;
+    const markOk  = () => { if (!completed) { completed = true; wemosOnline = true;  updateLinkStatus(); } };
+    const markErr = () => { if (!completed) { completed = true; wemosOnline = false; updateLinkStatus(); } };
+    img.onload = markOk;
+    img.onerror = markErr;
+    setTimeout(() => { if (!completed) markErr(); }, 3000);
+    img.src = url;
+  }
+
+  let sendTimer = null;
+  let pendingValue = null;
+  function queueSend(percent, immediate = false) {
+    pendingValue = percent;
+    if (immediate) {
+      if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
+      const v = pendingValue;
+      pendingValue = null;
+      sendToWemos(v);
+      return;
+    }
+    if (sendTimer) return;
+    sendTimer = setTimeout(() => {
+      sendTimer = null;
+      const v = pendingValue;
+      pendingValue = null;
+      if (v != null) sendToWemos(v);
+    }, 80);
+  }
+
+  brightnessSlider.addEventListener('input', () => {
+    currentBrightness = parseInt(brightnessSlider.value, 10);
+    if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
+    updateToggleVisual2();
+    queueSend(currentBrightness);
+  });
+
+  brightnessSlider.addEventListener('change', () => {
+    currentBrightness = parseInt(brightnessSlider.value, 10);
+    if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
+    localStorage.setItem('wemos_brightness', String(currentBrightness));
+    updateToggleVisual2();
+    queueSend(currentBrightness, true);
+  });
+
+  lightToggle2.addEventListener('click', () => {
+    if (currentBrightness > 0) {
+      lastNonZeroBrightness = currentBrightness;
+      currentBrightness = 0;
+    } else {
+      currentBrightness = lastNonZeroBrightness || 70;
+    }
+    brightnessSlider.value = currentBrightness;
+    localStorage.setItem('wemos_brightness', String(currentBrightness));
+    updateToggleVisual2();
+    queueSend(currentBrightness, true);
+  });
+
+  updateToggleVisual2();
+  updateLinkStatus();
+  queueSend(currentBrightness, true);
+}
 
 // ===== Старт =====
 refreshPowerData();
 
-// Периодическая перерисовка (пересчёт статуса)
 setInterval(render, 15000);
 
-// Обычный опрос — работает, только когда быстрое зондирование выключено
 setInterval(() => {
   if (fastProbeActive) return;
   refreshPowerData();
 }, NORMAL_POLL_INTERVAL);
 
-// Страховка: проверка «свежести» каждые 5 секунд
 setInterval(updateBlurState, 5000);
 
-// Возврат на вкладку — сразу обновляем и сбрасываем быстрое зондирование
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     render();

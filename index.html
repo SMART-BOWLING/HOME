@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -15,7 +14,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ГРАФИК">
-/
+
 <style>
 *,
 *::before,
@@ -354,132 +353,6 @@ body.is-off .future-mask::after {
 .history-row.current .history-time { color: var(--bad); }
 .empty { text-align: center; padding: 20px 0; color: var(--muted); font-size: 13px; }
 
-.light-card { padding: 20px 22px; }
-
-.light-row {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.light-toggle {
-  flex: 0 0 auto;
-  width: 62px;
-  height: 62px;
-  border-radius: 50%;
-  border: 1px solid var(--panel-edge);
-  background: var(--hair);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  position: relative;
-  transition: background .35s ease, border-color .35s ease,
-              box-shadow .35s ease, transform .15s ease;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  overflow: visible;
-}
-.light-toggle svg { width: 32px; height: 32px; display: block; overflow: visible; pointer-events: none; }
-.light-toggle:active { transform: scale(.94); }
-
-.light-toggle .si-glass {
-  fill: rgba(120,125,135,.08);
-  stroke: #8a8d93;
-  stroke-width: 1.1;
-}
-.light-toggle .si-cap { fill: #8a8d93; }
-.light-toggle .si-filament { stroke: #6a6d73; stroke-width: 1.2; }
-
-.light-toggle.is-lit {
-  background: linear-gradient(180deg, #ffd489, #ffc164);
-  border-color: #e9a83f;
-  box-shadow: 0 8px 22px rgba(255,180,70,.45), 0 1px 0 rgba(255,255,255,.75) inset;
-}
-.light-toggle.is-lit .si-glass { fill: rgba(255,210,124,.42); stroke: #e0a94e; }
-.light-toggle.is-lit .si-cap { fill: #bb8a3d; }
-.light-toggle.is-lit .si-filament {
-  stroke: #ff9d1f;
-  filter: drop-shadow(0 0 3px rgba(255,170,50,1));
-}
-.light-toggle.is-lit svg {
-  filter: drop-shadow(0 0 6px rgba(255,186,74,.95)) drop-shadow(0 0 16px rgba(255,186,74,.55));
-}
-
-.conn-dot {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #c9c9cd;
-  border: none;
-  box-shadow: none;
-  transition: background .3s ease;
-  z-index: 5;
-  pointer-events: none;
-}
-.conn-dot.ok { background: #10b981; }
-.conn-dot.err { background: #e11d48; }
-
-.battery-block {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--hair);
-  transition: border-color .4s ease;
-}
-.battery-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.battery-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 650;
-  color: var(--muted);
-  letter-spacing: .01em;
-}
-.battery-icon {
-  width: 22px;
-  height: 12px;
-  flex: 0 0 22px;
-  color: var(--muted);
-  overflow: visible;
-}
-.battery-icon .b-shell { fill: none; stroke: currentColor; stroke-width: 1.2; }
-.battery-icon .b-tip { fill: currentColor; }
-.battery-icon .b-fill { fill: currentColor; }
-.battery-value {
-  font-size: 14px;
-  font-weight: 750;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -.3px;
-}
-.battery-track {
-  position: relative;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--hair);
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.04), inset 0 1px 2px rgba(0,0,0,.04);
-  transition: background .4s ease;
-}
-.battery-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #7ee0a4, #10b981);
-  transition: width .6s ease, background .4s ease;
-}
-
 .beam { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .7s ease; }
 .beam-lamp {
   background:
@@ -552,15 +425,6 @@ body.is-on .dust { opacity: 1; }
   .history-duration { font-size: 13px; }
   .section-title { margin-bottom: 15px; }
   .tick:not(.major):not(.even) { display: none; }
-
-  .light-card { padding: 16px; }
-  .light-row { gap: 14px; }
-  .light-toggle { width: 56px; height: 56px; }
-  .light-toggle svg { width: 28px; height: 28px; }
-  .conn-dot { width: 7px; height: 7px; top: -5px; left: -5px; }
-
-  .battery-block { margin-top: 14px; padding-top: 13px; }
-  .battery-value { font-size: 13px; }
 }
 
 @media (max-width: 390px) {
@@ -572,11 +436,6 @@ body.is-on .dust { opacity: 1; }
   .legend { font-size: 10px; }
   .day-btn { padding: 5px 9px; font-size: 11px; }
   .status-title { font-size: 18px; }
-
-  .light-row { gap: 10px; }
-  .light-toggle { width: 50px; height: 50px; }
-  .light-toggle svg { width: 26px; height: 26px; }
-  .conn-dot { width: 6px; height: 6px; top: -4px; left: -4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -655,60 +514,6 @@ body.is-on .dust { opacity: 1; }
     </div>
   </section>
 
-  <section class="card light-card" aria-label="Управление светом">
-    <div class="light-row">
-      <button class="light-toggle" id="lightToggle" type="button" aria-label="Включить свет" aria-pressed="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path class="si-glass"
-            d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-               L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-               C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-               C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-          <path class="si-filament"
-            d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
-            fill="none" stroke-linecap="round" />
-        </svg>
-      </button>
-    </div>
-
-    <div class="battery-block">
-      <div class="battery-head">
-        <span class="battery-label">
-          <svg class="battery-icon" viewBox="0 0 26 14" aria-hidden="true">
-            <rect class="b-shell" x="0.6" y="0.6" width="21" height="12.8" rx="2.4"/>
-            <rect class="b-tip" x="23.2" y="4.5" width="2.4" height="5" rx="1"/>
-            <rect class="b-fill" id="batteryFillIcon" x="2.4" y="2.4" width="14" height="9.2" rx="1.4"/>
-          </svg>
-          Уровень заряда АКБ
-        </span>
-        <span class="battery-value" id="batteryValue">—%</span>
-      </div>
-      <div class="battery-track">
-        <div class="battery-fill" id="batteryFill"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card light-card" aria-label="Управление светом через Wemos">
-    <div class="light-row">
-      <button class="light-toggle" id="lightToggle2" type="button" aria-label="Включить свет" aria-pressed="false">
-        <span class="conn-dot" id="connDot" aria-hidden="true"></span>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path class="si-glass"
-            d="M12 2.5 C7.2 2.5 4 6 4 10 C4 12.8 5.4 15 7.4 16.6
-               L7.4 18 C7.4 18.8 7.9 19.4 8.8 19.4 L15.2 19.4
-               C16.1 19.4 16.6 18.8 16.6 18 L16.6 16.6
-               C18.6 15 20 12.8 20 10 C20 6 16.8 2.5 12 2.5 Z" />
-          <rect class="si-cap" x="8.5" y="19.6" width="7" height="2.4" rx=".5" />
-          <path class="si-filament"
-            d="M9.4 10 Q10.7 13.4 12 10 Q13.3 13.4 14.6 10"
-            fill="none" stroke-linecap="round" />
-        </svg>
-      </button>
-    </div>
-  </section>
-
   <section class="card dash-card">
     <div class="section-title"><h2>История отключений</h2></div>
     <div class="history" id="history"></div>
@@ -717,11 +522,8 @@ body.is-on .dust { opacity: 1; }
 
 <script>
 // ============================================================
-//  НАСТРОЙКА WEMOS
+//  API (дашборд)
 // ============================================================
-const WEMOS_HOST = 'http://192.168.1.42';
-
-// ===== API (дашборд) =====
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const pad = n => String(n).padStart(2, '0');
 
@@ -732,7 +534,6 @@ const DATA_STALE_MS = 45000;
 const NORMAL_POLL_INTERVAL = 30000;
 
 // === Адаптивный быстрый опрос (щадящий к квотам Apps Script) ===
-// Первые 30 секунд — 2 сек. Дальше интервал растёт по этой таблице.
 const FAST_PROBE_STEPS = [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
                           2000, 2000, 2000, 2000, 2000, 2000, 2000,
                           3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000,
@@ -1098,149 +899,6 @@ window.addEventListener('scroll', queueLightUpdate, { passive: true });
 window.addEventListener('load', updateLightOrigin);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLightOrigin);
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
-
-// ============================================================
-//  КАРТОЧКА №1 — визуальная заглушка
-// ============================================================
-(function() {
-  const t1 = document.getElementById('lightToggle');
-  let on1 = false;
-  const update1 = () => {
-    t1.classList.toggle('is-lit', on1);
-    t1.setAttribute('aria-pressed', on1 ? 'true' : 'false');
-    t1.setAttribute('aria-label', on1 ? 'Выключить свет' : 'Включить свет');
-  };
-  t1.addEventListener('click', () => { on1 = !on1; update1(); });
-  update1();
-})();
-
-// ===== АКБ — заглушка =====
-const batteryFill = document.getElementById('batteryFill');
-const batteryFillIcon = document.getElementById('batteryFillIcon');
-const batteryValue = document.getElementById('batteryValue');
-
-let batteryLevel = 87;
-
-function renderBattery(level) {
-  const lvl = Math.max(0, Math.min(100, Math.round(level)));
-  batteryValue.textContent = lvl + '%';
-  batteryFill.style.width = lvl + '%';
-
-  let c1, c2, cIcon;
-  if (lvl <= 15)      { c1 = '#fca5a5'; c2 = '#e11d48'; cIcon = '#e11d48'; }
-  else if (lvl <= 35) { c1 = '#fcd34d'; c2 = '#f59e0b'; cIcon = '#e0a94e'; }
-  else                { c1 = '#7ee0a4'; c2 = '#10b981'; cIcon = '#10b981'; }
-
-  batteryFill.style.background = `linear-gradient(90deg, ${c1}, ${c2})`;
-
-  const trackW = 21;
-  const padX = 1.8;
-  const maxW = trackW - padX * 2;
-  const w = Math.max(0.8, (lvl / 100) * maxW);
-  batteryFillIcon.setAttribute('width', w.toFixed(2));
-  batteryFillIcon.setAttribute('fill', cIcon);
-}
-renderBattery(batteryLevel);
-
-// ============================================================
-//  КАРТОЧКА №2 — Wemos D1 mini
-// ============================================================
-const lightToggle2 = document.getElementById('lightToggle2');
-const brightnessSlider = document.getElementById('brightness2'); // удалён — может быть null
-const connDot = document.getElementById('connDot');
-
-let currentBrightness = parseInt(localStorage.getItem('wemos_brightness') || '70', 10);
-let lastNonZeroBrightness = currentBrightness > 0 ? currentBrightness : 70;
-let wemosOnline = null;
-
-if (brightnessSlider) brightnessSlider.value = currentBrightness;
-
-function updateToggleVisual2() {
-  const on = currentBrightness > 0;
-  lightToggle2.classList.toggle('is-lit', on);
-  lightToggle2.setAttribute('aria-pressed', on ? 'true' : 'false');
-  lightToggle2.setAttribute('aria-label', on ? 'Выключить свет' : 'Включить свет');
-}
-
-function updateLinkStatus() {
-  connDot.classList.remove('ok', 'err');
-  if (wemosOnline === true)  connDot.classList.add('ok');
-  if (wemosOnline === false) connDot.classList.add('err');
-}
-
-function sendToWemos(percent) {
-  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-  const url = WEMOS_HOST + '/set?val=' + clamped + '&_=' + Date.now();
-
-  const img = new Image();
-  let completed = false;
-  const markOk = () => { if (!completed) { completed = true; wemosOnline = true; updateLinkStatus(); } };
-  const markErr = () => { if (!completed) { completed = true; wemosOnline = false; updateLinkStatus(); } };
-  img.onload = markOk;
-  img.onerror = markErr;
-  setTimeout(() => { if (!completed) markErr(); }, 3000);
-  img.src = url;
-
-  if (location.protocol === 'http:') {
-    fetch(url, { mode: 'no-cors', cache: 'no-store' })
-      .then(() => { wemosOnline = true; updateLinkStatus(); })
-      .catch(() => { wemosOnline = false; updateLinkStatus(); });
-  }
-}
-
-let sendTimer = null;
-let pendingValue = null;
-function queueSend(percent, immediate = false) {
-  pendingValue = percent;
-  if (immediate) {
-    if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
-    const v = pendingValue;
-    pendingValue = null;
-    sendToWemos(v);
-    return;
-  }
-  if (sendTimer) return;
-  sendTimer = setTimeout(() => {
-    sendTimer = null;
-    const v = pendingValue;
-    pendingValue = null;
-    if (v != null) sendToWemos(v);
-  }, 80);
-}
-
-if (brightnessSlider) {
-  brightnessSlider.addEventListener('input', () => {
-    currentBrightness = parseInt(brightnessSlider.value, 10);
-    if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
-    updateToggleVisual2();
-    queueSend(currentBrightness);
-  });
-
-  brightnessSlider.addEventListener('change', () => {
-    currentBrightness = parseInt(brightnessSlider.value, 10);
-    if (currentBrightness > 0) lastNonZeroBrightness = currentBrightness;
-    localStorage.setItem('wemos_brightness', String(currentBrightness));
-    updateToggleVisual2();
-    queueSend(currentBrightness, true);
-  });
-}
-
-lightToggle2.addEventListener('click', () => {
-  if (currentBrightness > 0) {
-    lastNonZeroBrightness = currentBrightness;
-    currentBrightness = 0;
-  } else {
-    currentBrightness = lastNonZeroBrightness || 70;
-  }
-  if (brightnessSlider) brightnessSlider.value = currentBrightness;
-  localStorage.setItem('wemos_brightness', String(currentBrightness));
-  updateToggleVisual2();
-  queueSend(currentBrightness, true);
-});
-
-updateToggleVisual2();
-updateLinkStatus();
-queueSend(currentBrightness, true);
 
 // ===== Старт =====
 refreshPowerData();

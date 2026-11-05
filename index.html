@@ -163,6 +163,7 @@ main.is-loading .dash-card::after { opacity: 1; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .status-left {
@@ -205,6 +206,7 @@ main.is-loading .dash-card::after { opacity: 1; }
 .status.off .status-title { color: #8a8f98; }
 body.is-off .status.off .status-title { color: var(--bad); }
 
+/* ===== Кнопки-дни недели (крайняя справа — сегодня) ===== */
 .day-switch {
   display: inline-flex;
   gap: 2px;
@@ -221,20 +223,27 @@ body.is-off .status.off .status-title { color: var(--bad); }
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: .01em;
-  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  padding: 5px 7px;
   border-radius: 7px;
   cursor: pointer;
   transition: background .25s ease, color .25s ease, box-shadow .25s ease;
   white-space: nowrap;
+  min-width: 28px;
+  text-align: center;
+  line-height: 1;
 }
 .day-btn:hover { color: var(--text); }
 .day-btn.is-active {
   background: var(--panel);
   color: var(--text);
   box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 0 0 1px var(--panel-edge) inset;
+}
+.day-btn.is-today:not(.is-active) {
+  color: var(--text);
+  font-weight: 800;
 }
 body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
 
@@ -455,10 +464,13 @@ body.is-on .dust { opacity: 1; }
   .wrap { gap: 11px; }
   .card { padding: 18px; border-radius: 15px; }
 
-  .status-card { gap: 12px; }
+  .status-card { gap: 10px; }
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
+
+  .day-switch { width: 100%; order: 3; justify-content: space-between; }
+  .day-btn { flex: 1 1 0; padding: 7px 2px; font-size: 11px; min-width: 0; }
 
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
@@ -479,7 +491,7 @@ body.is-on .dust { opacity: 1; }
   .summary-value { font-size: 19px; }
   .summary-label { font-size: 9px; margin-top: 5px; }
   .legend { font-size: 10px; }
-  .day-btn { padding: 5px 9px; font-size: 11px; }
+  .day-btn { padding: 6px 1px; font-size: 10px; }
   .status-title { font-size: 18px; }
 }
 
@@ -522,10 +534,7 @@ body.is-on .dust { opacity: 1; }
       <div class="status-title" id="statusTitle">Свет есть</div>
     </div>
 
-    <div class="day-switch" role="tablist" aria-label="Выбор дня">
-      <button class="day-btn" id="btnYesterday" type="button" data-day="yesterday">Вчера</button>
-      <button class="day-btn is-active" id="btnToday" type="button" data-day="today">Сегодня</button>
-    </div>
+    <div class="day-switch" role="tablist" aria-label="День недели" id="daySwitch"></div>
   </header>
 
   <section class="card dash-card">
@@ -567,13 +576,14 @@ body.is-on .dust { opacity: 1; }
 
 <script>
 // ============================================================
-//  API (дашборд)
+//  API (дашборд) — существующий Apps Script
 // ============================================================
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const pad = n => String(n).padStart(2, '0');
 
 const DATA_STALE_MS = 45000;
 const NORMAL_POLL_INTERVAL = 30000;
+const DAY_MS = 86400000;
 
 const FAST_PROBE_STEPS = [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
                           2000, 2000, 2000, 2000, 2000, 2000, 2000,
@@ -584,15 +594,87 @@ const FAST_PROBE_STEPS = [2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000,
                           30000, 30000,
                           60000, 60000, 60000, 60000];
 
+const WINDOW_COUNT = 8;           // 7 прошлых дней + сегодня
+const CACHE_KEY = 'svetdom_outages_cache_v1';
+
 let serverSkew = 0;
 let payload = null;
 let loading = false;
-let selectedDay = 'today';
+
+// Индекс активной кнопки: 0 — самое старое (7 дней назад), WINDOW_COUNT-1 — сегодня
+let selectedIndex = WINDOW_COUNT - 1;
 
 let lastSyncAt = 0;
 let lastRequestFailed = false;
 
 const mainWrap = document.getElementById('mainWrap');
+const daySwitchEl = document.getElementById('daySwitch');
+
+// 0=ВС, 1=ПН ... 6=СБ
+const WD_SHORT = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+const WD_LONG  = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+
+// ============================================================
+//  КЭШ ИСТОРИИ (localStorage)
+//  Ключ = YYYY-MM-DD (локальная дата)
+//  Значение = { outages: [{start, end, dur, current}] }
+// ============================================================
+let historyCache = {};
+
+function loadCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) { return {}; }
+}
+
+function saveCache() {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(historyCache)); }
+  catch (e) { /* quota / private mode */ }
+}
+
+function dateKeyOf(ts) {
+  const d = new Date(ts);
+  return d.getFullYear() + '-' +
+         String(d.getMonth() + 1).padStart(2, '0') + '-' +
+         String(d.getDate()).padStart(2, '0');
+}
+
+// Каждое отключение кладём в бакет дня, когда оно началось
+function mergeOutagesIntoCache(outages) {
+  if (!Array.isArray(outages)) return;
+  outages.forEach(o => {
+    if (typeof o.start !== 'number') return;
+    const key = dateKeyOf(o.start);
+    if (!historyCache[key]) historyCache[key] = { outages: [] };
+    const bucket = historyCache[key];
+    if (!bucket.outages.some(x => x.start === o.start)) {
+      bucket.outages.push({
+        start: o.start, end: o.end, dur: o.dur, current: !!o.current
+      });
+    }
+  });
+  saveCache();
+}
+
+function outagesFromCache(dayStart, dayEnd) {
+  const result = [];
+  const startKey = dateKeyOf(dayStart);
+  const endKey   = dateKeyOf(dayEnd - 1);
+  Object.keys(historyCache).forEach(key => {
+    if (key < startKey || key > endKey) return;
+    const bucket = historyCache[key];
+    if (!bucket || !Array.isArray(bucket.outages)) return;
+    bucket.outages.forEach(o => {
+      if (o.end > dayStart && o.start < dayEnd) {
+        result.push({ ...o });
+      }
+    });
+  });
+  return result;
+}
 
 // ============================================================
 //  АДАПТИВНОЕ ЗОНДИРОВАНИЕ
@@ -611,10 +693,7 @@ function startFastProbe(reset = false) {
 function stopFastProbe() {
   fastProbeActive = false;
   fastProbeStep = 0;
-  if (fastProbeTimer) {
-    clearTimeout(fastProbeTimer);
-    fastProbeTimer = null;
-  }
+  if (fastProbeTimer) { clearTimeout(fastProbeTimer); fastProbeTimer = null; }
 }
 
 function nextFastProbeDelay() {
@@ -626,17 +705,10 @@ function nextFastProbeDelay() {
 
 function runFastProbe() {
   if (!fastProbeActive) return;
-
-  if (loading) {
-    fastProbeTimer = setTimeout(runFastProbe, 400);
-    return;
-  }
-
+  if (loading) { fastProbeTimer = setTimeout(runFastProbe, 400); return; }
   refreshPowerData();
-
   if (fastProbeActive) {
-    const delay = nextFastProbeDelay();
-    fastProbeTimer = setTimeout(runFastProbe, delay);
+    fastProbeTimer = setTimeout(runFastProbe, nextFastProbeDelay());
   }
 }
 
@@ -650,12 +722,11 @@ function dataIsStale() {
 }
 
 function updateBlurState() {
-  const stale = dataIsStale();
-  mainWrap.classList.toggle('is-loading', stale);
+  mainWrap.classList.toggle('is-loading', dataIsStale());
 }
 
 // ============================================================
-//  РЕАКЦИЯ НА ОТКЛЮЧЕНИЕ / ПОЯВЛЕНИЕ ИНТЕРНЕТА
+//  ОФФЛАЙН / ОНЛАЙН
 // ============================================================
 window.addEventListener('offline', () => {
   lastRequestFailed = true;
@@ -675,31 +746,20 @@ if (typeof navigator !== 'undefined' && navigator.onLine === false) {
   startFastProbe(true);
 }
 
-// ===== Переключатель дня =====
-document.querySelectorAll('.day-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.dataset.day === selectedDay) return;
-    selectedDay = btn.dataset.day;
-    document.querySelectorAll('.day-btn').forEach(b =>
-      b.classList.toggle('is-active', b === btn)
-    );
-    render();
-  });
-});
-
 // ===== Текущее серверное время =====
-function nowMs() {
-  return Date.now() - serverSkew;
-}
+function nowMs() { return Date.now() - serverSkew; }
+
+function tz() { return payload?.timezone || 'Europe/Kyiv'; }
 
 function timeFormat(ts, seconds = false) {
   const options = {
-    timeZone: payload?.timezone || 'Europe/Kyiv',
+    timeZone: tz(),
     hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
   };
   if (seconds) options.second = '2-digit';
   return new Intl.DateTimeFormat('ru-RU', options).format(new Date(ts));
 }
+
 function fmtDur(min) {
   if (min <= 0) return '0ч 0м';
   const rounded = Math.round(min);
@@ -709,46 +769,163 @@ function fmtDur(min) {
   return h + 'ч ' + m + 'м';
 }
 
-// ===== Рендер =====
+// ============================================================
+//  ЛОКАЛЬНЫЙ РАСЧЁТ ОКОН (по одному дню на кнопку)
+// ============================================================
+function getLocalTodayStart() {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+function dayFor(index) {
+  const todayStart = getLocalTodayStart();
+  const dayStart = todayStart - (WINDOW_COUNT - 1 - index) * DAY_MS;
+  const dayEnd   = dayStart + DAY_MS;
+  const weekday  = new Date(dayStart).getDay();
+  return { index, dayStart, dayEnd, weekday };
+}
+
+// ============================================================
+//  ПОСТРОЕНИЕ КНОПОК
+// ============================================================
+function buildDaySwitch() {
+  daySwitchEl.replaceChildren();
+
+  for (let i = 0; i < WINDOW_COUNT; i++) {
+    const d = dayFor(i);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'day-btn';
+    btn.dataset.idx = String(i);
+    btn.textContent = WD_SHORT[d.weekday];
+    btn.title = WD_LONG[d.weekday] + ' · ' + new Date(d.dayStart).toLocaleDateString('ru-RU');
+    if (i === WINDOW_COUNT - 1) btn.classList.add('is-today');
+    if (i === selectedIndex) btn.classList.add('is-active');
+
+    btn.addEventListener('click', () => {
+      if (i === selectedIndex) return;
+      selectedIndex = i;
+      document.querySelectorAll('.day-btn').forEach(b =>
+        b.classList.toggle('is-active', parseInt(b.dataset.idx, 10) === i)
+      );
+      render();
+    });
+
+    daySwitchEl.appendChild(btn);
+  }
+}
+
+// ============================================================
+//  ВЫБОР ДАННЫХ ДЛЯ ВЫБРАННОГО ДНЯ
+//  Приоритет:
+//    1) payload.today       — если день совпадает с "сегодня" у сервера
+//    2) payload.yesterday   — если день совпадает с "вчера" у сервера
+//    3) localStorage-кэш    — накопленная история
+//    4) пусто               — «нет данных»
+// ============================================================
+function getRange() {
+  const d = dayFor(selectedIndex);
+  const wdName = WD_LONG[d.weekday] || 'день';
+
+  let outages = [];
+  let source = 'none';
+
+  if (payload && payload.today &&
+      payload.today.dayStart === d.dayStart &&
+      payload.today.dayEnd   === d.dayEnd) {
+    outages = (payload.today.outages || []).map(o => ({ ...o }));
+    source = 'server';
+  } else if (payload && payload.yesterday &&
+             payload.yesterday.dayStart === d.dayStart &&
+             payload.yesterday.dayEnd   === d.dayEnd) {
+    outages = (payload.yesterday.outages || []).map(o => ({ ...o }));
+    source = 'server';
+  } else {
+    const cached = outagesFromCache(d.dayStart, d.dayEnd);
+    if (cached.length) { outages = cached; source = 'cache'; }
+    else {
+      // даже «пустой день» из кэша считаем доступным, если такой ключ есть
+      const key = dateKeyOf(d.dayStart);
+      if (historyCache[key]) { outages = []; source = 'cache'; }
+    }
+  }
+
+  return {
+    ...d,
+    outages,
+    source,
+    isToday: selectedIndex === WINDOW_COUNT - 1,
+    title: 'Отчёт за ' + wdName,
+    emptyText: source === 'none'
+      ? 'Нет данных за этот день — сервер отдаёт только «сегодня» и «вчера», а кэш ещё не накоплен'
+      : 'В ' + wdName + ' отключений не было'
+  };
+}
+
+// ============================================================
+//  РЕНДЕР — тот же, что в исходнике
+// ============================================================
 function render() {
-  if (!payload) return;
+  buildDaySwitch();
+
+  const timeline = document.getElementById('timeline');
+  const ticks = document.getElementById('ticks');
+
+  // Пока нет ответа сервера — только заглушка
+  if (!payload) {
+    timeline.replaceChildren();
+    ticks.replaceChildren();
+
+    const label = document.createElement('div');
+    label.style.cssText =
+      'position:absolute;inset:0;display:grid;place-items:center;' +
+      'z-index:6;font-size:12px;font-weight:650;color:var(--muted);' +
+      'pointer-events:none;letter-spacing:.04em;padding:0 12px;text-align:center;';
+    label.textContent = 'Загрузка данных…';
+    timeline.appendChild(label);
+
+    document.getElementById('outageCount').textContent = '—';
+    document.getElementById('totalOutage').textContent = '—';
+    document.getElementById('longestOutage').textContent = '—';
+
+    const history = document.getElementById('history');
+    history.replaceChildren();
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'Ждём ответа сервера…';
+    history.appendChild(empty);
+    return;
+  }
 
   const stale = dataIsStale();
   const now = stale ? (lastSyncAt - serverSkew) : nowMs();
 
-  const dayKey = selectedDay === 'yesterday' ? 'yesterday' : 'today';
-  const dayData = payload[dayKey] || { dayStart: 0, dayEnd: 0, outages: [] };
-  const dayStart = dayData.dayStart;
-  const dayEnd = dayData.dayEnd;
-  const windowMs = dayEnd - dayStart;
+  const range = getRange();
+  const dayStart = range.dayStart;
+  const dayEnd = range.dayEnd;
+  const windowMs = Math.max(1, dayEnd - dayStart);
   const lastConnection = payload.lastConnection;
   const lightOn = payload.hasData && (now - lastConnection <= 90000);
   const onlineStatus = payload.hasData ? lightOn : null;
-  const outages = (dayData.outages || []).map(o => ({ ...o }));
+  const outages = range.outages.map(o => ({ ...o }));
 
   document.body.classList.toggle('is-on', lightOn);
   document.body.classList.toggle('is-off', !lightOn);
 
-  document.getElementById('reportTitle').textContent =
-    selectedDay === 'yesterday' ? 'Отчёт за вчера' : 'Отчёт за сегодня';
+  document.getElementById('reportTitle').textContent = range.title;
 
   const statusBox = document.getElementById('statusBox');
   const statusTitle = document.getElementById('statusTitle');
   statusBox.className = 'card status-card status dash-card ' + (lightOn ? 'on' : 'off');
 
-  if (onlineStatus === null) {
-    statusTitle.textContent = 'Нет данных';
-  } else if (lightOn) {
-    statusTitle.textContent = 'Свет есть';
-  } else {
-    statusTitle.textContent = 'Света нет';
-  }
+  if (onlineStatus === null) statusTitle.textContent = 'Нет данных';
+  else if (lightOn) statusTitle.textContent = 'Свет есть';
+  else statusTitle.textContent = 'Света нет';
 
-  const timeline = document.getElementById('timeline');
-  const ticks = document.getElementById('ticks');
   timeline.replaceChildren();
   ticks.replaceChildren();
 
+  // ---- Часовые деления ----
   for (let h = 0; h <= 24; h++) {
     const el = document.createElement('div');
     el.className = 'tick';
@@ -761,6 +938,7 @@ function render() {
     ticks.appendChild(el);
   }
 
+  // ---- Нет данных вообще ----
   if (!payload.hasData) {
     const noData = document.createElement('div');
     noData.className = 'future-mask no-data';
@@ -789,6 +967,30 @@ function render() {
     return;
   }
 
+  // ---- Нет данных именно за выбранный день ----
+  if (range.source === 'none') {
+    const label = document.createElement('div');
+    label.style.cssText =
+      'position:absolute;inset:0;display:grid;place-items:center;' +
+      'z-index:6;font-size:12px;font-weight:650;color:var(--muted);' +
+      'pointer-events:none;letter-spacing:.02em;padding:0 12px;text-align:center;line-height:1.4;';
+    label.textContent = 'Нет данных за этот день';
+    timeline.appendChild(label);
+
+    document.getElementById('outageCount').textContent = '—';
+    document.getElementById('totalOutage').textContent = '—';
+    document.getElementById('longestOutage').textContent = '—';
+
+    const history = document.getElementById('history');
+    history.replaceChildren();
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = range.emptyText;
+    history.appendChild(empty);
+    return;
+  }
+
+  // ---- Сегменты отключений ----
   outages.forEach(o => {
     const start = Math.max(dayStart, o.start);
     const end = Math.min(dayEnd, o.end);
@@ -806,12 +1008,13 @@ function render() {
     seg.style.left = leftPct + '%';
     const finalWidth = Math.max(0.2, widthPct);
     seg.style.width = Math.min(finalWidth, 100 - leftPct) + '%';
-    seg.title = timeFormat(o.start) + ' → ' + (o.current ? 'сейчас' : timeFormat(o.end)) +
-      ' · ' + fmtDur(o.dur);
+    seg.title = timeFormat(o.start) + ' → ' +
+      (o.current ? 'сейчас' : timeFormat(o.end)) + ' · ' + fmtDur(o.dur);
     timeline.appendChild(seg);
   });
 
-  if (selectedDay === 'today') {
+  // ---- Маска будущего: только для «сегодня» ----
+  if (range.isToday && windowMs > 0) {
     const pct = Math.min(100, Math.max(0, (now - dayStart) / windowMs * 100));
     if (pct < 100) {
       const mask = document.createElement('div');
@@ -821,20 +1024,20 @@ function render() {
     }
   }
 
+  // ---- Сводка ----
   document.getElementById('outageCount').textContent = outages.length;
   document.getElementById('totalOutage').textContent =
     fmtDur(outages.reduce((total, o) => total + o.dur, 0));
   document.getElementById('longestOutage').textContent =
     fmtDur(outages.length ? Math.max(...outages.map(o => o.dur)) : 0);
 
+  // ---- История ----
   const history = document.getElementById('history');
   history.replaceChildren();
   if (!outages.length) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = selectedDay === 'today'
-      ? 'Сегодня отключений не было'
-      : 'Вчера отключений не было';
+    empty.textContent = range.emptyText;
     history.appendChild(empty);
   } else {
     [...outages].reverse().forEach(o => {
@@ -843,7 +1046,8 @@ function render() {
       const left = document.createElement('div');
       const time = document.createElement('div');
       time.className = 'history-time';
-      time.textContent = timeFormat(o.start) + ' → ' + (o.current ? 'сейчас' : timeFormat(o.end));
+      time.textContent = timeFormat(o.start) + ' → ' +
+        (o.current ? 'сейчас' : timeFormat(o.end));
       left.appendChild(time);
       const duration = document.createElement('div');
       duration.className = 'history-duration';
@@ -854,7 +1058,9 @@ function render() {
   }
 }
 
-// ===== Запрос данных (JSONP) =====
+// ============================================================
+//  ЗАПРОС ДАННЫХ (JSONP)
+// ============================================================
 let requestSerial = 0;
 
 function receivePowerData(result) {
@@ -865,10 +1071,16 @@ function receivePowerData(result) {
   payload = result;
   lastSyncAt = Date.now();
   lastRequestFailed = false;
-  if (typeof result.now === 'number') {
-    serverSkew = Date.now() - result.now;
-  }
+  if (typeof result.now === 'number') serverSkew = Date.now() - result.now;
   loading = false;
+
+  // Копим историю в localStorage
+  if (result.today && Array.isArray(result.today.outages)) {
+    mergeOutagesIntoCache(result.today.outages);
+  }
+  if (result.yesterday && Array.isArray(result.yesterday.outages)) {
+    mergeOutagesIntoCache(result.yesterday.outages);
+  }
 
   updateBlurState();
   render();
@@ -879,9 +1091,8 @@ function reportPowerError(error) {
   loading = false;
   lastRequestFailed = true;
   console.error('Ошибка загрузки отметок:', error);
-
   updateBlurState();
-  if (payload) render();
+  render();
   startFastProbe();
 }
 
@@ -939,6 +1150,8 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLigh
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
 
 // ===== Старт =====
+historyCache = loadCache();
+buildDaySwitch();
 refreshPowerData();
 
 setInterval(render, 15000);

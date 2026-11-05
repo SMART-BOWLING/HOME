@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" href="#fbfaf6">
+<meta name="theme-color" content="#fbfaf6">
 <meta name="mobile-web-app-capable" content="yes">
 <title>СВЕТ ДОМ</title>
 
@@ -206,7 +206,6 @@ main.is-loading .dash-card::after { opacity: 1; }
 .status.off .status-title { color: #8a8f98; }
 body.is-off .status.off .status-title { color: var(--bad); }
 
-/* ===== Кнопки-дни недели ===== */
 .day-switch {
   display: inline-flex;
   gap: 2px;
@@ -241,10 +240,7 @@ body.is-off .status.off .status-title { color: var(--bad); }
   color: var(--text);
   box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 0 0 1px var(--panel-edge) inset;
 }
-.day-btn.is-today:not(.is-active) {
-  color: var(--text);
-  font-weight: 800;
-}
+.day-btn.is-today:not(.is-active) { color: var(--text); font-weight: 800; }
 body.is-off .day-btn.is-active { background: rgba(255,255,255,.85); }
 
 .section-title { margin-bottom: 18px; }
@@ -336,26 +332,9 @@ body.is-off .future-mask::after {
   margin-top: 0;
   text-align: center;
 }
-.summary-item {
-  background: transparent;
-  padding: 4px 2px 2px;
-  min-width: 0;
-  text-align: center;
-}
-.summary-value {
-  font-size: 26px;
-  font-weight: 750;
-  letter-spacing: -.8px;
-  line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-}
-.summary-label {
-  margin-top: 7px;
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: .01em;
-  line-height: 1.3;
-}
+.summary-item { background: transparent; padding: 4px 2px 2px; min-width: 0; text-align: center; }
+.summary-value { font-size: 26px; font-weight: 750; letter-spacing: -.8px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.summary-label { margin-top: 7px; font-size: 11px; color: var(--muted); letter-spacing: .01em; line-height: 1.3; }
 
 .history-card {
   flex: 1 1 auto;
@@ -379,10 +358,7 @@ body.is-off .future-mask::after {
 }
 .history::-webkit-scrollbar { width: 6px; }
 .history::-webkit-scrollbar-track { background: transparent; }
-.history::-webkit-scrollbar-thumb {
-  background: rgba(120,120,130,.30);
-  border-radius: 999px;
-}
+.history::-webkit-scrollbar-thumb { background: rgba(120,120,130,.30); border-radius: 999px; }
 
 .history-row {
   display: grid;
@@ -400,7 +376,6 @@ body.is-off .future-mask::after {
 .history-row.current .history-time { color: var(--bad); }
 .empty { text-align: center; padding: 20px 0; color: var(--muted); font-size: 13px; }
 
-/* ===== Плашка источника ===== */
 .source-bar {
   display: flex;
   align-items: center;
@@ -421,16 +396,12 @@ body.is-off .future-mask::after {
   font-weight: 650;
   white-space: nowrap;
 }
-.source-badge .dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: currentColor;
-}
+.source-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .source-badge.ok    { color: #047857; background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.28); }
 .source-badge.warn  { color: #b45309; background: rgba(245,158,11,.10); border-color: rgba(245,158,11,.28); }
 .source-badge.bad   { color: #be123c; background: rgba(225,29,72,.10);  border-color: rgba(225,29,72,.28); }
 .source-badge.idle  { color: var(--muted); }
 
-/* ===== Ручной ввод ===== */
 .manual-toggle {
   appearance: none;
   border: 1px solid var(--panel-edge);
@@ -472,12 +443,7 @@ body.is-off .future-mask::after {
   margin-bottom: 8px;
   line-height: 1.5;
 }
-.manual-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
+.manual-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .manual-actions button {
   font: inherit;
   font-size: 12px;
@@ -489,11 +455,7 @@ body.is-off .future-mask::after {
   color: var(--text);
   cursor: pointer;
 }
-.manual-actions .primary {
-  background: #16181d;
-  color: #fff;
-  border-color: #16181d;
-}
+.manual-actions .primary { background: #16181d; color: #fff; border-color: #16181d; }
 .manual-actions button:hover { filter: brightness(.96); }
 
 .beam { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .7s ease; }
@@ -553,15 +515,12 @@ body.is-on .dust { opacity: 1; }
   body { padding: 18px 14px 20px; }
   .wrap { gap: 11px; }
   .card { padding: 18px; border-radius: 15px; }
-
   .status-card { gap: 10px; }
   .status-left { gap: 12px; }
   .status-icon { width: 28px; height: 28px; flex-basis: 28px; }
   .status-title { font-size: 20px; }
-
   .day-switch { width: 100%; order: 3; justify-content: space-between; }
   .day-btn { flex: 1 1 0; padding: 7px 2px; font-size: 11px; min-width: 0; }
-
   .timeline { height: 40px; }
   .legend { gap: 12px; margin-top: 15px; }
   .report-card .section-title { margin-bottom: 12px; }
@@ -623,7 +582,6 @@ body.is-on .dust { opacity: 1; }
       </span>
       <div class="status-title" id="statusTitle">Свет есть</div>
     </div>
-
     <div class="day-switch" role="tablist" aria-label="День недели" id="daySwitch"></div>
   </header>
 
@@ -646,7 +604,6 @@ body.is-on .dust { opacity: 1; }
       <span id="sourceDetail"></span>
       <button type="button" class="manual-toggle" id="manualToggle">✎ вручную</button>
     </div>
-
     <div class="manual-panel" id="manualPanel">
       <div class="hint">
         Введите интервалы отключений для сегодняшнего дня, каждый с новой строки.<br>
@@ -686,7 +643,7 @@ body.is-on .dust { opacity: 1; }
 
 <script>
 // ============================================================
-//  API ESP32 (старый Apps Script)
+//  API ESP32 (Apps Script)
 // ============================================================
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbxzAgIbRQNPQjp_MqU6Sjpw-2dTK7OUJ9Ypt_w0LGe5lJZlJEksGIOONm4IWy-p7uizHQ/exec';
 const pad = n => String(n).padStart(2, '0');
@@ -710,25 +667,44 @@ const MANUAL_KEY = 'svetdom_manual_today_v1';
 
 // ============================================================
 //  ВНЕШНИЙ ИСТОЧНИК — bezsvitla.com.ua (черга 1.1)
-//  ВАЖНО: это график для «черги 1.1», а не индивидуальный
-//  график дома «Лісківська 37».
 // ============================================================
 const EXT_SOURCE_URL = 'https://bezsvitla.com.ua/kyiv/cherha-1-1';
-const EXT_PROXY_URL = 'https://api.allorigins.win/get?url=';
 const EXT_REFRESH_MS = 5 * 60 * 1000;
+
+// Список прокси. Пробуем по очереди, при ошибке переключаемся.
+const EXT_PROXIES = [
+  {
+    name: 'allorigins',
+    build: (u) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u) + '&_=' + Date.now(),
+    parse: async (resp) => {
+      const json = await resp.json();
+      return json && (json.contents || json.html) || '';
+    }
+  },
+  {
+    name: 'codetabs',
+    build: (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+    parse: async (resp) => await resp.text()
+  },
+  {
+    name: 'corsproxy.io',
+    build: (u) => 'https://corsproxy.io/?' + encodeURIComponent(u),
+    parse: async (resp) => await resp.text()
+  }
+];
 
 const extState = {
   loading: false,
   html: '',
   outages: [],
   error: null,
+  lastProxy: '',
   noSchedule: false,
   fetchedAt: 0
 };
 
-// Ручной ввод (только на сегодня)
 const manualState = {
-  outages: [],   // [{ start, end, dur, current }]
+  outages: [],
   active: false,
   raw: ''
 };
@@ -742,11 +718,9 @@ let lastRequestFailed = false;
 
 const mainWrap = document.getElementById('mainWrap');
 const daySwitchEl = document.getElementById('daySwitch');
-
 const sourceBadge = document.getElementById('sourceBadge');
 const sourceBadgeText = document.getElementById('sourceBadgeText');
 const sourceDetail = document.getElementById('sourceDetail');
-
 const manualToggle = document.getElementById('manualToggle');
 const manualPanel = document.getElementById('manualPanel');
 const manualInput = document.getElementById('manualInput');
@@ -877,54 +851,74 @@ function parseManualInput(text) {
 }
 
 // ============================================================
-//  ЗАГРУЗКА ВНЕШНЕГО ИСТОЧНИКА
+//  ЗАГРУЗКА ВНЕШНЕГО ИСТОЧНИКА (мультипрокси)
 // ============================================================
 async function fetchExternalSource() {
   if (extState.loading) return;
   extState.loading = true;
   updateSourceBar('loading');
 
-  const url = EXT_PROXY_URL + encodeURIComponent(EXT_SOURCE_URL) + '&_=' + Date.now();
+  for (let i = 0; i < EXT_PROXIES.length; i++) {
+    const proxy = EXT_PROXIES[i];
+    const proxyUrl = proxy.build(EXT_SOURCE_URL);
+    const started = Date.now();
 
-  try {
-    const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const json = await resp.json();
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
 
-    const html = json && (json.contents || json.html);
-    if (typeof html !== 'string' || !html) throw new Error('Пустой ответ прокси');
+      const resp = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timeout);
 
-    extState.html = html;
-    extState.error = null;
-    extState.fetchedAt = Date.now();
-    extState.noSchedule = /графік відключень на обрану дату ще не опублікований/i.test(html);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
-    parseExternalOutages(html);
+      const html = await proxy.parse(resp);
+      if (typeof html !== 'string' || !html || html.length < 50) {
+        throw new Error('Пустой/короткий ответ');
+      }
 
-    let st = 'ok';
-    if (extState.noSchedule) st = 'no-schedule';
-    else if (!extState.outages.length) st = 'empty';
-    updateSourceBar(st);
+      extState.html = html;
+      extState.error = null;
+      extState.fetchedAt = Date.now();
+      extState.lastProxy = proxy.name;
+      extState.noSchedule = /графік відключень на обрану дату ще не опублікований/i.test(html);
 
-  } catch (err) {
-    extState.error = err.message || String(err);
-    extState.outages = [];
-    extState.noSchedule = false;
-    console.warn('Внешний источник недоступен:', err);
-    updateSourceBar('error');
-  } finally {
-    extState.loading = false;
-    updateBlurState();
-    render();
+      parseExternalOutages(html);
+
+      const elapsed = Date.now() - started;
+      console.log(`[ext] OK via "${proxy.name}" за ${elapsed} мс, интервалов: ${extState.outages.length}`);
+
+      let st = 'ok';
+      if (extState.noSchedule) st = 'no-schedule';
+      else if (!extState.outages.length) st = 'empty';
+      updateSourceBar(st);
+
+      extState.loading = false;
+      updateBlurState();
+      render();
+      return;
+
+    } catch (err) {
+      const reason = err && err.name === 'AbortError' ? 'timeout' : (err.message || String(err));
+      console.warn(`[ext] прокси "${proxy.name}" не сработал: ${reason}`);
+      // продолжаем цикл — следующий прокси
+    }
   }
+
+  // Все прокси провалились
+  extState.error = 'Все прокси недоступны';
+  extState.outages = [];
+  extState.noSchedule = false;
+  extState.lastProxy = '';
+  updateSourceBar('error');
+  extState.loading = false;
+  updateBlurState();
+  render();
 }
 
-// Парсим страницу вида:
-// 00:00 – 14:00 💡
-// 14:00 – 18:00
-// 18:00 – 24:00 💡
-// Строка с 💡 => в этом интервале свет ЕСТЬ.
-// Строка без 💡 => отключение.
+// Парсер: ищем по всему HTML пары ЧЧ:ГГ–ЧЧ:ГГ.
+// Если рядом (в пределах 40 символов после) есть 💡 — считаем, что там свет,
+// значит это НЕ отключение. Строки без 💡 = отключения.
 function parseExternalOutages(html) {
   extState.outages = [];
 
@@ -932,24 +926,21 @@ function parseExternalOutages(html) {
   today.setHours(0, 0, 0, 0);
   const baseMs = today.getTime();
 
-  // Разбиваем HTML на строки и ищем строки с интервалами
-  const lines = html.split(/\r?\n/);
-  const rangeRe = /(\d{1,2}:\d{2})\s*[–\-—]\s*(\d{1,2}:\d{2})/;
+  const rangeRe = /(\d{1,2}:\d{2})\s*[–\-—]\s*(\d{1,2}:\d{2})/g;
+  const found = [];
+  let m;
 
-  const seen = new Set();
-  lines.forEach(line => {
-    const m = line.match(rangeRe);
-    if (!m) return;
-
-    // 💡 в строке => свет есть, значит это НЕ отключение
-    const hasLightBulb = /💡|💡|U\+1F4A1|&#x1F4A1;|&#128161;/.test(line);
-    if (hasLightBulb) return;
-
+  while ((m = rangeRe.exec(html)) !== null) {
     const t1 = parseHHMM(m[1]);
     const t2 = parseHHMM(m[2]);
-    if (!t1 || !t2) return;
+    if (!t1 || !t2) continue;
 
-    // 24:00 → следующий день 00:00
+    // Смотрим вперёд на 40 символов после закрытия интервала
+    const after = html.slice(m.index + m[0].length, m.index + m[0].length + 40);
+    const hasBulb = /💡|U\+1F4A1|&#x1F4A1;|&#128161;/.test(after);
+
+    if (hasBulb) continue; // 💡 = свет есть → это не отключение
+
     const endH = t2.h === 24 ? 0 : t2.h;
     const endDayOffset = t2.h === 24 ? 1 : 0;
 
@@ -962,16 +953,23 @@ function parseExternalOutages(html) {
 
     const startMs = start.getTime();
     const endMs = end.getTime();
-    const key = startMs + '-' + endMs;
-    if (seen.has(key)) return;
-    seen.add(key);
-
-    const now = Date.now();
-    extState.outages.push({
+    found.push({
       start: startMs,
       end: endMs,
-      dur: Math.round((endMs - startMs) / 60000),
-      current: now >= startMs && now < endMs
+      dur: Math.round((endMs - startMs) / 60000)
+    });
+  }
+
+  // Уникальные
+  const seen = new Set();
+  found.forEach(o => {
+    const key = o.start + '-' + o.end;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const now = Date.now();
+    extState.outages.push({
+      ...o,
+      current: now >= o.start && now < o.end
     });
   });
 
@@ -998,18 +996,18 @@ function updateSourceBar(state) {
       break;
     case 'ok':
       sourceBadge.classList.add('ok');
-      sourceBadgeText.textContent = 'Источник: cherha 1.1 (неофиц.)';
-      sourceDetail.textContent = 'интервалов: ' + extState.outages.length;
+      sourceBadgeText.textContent = 'Источник: cherha 1.1';
+      sourceDetail.textContent = 'интервалов: ' + extState.outages.length + (extState.lastProxy ? ' · ' + extState.lastProxy : '');
       break;
     case 'no-schedule':
       sourceBadge.classList.add('warn');
       sourceBadgeText.textContent = 'Источник: график не опубликован';
-      sourceDetail.textContent = 'сайт-источник пока не отдал расписание';
+      sourceDetail.textContent = 'попробуйте ввести вручную';
       break;
     case 'empty':
       sourceBadge.classList.add('warn');
       sourceBadgeText.textContent = 'Источник: нет данных';
-      sourceDetail.textContent = 'HTML получен, но интервалы не распознаны';
+      sourceDetail.textContent = 'HTML получен, интервалы не распознаны';
       break;
     case 'error':
       sourceBadge.classList.add('bad');
@@ -1023,7 +1021,7 @@ function updateSourceBar(state) {
 }
 
 // ============================================================
-//  АДАПТИВНОЕ ЗОНДИРОВАНИЕ ESP32
+//  ESP32 ЗОНДИРОВАНИЕ
 // ============================================================
 let fastProbeActive = false;
 let fastProbeTimer = null;
@@ -1159,10 +1157,6 @@ function buildDaySwitch() {
 
 // ============================================================
 //  ВЫБОР ДАННЫХ
-//  1) Ручной ввод (только сегодня)
-//  2) Внешний источник (только сегодня)
-//  3) ESP32 today / yesterday
-//  4) Кэш
 // ============================================================
 function getRange() {
   const d = dayFor(selectedIndex);
@@ -1471,13 +1465,11 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateLigh
 if (window.ResizeObserver) new ResizeObserver(queueLightUpdate).observe(document.body);
 
 // ============================================================
-//  РУЧНОЙ ВВОД — UI
+//  РУЧНОЙ ВВОД UI
 // ============================================================
 manualToggle.addEventListener('click', () => {
   manualPanel.classList.toggle('is-open');
-  if (manualPanel.classList.contains('is-open')) {
-    manualInput.focus();
-  }
+  if (manualPanel.classList.contains('is-open')) manualInput.focus();
 });
 
 manualSave.addEventListener('click', () => {

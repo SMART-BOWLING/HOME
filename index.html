@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -576,7 +576,7 @@ body.is-on .dust { opacity: 1; }
 
 <script>
 // ============================================================
-//  API (дашборд) — существующий Apps Script
+//  API (дашборд)
 // ============================================================
 const POWER_API_URL = 'https://script.google.com/macros/s/AKfycbw6v21i6usRMfHMHQtA7F_f7mU0pWiYTGfgREoSnNapnBQLmV5yn3DnFs3wks9aSbPzNA/exec';
 const pad = n => String(n).padStart(2, '0');
@@ -615,9 +615,7 @@ const WD_SHORT = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
 const WD_LONG  = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
 
 // ============================================================
-//  КЭШ ИСТОРИИ (localStorage)
-//  Ключ = YYYY-MM-DD (локальная дата)
-//  Значение = { outages: [{start, end, dur, current}] }
+//  КЭШ ИСТОРИИ (localStorage) — fallback для офлайна
 // ============================================================
 let historyCache = {};
 
@@ -818,10 +816,11 @@ function buildDaySwitch() {
 // ============================================================
 //  ВЫБОР ДАННЫХ ДЛЯ ВЫБРАННОГО ДНЯ
 //  Приоритет:
-//    1) payload.today       — если день совпадает с "сегодня" у сервера
-//    2) payload.yesterday   — если день совпадает с "вчера" у сервера
-//    3) localStorage-кэш    — накопленная история
-//    4) пусто               — «нет данных»
+//    1) payload.days        — серверная история за 8 дней
+//    2) payload.today       — обратная совместимость
+//    3) payload.yesterday   — обратная совместимость
+//    4) localStorage-кэш    — fallback
+//    5) пусто
 // ============================================================
 function getRange() {
   const d = dayFor(selectedIndex);
@@ -830,21 +829,33 @@ function getRange() {
   let outages = [];
   let source = 'none';
 
-  if (payload && payload.today &&
+  // 1) payload.days
+  if (payload && Array.isArray(payload.days)) {
+    const hit = payload.days.find(x => x.dayStart === d.dayStart);
+    if (hit) {
+      outages = (hit.outages || []).map(o => ({ ...o }));
+      source = 'server';
+    }
+  }
+
+  // 2) today / yesterday — обратная совместимость
+  if (source === 'none' && payload && payload.today &&
       payload.today.dayStart === d.dayStart &&
       payload.today.dayEnd   === d.dayEnd) {
     outages = (payload.today.outages || []).map(o => ({ ...o }));
     source = 'server';
-  } else if (payload && payload.yesterday &&
+  } else if (source === 'none' && payload && payload.yesterday &&
              payload.yesterday.dayStart === d.dayStart &&
              payload.yesterday.dayEnd   === d.dayEnd) {
     outages = (payload.yesterday.outages || []).map(o => ({ ...o }));
     source = 'server';
-  } else {
+  }
+
+  // 3) localStorage-кэш — fallback
+  if (source === 'none') {
     const cached = outagesFromCache(d.dayStart, d.dayEnd);
     if (cached.length) { outages = cached; source = 'cache'; }
     else {
-      // даже «пустой день» из кэша считаем доступным, если такой ключ есть
       const key = dateKeyOf(d.dayStart);
       if (historyCache[key]) { outages = []; source = 'cache'; }
     }
@@ -857,13 +868,13 @@ function getRange() {
     isToday: selectedIndex === WINDOW_COUNT - 1,
     title: 'Отчёт за ' + wdName,
     emptyText: source === 'none'
-      ? 'Нет данных за этот день — сервер отдаёт только «сегодня» и «вчера», а кэш ещё не накоплен'
+      ? 'Нет данных за этот день'
       : 'В ' + wdName + ' отключений не было'
   };
 }
 
 // ============================================================
-//  РЕНДЕР — тот же, что в исходнике
+//  РЕНДЕР
 // ============================================================
 function render() {
   buildDaySwitch();
@@ -1074,12 +1085,17 @@ function receivePowerData(result) {
   if (typeof result.now === 'number') serverSkew = Date.now() - result.now;
   loading = false;
 
-  // Копим историю в localStorage
+  // Копим историю в localStorage (fallback для офлайна)
   if (result.today && Array.isArray(result.today.outages)) {
     mergeOutagesIntoCache(result.today.outages);
   }
   if (result.yesterday && Array.isArray(result.yesterday.outages)) {
     mergeOutagesIntoCache(result.yesterday.outages);
+  }
+  if (Array.isArray(result.days)) {
+    result.days.forEach(d => {
+      if (Array.isArray(d.outages)) mergeOutagesIntoCache(d.outages);
+    });
   }
 
   updateBlurState();

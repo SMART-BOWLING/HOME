@@ -655,6 +655,28 @@ function dateKeyOf(ts) {
          String(d.getDate()).padStart(2, '0');
 }
 
+// Дедупликация по start (при совпадении обновляем end/dur/current)
+function dedupeOutages(list) {
+  const map = new Map();
+  list.forEach(o => {
+    if (!o || typeof o.start !== 'number') return;
+    const prev = map.get(o.start);
+    if (!prev) {
+      map.set(o.start, { ...o });
+    } else {
+      // объединяем: берём более поздний end и актуальный флаг current
+      const end = Math.max(prev.end || 0, o.end || 0) || prev.end || o.end;
+      map.set(o.start, {
+        start: o.start,
+        end: end,
+        dur: Math.max(prev.dur || 0, o.dur || 0),
+        current: !!(prev.current || o.current)
+      });
+    }
+  });
+  return [...map.values()].sort((a, b) => a.start - b.start);
+}
+
 // Каждое отключение кладём в бакет дня, когда оно началось
 function mergeOutagesIntoCache(outages) {
   if (!Array.isArray(outages)) return;
@@ -663,11 +685,12 @@ function mergeOutagesIntoCache(outages) {
     const key = dateKeyOf(o.start);
     if (!historyCache[key]) historyCache[key] = { outages: [] };
     const bucket = historyCache[key];
-    if (!bucket.outages.some(x => x.start === o.start)) {
-      bucket.outages.push({
-        start: o.start, end: o.end, dur: o.dur, current: !!o.current
-      });
-    }
+    const idx = bucket.outages.findIndex(x => x.start === o.start);
+    const merged = {
+      start: o.start, end: o.end, dur: o.dur, current: !!o.current
+    };
+    if (idx === -1) bucket.outages.push(merged);
+    else bucket.outages[idx] = merged;   // upsert вместо «оставить старое»
   });
   saveCache();
 }
@@ -686,7 +709,7 @@ function outagesFromCache(dayStart, dayEnd) {
       }
     });
   });
-  return result;
+  return dedupeOutages(result);
 }
 
 // ============================================================
@@ -875,6 +898,9 @@ function getRange() {
       if (historyCache[key]) { outages = []; source = 'cache'; }
     }
   }
+
+  // 🔑 Финальная дедупликация (на случай пересечений источников)
+  outages = dedupeOutages(outages);
 
   return {
     ...d,
@@ -1099,6 +1125,19 @@ function receivePowerData(result) {
   lastRequestFailed = false;
   if (typeof result.now === 'number') serverSkew = Date.now() - result.now;
   loading = false;
+
+  // 🔑 Нормализуем входящий payload: убираем дубли внутри каждого дня
+  if (Array.isArray(result.days)) {
+    result.days.forEach(d => {
+      if (Array.isArray(d.outages)) d.outages = dedupeOutages(d.outages);
+    });
+  }
+  if (result.today && Array.isArray(result.today.outages)) {
+    result.today.outages = dedupeOutages(result.today.outages);
+  }
+  if (result.yesterday && Array.isArray(result.yesterday.outages)) {
+    result.yesterday.outages = dedupeOutages(result.yesterday.outages);
+  }
 
   // Копим историю в localStorage (fallback для офлайна)
   if (result.today && Array.isArray(result.today.outages)) {
